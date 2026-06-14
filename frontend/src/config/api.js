@@ -1,6 +1,7 @@
 // API Configuration
-// Используем относительный путь, чтобы в dev запросы шли через Vite proxy
-export const API_BASE_URL = '';
+// В production адрес backend берется из переменной окружения Netlify/Vite.
+// Локально оставляем пустую строку, чтобы запросы шли через Vite proxy.
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 // API Endpoints
 export const API_ENDPOINTS = {
