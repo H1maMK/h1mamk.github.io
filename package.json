@@ -1,0 +1,14 @@
+{
+  "name": "devicemaster",
+  "version": "1.0.0",
+  "description": "DeviceMaster - Интернет-магазин компьютерной техники",
+  "scripts": {
+    "start": "node start.js",
+    "kill-ports": "node kill-ports.js",
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev": "npm run kill-ports && npm start"
+  },
+  "keywords": ["react", "nodejs", "mongodb", "ecommerce"],
+  "author": "DeviceMaster Team",
+  "license": "MIT"
+}

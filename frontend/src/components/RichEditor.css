@@ -1,0 +1,138 @@
+.rich-editor-wrapper {
+  border: 1px solid #555;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #111;
+}
+
+.rich-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 10px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #444;
+}
+
+.toolbar-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: #ccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s;
+  min-width: 28px;
+  text-align: center;
+}
+
+.toolbar-btn:hover {
+  background: #333;
+  color: #fff;
+  border-color: #555;
+}
+
+.toolbar-btn.active {
+  background: #FFE6BB;
+  color: #222;
+  border-color: #FFE6BB;
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background: #444;
+  margin: 0 4px;
+}
+
+.rich-editor-content {
+  min-height: 400px;
+  padding: 20px;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.rich-editor-content:focus {
+  outline: none;
+}
+
+/* Стили для контента редактора */
+.rich-editor-content .ProseMirror {
+  min-height: 400px;
+  outline: none;
+}
+
+.rich-editor-content .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #666;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+.rich-editor-content .ProseMirror h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #FFE6BB;
+  margin: 20px 0 10px;
+}
+
+.rich-editor-content .ProseMirror h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #FFE6BB;
+  margin: 16px 0 8px;
+}
+
+.rich-editor-content .ProseMirror h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #FFE6BB;
+  margin: 12px 0 6px;
+}
+
+.rich-editor-content .ProseMirror p {
+  margin: 8px 0;
+}
+
+.rich-editor-content .ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 12px 0;
+  display: block;
+}
+
+.rich-editor-content .ProseMirror blockquote {
+  border-left: 4px solid #FFE6BB;
+  padding-left: 16px;
+  margin: 12px 0;
+  color: #aaa;
+  font-style: italic;
+}
+
+.rich-editor-content .ProseMirror ul,
+.rich-editor-content .ProseMirror ol {
+  padding-left: 24px;
+  margin: 8px 0;
+}
+
+.rich-editor-content .ProseMirror li {
+  margin: 4px 0;
+}
+
+.rich-editor-content .ProseMirror strong {
+  color: #fff;
+}
+
+.rich-editor-content .ProseMirror code {
+  background: #333;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9em;
+}

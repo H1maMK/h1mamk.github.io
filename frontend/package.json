@@ -1,0 +1,56 @@
+{
+  "name": "devicemaster-frontend",
+  "version": "1.0.0",
+  "description": "DeviceMaster Frontend - React SPA",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "jest --watchAll=false",
+    "test:watch": "jest --watchAll",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext js,jsx --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx,css,md}\""
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.100.14",
+    "@tiptap/extension-image": "^3.20.1",
+    "@tiptap/extension-link": "^3.20.1",
+    "@tiptap/extension-placeholder": "^3.20.1",
+    "@tiptap/extension-text-align": "^3.20.1",
+    "@tiptap/extension-underline": "^3.20.1",
+    "@tiptap/pm": "^3.20.1",
+    "@tiptap/react": "^3.20.1",
+    "@tiptap/starter-kit": "^3.20.1",
+    "axios": "^1.6.2",
+    "lucide-react": "^0.294.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.48.2",
+    "react-hot-toast": "^2.6.0",
+    "react-router-dom": "^6.20.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.5.1",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^5.1.0",
+    "babel-plugin-istanbul": "^7.0.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "fast-check": "^3.15.0",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "prettier": "^3.1.1",
+    "test-exclude": "^8.0.0",
+    "vite": "^7.3.5"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

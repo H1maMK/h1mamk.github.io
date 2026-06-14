@@ -1,0 +1,58 @@
+{
+  "name": "devicemaster-backend",
+  "version": "1.0.0",
+  "description": "DeviceMaster Backend API - Express.js + MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server-dev.js",
+    "dev:prod": "nodemon server.js",
+    "start": "node server.js",
+    "build": "echo 'Backend build completed'",
+    "test": "jest --watchAll=false",
+    "test:watch": "jest --watchAll",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format": "prettier --write \"**/*.js\"",
+    "db:check": "node scripts/checkDB.js",
+    "db:init": "node scripts/initDB.js",
+    "db:reset": "node scripts/resetDB.js",
+    "db:seed": "node scripts/seedDB.js",
+    "migrate:mysql": "node scripts/migrateFromMySQL.js",
+    "migrate:check": "node scripts/checkMigration.js",
+    "migrate:test": "node scripts/testMigration.js",
+    "export:mysql": "node scripts/exportFromMySQL.js",
+    "import:mongodb": "node scripts/importToMongoDB.js",
+    "import:atlas": "node scripts/importToAtlas.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.10.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.22.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.24.0",
+    "morgan": "^1.10.0",
+    "multer": "^2.1.1",
+    "multer-storage-cloudinary-v2": "^1.0.3",
+    "mysql2": "^3.6.5"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-n": "^18.0.1",
+    "fast-check": "^3.15.0",
+    "jest": "^30.4.2",
+    "mongodb-memory-server": "^9.1.3",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.1",
+    "supertest": "^7.1.4"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

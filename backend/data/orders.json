@@ -1,0 +1,107 @@
+[
+  {
+    "userId": 1,
+    "items": [
+      {
+        "productId": 15,
+        "quantity": 1,
+        "price": 13123
+      }
+    ],
+    "totalAmount": 13123,
+    "status": "pending",
+    "mysqlId": 1,
+    "createdAt": "2025-06-26T14:46:37.000Z",
+    "updatedAt": "2025-06-26T14:46:37.000Z"
+  },
+  {
+    "userId": 1,
+    "items": [
+      {
+        "productId": 11,
+        "quantity": 1,
+        "price": 6499
+      }
+    ],
+    "totalAmount": 6499,
+    "status": "pending",
+    "mysqlId": 2,
+    "createdAt": "2025-06-26T14:51:29.000Z",
+    "updatedAt": "2025-06-26T14:51:29.000Z"
+  },
+  {
+    "userId": 1,
+    "items": [
+      {
+        "productId": 10,
+        "quantity": 1,
+        "price": 5299
+      }
+    ],
+    "totalAmount": 5299,
+    "status": "pending",
+    "mysqlId": 3,
+    "createdAt": "2025-06-26T14:53:01.000Z",
+    "updatedAt": "2025-06-26T14:53:01.000Z"
+  },
+  {
+    "userId": 1,
+    "items": [
+      {
+        "productId": 14,
+        "quantity": 1,
+        "price": 899
+      }
+    ],
+    "totalAmount": 899,
+    "status": "pending",
+    "mysqlId": 4,
+    "createdAt": "2025-06-26T15:23:15.000Z",
+    "updatedAt": "2025-06-26T15:23:15.000Z"
+  },
+  {
+    "userId": 1,
+    "items": [
+      {
+        "productId": 11,
+        "quantity": 1,
+        "price": 6499
+      }
+    ],
+    "totalAmount": 6499,
+    "status": "pending",
+    "mysqlId": 5,
+    "createdAt": "2025-06-26T19:52:24.000Z",
+    "updatedAt": "2025-06-26T19:52:24.000Z"
+  },
+  {
+    "userId": 1,
+    "items": [
+      {
+        "productId": 36,
+        "quantity": 1,
+        "price": 6099
+      }
+    ],
+    "totalAmount": 6099,
+    "status": "pending",
+    "mysqlId": 6,
+    "createdAt": "2025-06-30T23:29:43.000Z",
+    "updatedAt": "2025-06-30T23:29:43.000Z"
+  },
+  {
+    "userId": 1,
+    "items": [
+      {
+        "productId": 10,
+        "quantity": 1,
+        "price": 5299
+      }
+    ],
+    "totalAmount": 5299,
+    "status": "pending",
+    "mysqlId": 7,
+    "createdAt": "2025-06-30T23:35:16.000Z",
+    "updatedAt": "2025-06-30T23:35:16.000Z"
+  }
+]

@@ -1,0 +1,173 @@
+/* Info Pages Styles - О компании, Политика, Вакансии и т.д. */
+
+.info-container {
+  max-width: 900px;
+  margin: 140px auto 40px auto;
+  padding: 20px;
+}
+
+.back-link {
+  display: inline-block;
+  color: #FFE6BB;
+  text-decoration: none;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: #fff;
+}
+
+.info-content {
+  background: rgba(37, 37, 37, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-title {
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: #FFE6BB;
+  margin-bottom: 30px;
+  line-height: 1.3;
+}
+
+.info-section {
+  margin-bottom: 30px;
+}
+
+.info-section h2 {
+  font-size: 1.4rem;
+  color: #FFE6BB;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 230, 187, 0.2);
+}
+
+.info-section h3 {
+  font-size: 1.2rem;
+  color: #FFE6BB;
+  margin-bottom: 10px;
+}
+
+.info-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+.info-text p {
+  margin-bottom: 15px;
+}
+
+.info-text ul {
+  margin: 15px 0;
+  padding-left: 25px;
+}
+
+.info-text li {
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.info-text a {
+  color: #FFE6BB;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.info-text a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* Карточки вакансий */
+.vacancy-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.vacancy-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 230, 187, 0.3);
+}
+
+.vacancy-title {
+  font-size: 1.3rem;
+  color: #FFE6BB;
+  margin-bottom: 10px;
+}
+
+.vacancy-salary {
+  font-size: 1.1rem;
+  color: #FFE6BB;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.vacancy-description {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.vacancy-requirements {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+/* Контактная информация */
+.contact-info {
+  background: rgba(255, 230, 187, 0.1);
+  border-radius: 12px;
+  padding: 25px;
+  margin-top: 20px;
+}
+
+.contact-info h3 {
+  color: #FFE6BB;
+  margin-bottom: 15px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .info-container {
+    margin: 120px auto 30px auto;
+    padding: 15px;
+  }
+
+  .info-content {
+    padding: 25px;
+  }
+
+  .info-title {
+    font-size: 1.6rem;
+  }
+
+  .info-text {
+    font-size: 1rem;
+  }
+
+  .info-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .vacancy-card {
+    padding: 20px;
+  }
+}

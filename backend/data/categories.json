@@ -1,0 +1,114 @@
+[
+  {
+    "name": "Игровые Микрофоны",
+    "deviceType": "Игровое",
+    "mysqlId": 1,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Игровые Наушники",
+    "deviceType": "Игровое",
+    "mysqlId": 2,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Игровые Мышки",
+    "deviceType": "Игровое",
+    "mysqlId": 3,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Игровые Клавиатуры",
+    "deviceType": "Игровое",
+    "mysqlId": 4,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Игровые Веб-камеры",
+    "deviceType": "Игровое",
+    "mysqlId": 5,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Игровые Мониторы",
+    "deviceType": "Игровое",
+    "mysqlId": 6,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Офисные Микрофоны",
+    "deviceType": "Офисное",
+    "mysqlId": 7,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Офисные Наушники",
+    "deviceType": "Офисное",
+    "mysqlId": 8,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Офисные Мышки",
+    "deviceType": "Офисное",
+    "mysqlId": 9,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Офисные Клавиатуры",
+    "deviceType": "Офисное",
+    "mysqlId": 10,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Офисные Веб-камеры",
+    "deviceType": "Офисное",
+    "mysqlId": 11,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Офисные Мониторы",
+    "deviceType": "Офисное",
+    "mysqlId": 12,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Мыши",
+    "deviceType": "Игровое",
+    "mysqlId": 13,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  },
+  {
+    "name": "Мыши",
+    "deviceType": "Игровое",
+    "mysqlId": 14,
+    "isActive": true,
+    "createdAt": "2025-12-21T15:40:46.168Z",
+    "updatedAt": "2025-12-21T15:40:46.168Z"
+  }
+]

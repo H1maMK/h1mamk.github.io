@@ -1,0 +1,376 @@
+const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const { generateToken, verifyToken } = require('../utils/jwt');
+const { success, error, unauthorized, conflict } = require('../utils/response');
+const tokenService = require('../services/tokenService');
+
+// Регистрация нового пользователя
+const register = async (req, res) => {
+  try {
+    const { username, email, password, yearbirth, gender } = req.body;
+
+    // Проверяем, существует ли пользователь с таким email
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) {
+      return conflict(res, 'Пользователь с таким email уже существует');
+    }
+
+    // Проверяем, существует ли пользователь с таким username
+    const existingUserByUsername = await User.findOne({ username });
+    if (existingUserByUsername) {
+      return conflict(res, 'Пользователь с таким именем уже существует');
+    }
+
+    // Создаем нового пользователя
+    const newUser = new User({
+      username,
+      email,
+      password, // Пароль будет автоматически захеширован в pre-save middleware
+      profile: {
+        yearBirth: yearbirth || null,
+        gender: gender || null
+      },
+      role: 'user'
+    });
+
+    // Сохраняем пользователя
+    const savedUser = await newUser.save();
+
+    // Генерируем JWT токен
+    const token = generateToken(savedUser._id);
+
+    // Возвращаем данные пользователя без пароля
+    const userResponse = {
+      id: savedUser._id,
+      username: savedUser.username,
+      email: savedUser.email,
+      profile: savedUser.profile,
+      role: savedUser.role,
+      createdAt: savedUser.createdAt
+    };
+
+    return success(res, {
+      user: userResponse,
+      token,
+      expiresIn: process.env.JWT_EXPIRE || '7d'
+    }, 'Регистрация успешна', 201);
+
+  } catch (err) {
+    console.error('Registration error:', err);
+    return error(res, 'Ошибка регистрации', 500, err.message);
+  }
+};
+
+// Вход пользователя в систему
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    console.log('Login attempt for email:', email);
+
+    // Находим пользователя по email
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      console.log('User not found for email:', email);
+      return unauthorized(res, 'Неверный email или пароль');
+    }
+
+    if (user.isBlocked) {
+      return unauthorized(res, 'Ваш аккаунт заблокирован. Обратитесь к администратору');
+    }
+
+    console.log('User found:', user.email, 'Role:', user.role, 'Has password:', !!user.password);
+
+    // Проверяем пароль
+    const isPasswordValid = await user.comparePassword(password);
+    console.log('Password validation result:', isPasswordValid);
+    
+    if (!isPasswordValid) {
+      console.log('Invalid password for user:', email);
+      return unauthorized(res, 'Неверный email или пароль');
+    }
+
+    // Обновляем время последнего входа
+    user.updatedAt = new Date();
+    await user.save();
+
+    // Генерируем JWT токен
+    const token = generateToken(user._id);
+
+    // Возвращаем данные пользователя без пароля
+    const userResponse = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      profile: user.profile,
+      role: user.role,
+      favorites: user.favorites,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
+
+    console.log('Login successful for user:', email);
+
+    return success(res, {
+      user: userResponse,
+      token,
+      expiresIn: process.env.JWT_EXPIRE || '7d'
+    }, 'Вход выполнен');
+
+  } catch (err) {
+    console.error('Login error:', err);
+    return error(res, 'Ошибка входа', 500, process.env.NODE_ENV !== 'production' ? err.message : undefined);
+  }
+};
+
+// Получение текущего пользователя
+const getMe = async (req, res) => {
+  try {
+    // req.user уже установлен middleware authenticateToken
+    const user = req.user;
+
+    const userResponse = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      profile: user.profile,
+      role: user.role,
+      favorites: user.favorites,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
+
+    return success(res, { user: userResponse }, 'User data retrieved successfully');
+
+  } catch (err) {
+    console.error('Get user error:', err);
+    return error(res, 'Failed to get user data', 500, err.message);
+  }
+};
+
+// Выход из системы (инвалидация токена)
+const logout = async (req, res) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (req.user?._id) {
+      // Персистентная инвалидизация всех ранее выданных токенов пользователя
+      await User.findByIdAndUpdate(req.user._id, {
+        tokenInvalidBefore: new Date()
+      });
+    }
+
+    if (token) {
+      // Добавляем токен в blacklist
+      const blacklisted = tokenService.blacklistToken(token);
+      
+      if (blacklisted) {
+        return success(res, null, 'Logout successful - token invalidated');
+      } else {
+        return success(res, null, 'Logout successful');
+      }
+    }
+    
+    return success(res, null, 'Logout successful');
+
+  } catch (err) {
+    console.error('Logout error:', err);
+    return error(res, 'Logout failed', 500, err.message);
+  }
+};
+
+// Проверка токена
+const verifyTokenEndpoint = async (req, res) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return unauthorized(res, 'No token provided');
+    }
+
+    if (tokenService.isTokenBlacklisted(token)) {
+      return unauthorized(res, 'Token has been invalidated');
+    }
+
+    // Проверяем токен
+    const decoded = verifyToken(token);
+    
+    // Получаем пользователя
+    const user = await User.findById(decoded.userId).select('-password');
+    
+    if (!user) {
+      return unauthorized(res, 'User not found');
+    }
+
+    if (user.isBlocked) {
+      return unauthorized(res, 'Account is blocked');
+    }
+
+    if (user.tokenInvalidBefore && decoded.iat) {
+      const tokenIssuedAtMs = decoded.iat * 1000;
+      const invalidBeforeMs = new Date(user.tokenInvalidBefore).getTime();
+      if (tokenIssuedAtMs <= invalidBeforeMs) {
+        return unauthorized(res, 'Token has been invalidated');
+      }
+    }
+
+    const userResponse = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      profile: user.profile,
+      role: user.role,
+      favorites: user.favorites,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
+
+    return success(res, {
+      valid: true,
+      user: userResponse,
+      expiresAt: new Date(decoded.exp * 1000)
+    }, 'Token is valid');
+
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return unauthorized(res, 'Token expired');
+    }
+    
+    if (err.name === 'JsonWebTokenError') {
+      return unauthorized(res, 'Invalid token');
+    }
+
+    console.error('Token verification error:', err);
+    return error(res, 'Token verification failed', 500, err.message);
+  }
+};
+
+// Обновление токена
+const refreshToken = async (req, res) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return unauthorized(res, 'No token provided');
+    }
+
+    // Нельзя обновлять токен после logout
+    if (tokenService.isTokenBlacklisted(token)) {
+      return unauthorized(res, 'Token has been invalidated');
+    }
+
+    // Проверяем подпись токена даже при ignoreExpiration
+    // Это предотвращает выпуск нового токена по поддельному JWT.
+    const jwt = require('jsonwebtoken');
+    let decoded;
+
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET, {
+        ignoreExpiration: true,
+        issuer: 'devicemaster-api',
+        audience: 'devicemaster-client'
+      });
+    } catch (err) {
+      return unauthorized(res, 'Invalid token');
+    }
+
+    if (!decoded?.userId) {
+      return unauthorized(res, 'Invalid token payload');
+    }
+
+    // Получаем пользователя
+    const user = await User.findById(decoded.userId).select('-password');
+    
+    if (!user) {
+      return unauthorized(res, 'User not found');
+    }
+
+    if (user.isBlocked) {
+      return unauthorized(res, 'Account is blocked');
+    }
+
+    if (user.tokenInvalidBefore && decoded.iat) {
+      const tokenIssuedAtMs = decoded.iat * 1000;
+      const invalidBeforeMs = new Date(user.tokenInvalidBefore).getTime();
+      if (tokenIssuedAtMs <= invalidBeforeMs) {
+        return unauthorized(res, 'Token has been invalidated');
+      }
+    }
+
+    // Генерируем новый токен
+    const newToken = generateToken(user._id);
+
+    const userResponse = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      profile: user.profile,
+      role: user.role,
+      favorites: user.favorites,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
+
+    return success(res, {
+      user: userResponse,
+      token: newToken,
+      expiresIn: process.env.JWT_EXPIRE || '7d'
+    }, 'Token refreshed successfully');
+
+  } catch (err) {
+    console.error('Token refresh error:', err);
+    return error(res, 'Token refresh failed', 500, err.message);
+  }
+};
+
+// Смена пароля
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user._id;
+
+    // Получаем пользователя с паролем
+    const user = await User.findById(userId).select('+password').exec();
+    if (!user) {
+      return unauthorized(res, 'User not found');
+    }
+
+    if (!user.password || typeof user.password !== 'string') {
+      return error(res, 'Password is not set for this user', 400);
+    }
+
+    if (!currentPassword || !newPassword) {
+      return error(res, 'Current and new password are required', 400);
+    }
+
+    // Проверяем текущий пароль
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      return unauthorized(res, 'Current password is incorrect');
+    }
+
+    // Обновляем пароль (будет автоматически захеширован в pre-save middleware)
+    user.password = newPassword;
+    user.updatedAt = new Date();
+    await user.save();
+
+    return success(res, null, 'Password changed successfully');
+
+  } catch (err) {
+    console.error('Change password error:', err);
+    return error(res, 'Failed to change password', 500, process.env.NODE_ENV !== 'production' ? err.message : undefined);
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  getMe,
+  logout,
+  verifyTokenEndpoint,
+  refreshToken,
+  changePassword
+};

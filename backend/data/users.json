@@ -1,0 +1,66 @@
+[
+  {
+    "username": "Макс",
+    "email": "mr.maxim.8806@mail.ru",
+    "password": "$2a$12$defaulthashedpassword",
+    "role": "user",
+    "profile": {
+      "yearBirth": null,
+      "gender": null,
+      "avatar": "/uploads/avatars/6855687f48b6a-Без названия.jpg"
+    },
+    "favorites": [],
+    "cart": [],
+    "mysqlId": 1,
+    "createdAt": "2025-12-21T15:40:46.173Z",
+    "updatedAt": "2025-12-21T15:40:46.173Z"
+  },
+  {
+    "username": "Администратор",
+    "email": "admin@mail.ru",
+    "password": "$2a$12$defaulthashedpassword",
+    "role": "user",
+    "profile": {
+      "yearBirth": null,
+      "gender": null,
+      "avatar": "/uploads/avatars/68554eb68eb07-Без названия (3).jpg"
+    },
+    "favorites": [],
+    "cart": [],
+    "mysqlId": 2,
+    "createdAt": "2025-12-21T15:40:46.173Z",
+    "updatedAt": "2025-12-21T15:40:46.173Z"
+  },
+  {
+    "username": "Акрошка",
+    "email": "akroshka@mail.ru",
+    "password": "$2a$12$defaulthashedpassword",
+    "role": "user",
+    "profile": {
+      "yearBirth": null,
+      "gender": null,
+      "avatar": "/uploads/avatars/68555339d9c26-Без названия (2).jpg"
+    },
+    "favorites": [],
+    "cart": [],
+    "mysqlId": 3,
+    "createdAt": "2025-12-21T15:40:46.173Z",
+    "updatedAt": "2025-12-21T15:40:46.173Z"
+  },
+  {
+    "username": "marcorois",
+    "email": "marcorois@mail.ru",
+    "password": "$2a$12$defaulthashedpassword",
+    "role": "user",
+    "profile": {
+      "yearBirth": null,
+      "gender": null,
+      "avatar": "/uploads/avatars/6855631615f68-Troll-Face-PNG-Images-Free-Download-768x644.png"
+    },
+    "favorites": [],
+    "cart": [],
+    "mysqlId": 4,
+    "createdAt": "2025-12-21T15:40:46.173Z",
+    "updatedAt": "2025-12-21T15:40:46.173Z"
+  }
+]
