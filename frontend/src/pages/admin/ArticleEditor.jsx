@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import RichEditor from '../../components/RichEditor'
-import { buildApiUrl, API_ENDPOINTS } from '../../config/api'
+import api from '../../services/api'
 import './ArticleEditor.css'
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
@@ -96,16 +96,12 @@ const ArticleEditor = () => {
         setLoading(true)
         setError('')
 
-        const response = await fetch(buildApiUrl(`${API_ENDPOINTS.ADMIN_ARTICLES}/${id}`), {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        })
+        const response = await api.get(`/admin/articles/${id}`)
 
-        const data = await response.json().catch(() => null)
+        const data = response.data
 
-        if (!response.ok || !data?.success) {
-          throw new Error(data?.error?.message || data?.message || `HTTP ${response.status}`)
+        if (!data?.success) {
+          throw new Error(data?.error?.message || data?.message || 'Ошибка загрузки статьи')
         }
 
         const article = data.data?.article || data.data
@@ -219,21 +215,20 @@ const ArticleEditor = () => {
         formData.append('image', coverImage)
       }
 
-      const url = articleId
-        ? buildApiUrl(`${API_ENDPOINTS.ADMIN_ARTICLES}/${articleId}`)
-        : buildApiUrl(API_ENDPOINTS.ADMIN_ARTICLES)
+      const url = articleId ? `/admin/articles/${articleId}` : '/admin/articles'
 
-      const response = await fetch(url, {
+      const response = await api({
         method: articleId ? 'PUT' : 'POST',
+        url,
+        data: formData,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data',
         },
-        body: formData,
       })
 
-      const data = await response.json().catch(() => null)
+      const data = response.data
 
-      if (!response.ok || !data?.success) {
+      if (!data?.success) {
         throw new Error(data?.error?.message || data?.message || 'Ошибка сохранения статьи')
       }
 

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from './AuthContext';
-import { buildApiUrl, API_ENDPOINTS } from '../config/api';
+import api from '../services/api';
 
 const FavoritesContext = createContext();
 
@@ -32,29 +32,19 @@ export const FavoritesProvider = ({ children }) => {
   const loadFavorites = async () => {
     if (!user) return;
     
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    
     try {
       setLoading(true);
-      const response = await fetch(buildApiUrl(API_ENDPOINTS.FAVORITES), {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await api.get('/users/favorites');
       
-      // Если токен невалидный или истёк, просто очищаем избранное
-      if (response.status === 401 || response.status === 404) {
+      if (response.data.success) {
+        setFavorites(response.data.data.favorites || []);
+      }
+    } catch (error) {
+      // Если токен невалидный или истёк (обработано интерсептором), просто очищаем
+      if (error?.response?.status === 401 || error?.response?.status === 404) {
         setFavorites([]);
         return;
       }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setFavorites(data.data.favorites || []);
-      }
-    } catch (error) {
       console.error('Error loading favorites:', error);
       setFavorites([]);
     } finally {
@@ -73,12 +63,6 @@ export const FavoritesProvider = ({ children }) => {
       return false;
     }
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      toast.error('Войдите, чтобы добавить товар в избранное');
-      return false;
-    }
-
     // Извлекаем ID если передан объект
     const id = typeof productId === 'object' ? productId._id || productId.id : productId;
     
@@ -88,30 +72,21 @@ export const FavoritesProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(buildApiUrl(`${API_ENDPOINTS.FAVORITES}/${id}`), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.post(`/users/favorites/${id}`);
 
-      if (response.status === 401) {
-        toast.error('Сессия истекла. Войдите заново.');
-        return false;
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         await loadFavorites(); // Перезагружаем список
         toast.success('Товар добавлен в избранное');
         return true;
       } else {
-        toast.error(data.message || 'Ошибка при добавлении в избранное');
+        toast.error(response.data.message || 'Ошибка при добавлении в избранное');
         return false;
       }
     } catch (error) {
+      if (error?.response?.status === 401) {
+        toast.error('Сессия истекла. Войдите заново.');
+        return false;
+      }
       console.error('Error adding to favorites:', error);
       toast.error('Ошибка при добавлении в избранное');
       return false;
@@ -126,9 +101,6 @@ export const FavoritesProvider = ({ children }) => {
       return false;
     }
 
-    const token = localStorage.getItem('token');
-    if (!token) return false;
-
     // Извлекаем ID если передан объект
     const id = typeof productId === 'object' ? productId._id || productId.id : productId;
     
@@ -138,30 +110,22 @@ export const FavoritesProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(buildApiUrl(`${API_ENDPOINTS.FAVORITES}/${id}`), {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.delete(`/users/favorites/${id}`);
 
-      if (response.status === 401) {
-        toast.error('Сессия истекла. Войдите заново.');
-        return false;
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         // Перезагружаем список с сервера для синхронизации
         await loadFavorites();
         toast.success('Товар удалён из избранного');
         return true;
       } else {
-        toast.error(data.message || 'Ошибка при удалении из избранного');
+        toast.error(response.data.message || 'Ошибка при удалении из избранного');
         return false;
       }
     } catch (error) {
+      if (error?.response?.status === 401) {
+        toast.error('Сессия истекла. Войдите заново.');
+        return false;
+      }
       console.error('Error removing from favorites:', error);
       toast.error('Ошибка при удалении из избранного');
       return false;
