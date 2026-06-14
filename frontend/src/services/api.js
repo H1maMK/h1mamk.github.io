@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 const SESSION_EXPIRED_EVENT = 'auth:session-expired';
 
@@ -30,7 +31,7 @@ const isSessionRelatedUnauthorized = (error) => {
 
 // Создаем экземпляр axios с базовой конфигурацией
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3002/api',
+  baseURL: `${API_BASE_URL}/api`,
   timeout: 30000, // 30 секунд для медленных запросов к MongoDB
   headers: {
     'Content-Type': 'application/json',
