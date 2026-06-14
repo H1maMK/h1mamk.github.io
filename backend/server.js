@@ -141,6 +141,23 @@ if (process.env.NODE_ENV === 'production') {
   app.use(consoleLogger);
 }
 
+// Redirect /uploads/avatars/* → /api/image/avatars/* so the fallback to default.svg works
+// (Uploaded files are ephemeral on Render, so they'll almost always be missing after restart)
+// This MUST come before the generic /uploads static middleware
+app.use('/uploads/avatars', (req, res, next) => {
+  // Only redirect GET/HEAD — pass through other methods
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return next();
+  }
+
+  // Extract the filename from the original URL and redirect to the image route
+  const filename = req.path.replace(/^\//, '');
+  if (filename) {
+    return res.redirect(301, `/api/image/avatars/${filename}`);
+  }
+  next();
+});
+
 // Static files with CORS headers
 app.use('/uploads', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
