@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { buildAssetUrl } from '../../config/api';
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -10,7 +11,7 @@ const AdminOrders = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:3002/api/orders/all', {
+      const response = await fetch('/api/orders/all', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -40,10 +41,10 @@ const AdminOrders = () => {
     }
     // Если путь начинается с /
     if (img.startsWith('/')) {
-      return `http://localhost:3002${img}`;
+      return buildAssetUrl(img);
     }
     // Если путь без /
-    return `http://localhost:3002/${img}`;
+    return buildAssetUrl(img);
   };
 
   const handleStatusChange = async (orderId, newStatus) => {
@@ -56,7 +57,7 @@ const AdminOrders = () => {
       try {
         console.log('Deleting order:', orderId);
         
-        const response = await fetch(`http://localhost:3002/api/orders/${orderId}`, {
+        const response = await fetch(`/api/orders/${orderId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -83,7 +84,7 @@ const AdminOrders = () => {
     try {
       console.log('Updating order status:', orderId, newStatus);
       
-      const response = await fetch(`http://localhost:3002/api/orders/${orderId}/status`, {
+      const response = await fetch(`/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

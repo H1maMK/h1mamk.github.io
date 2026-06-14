@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
+import { buildAssetUrl } from '../config/api';
 import toast from 'react-hot-toast';
 import './Profile.css';
 
@@ -73,7 +74,7 @@ const Profile = () => {
 
       // Сначала обновляем профиль (username, email)
       if (formData.username !== user.username || formData.email !== user.email) {
-        const profileResponse = await fetch('http://localhost:3002/api/users/profile', {
+        const profileResponse = await fetch('/api/users/profile', {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -182,7 +183,7 @@ const Profile = () => {
             <div className="profile-header">
               <div className="profile-avatar">
                 <img 
-                  src={user.profile?.avatar ? `http://localhost:3002${user.profile.avatar}?t=${Date.now()}` : '/uploads/avatars/default.svg'} 
+                  src={user.profile?.avatar ? `${buildAssetUrl(user.profile.avatar)}?t=${Date.now()}` : '/uploads/avatars/default.svg'} 
                   alt="Аватар пользователя"
                   onError={(e) => {
                     console.log('Avatar failed to load:', user.profile?.avatar);

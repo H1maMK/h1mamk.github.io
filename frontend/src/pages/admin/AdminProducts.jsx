@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { buildAssetUrl } from '../../config/api';
 
 const AdminProducts = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const AdminProducts = () => {
       let hasNext = true;
 
       while (hasNext) {
-        const response = await fetch(`http://localhost:3002/api/admin/products?status=all&limit=100&page=${page}`, {
+        const response = await fetch(`/api/admin/products?status=all&limit=100&page=${page}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -110,7 +111,7 @@ const AdminProducts = () => {
     setMovingProductId(productId);
 
     try {
-      const response = await fetch(`http://localhost:3002/api/admin/products/${productId}/visibility`, {
+      const response = await fetch(`/api/admin/products/${productId}/visibility`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -212,7 +213,7 @@ const AdminProducts = () => {
                         img && (
                           <img 
                             key={index}
-                            src={img.startsWith('http') ? img : `http://localhost:3002${img}`} 
+                            src={buildAssetUrl(img)} 
                             alt="" 
                             className="product-image-thumbnail" 
                           />

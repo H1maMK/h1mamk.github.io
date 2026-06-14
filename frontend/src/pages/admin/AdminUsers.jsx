@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { buildAssetUrl } from '../../config/api';
 
 const PROTECTED_ADMIN_EMAIL = 'mr.maxim.8806@mail.ru';
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -26,12 +27,9 @@ const AdminUsers = () => {
     avatar: null
   });
 
-  const API_URL = 'http://localhost:3002';
-
   const getAvatarUrl = (avatarPath) => {
     if (!avatarPath) return null;
-    if (avatarPath.startsWith('http')) return avatarPath;
-    return `${API_URL}${avatarPath}`;
+    return buildAssetUrl(avatarPath);
   };
 
   useEffect(() => {
@@ -66,7 +64,7 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:3002/api/admin/users', {
+      const response = await fetch('/api/admin/users', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -113,7 +111,7 @@ const AdminUsers = () => {
         }
 
         // Обновление пользователя
-        const response = await fetch(`http://localhost:3002/api/admin/users/${editingUser._id}`, {
+        const response = await fetch(`/api/admin/users/${editingUser._id}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -135,7 +133,7 @@ const AdminUsers = () => {
             const avatarFormData = new FormData();
             avatarFormData.append('avatar', formData.avatar);
 
-            const avatarResponse = await fetch(`http://localhost:3002/api/admin/users/${editingUser._id}/avatar`, {
+            const avatarResponse = await fetch(`/api/admin/users/${editingUser._id}/avatar`, {
               method: 'POST',
               headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -190,7 +188,7 @@ const AdminUsers = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3002/api/admin/users/${user._id}/block`, {
+      const response = await fetch(`/api/admin/users/${user._id}/block`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
