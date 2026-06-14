@@ -68,7 +68,7 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
+# В проекте нужен [`frontend/public`](frontend/public), поэтому глобально `public` не игнорируем
 
 # Storybook build outputs
 .out

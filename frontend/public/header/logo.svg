@@ -1,0 +1,52 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dslkLogoTitle dslkLogoDesc">
+  <title id="dslkLogoTitle">DSLK</title>
+  <desc id="dslkLogoDesc">Логотип DSLK: золотой контур компьютерной мыши и клавиш на тёмном фоне</desc>
+  <defs>
+    <radialGradient id="dslkBackground" cx="50%" cy="50%" r="70%">
+      <stop offset="0" stop-color="#272829"/>
+      <stop offset="0.58" stop-color="#202123"/>
+      <stop offset="1" stop-color="#171819"/>
+    </radialGradient>
+    <linearGradient id="dslkGold" x1="128" y1="112" x2="388" y2="382" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF1C8"/>
+      <stop offset="0.25" stop-color="#FFE3A7"/>
+      <stop offset="0.56" stop-color="#D6AD63"/>
+      <stop offset="0.78" stop-color="#F1D286"/>
+      <stop offset="1" stop-color="#FFF1C8"/>
+    </linearGradient>
+    <filter id="dslkGlow" x="105" y="88" width="302" height="292" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#FFE3A7" flood-opacity="0.38"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.34"/>
+    </filter>
+    <filter id="dslkTextGlow" x="68" y="300" width="376" height="92" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#FFE3A7" flood-opacity="0.24"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.34"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#dslkBackground)"/>
+
+  <g filter="url(#dslkGlow)" stroke="url(#dslkGold)" stroke-width="5" stroke-linecap="square" stroke-linejoin="round" fill="none">
+    <path d="M200 188H185C177 188 174 183 174 176V129C174 120 181 116 189 116H249V141"/>
+    <path d="M263 141V116H323C331 116 338 120 338 129V176C338 183 335 188 327 188H312"/>
+    <path d="M199 196H185C177 196 174 201 174 209V255C174 263 181 267 189 267H201"/>
+    <path d="M311 267H323C331 267 338 263 338 255V209C338 201 335 196 327 196H313"/>
+    <path d="M174 209H199"/>
+    <path d="M313 196H338"/>
+    <path d="M313 209H338"/>
+    <path d="M256 141C214 141 206 183 206 219V247C206 281 227 296 256 296C285 296 306 281 306 247V219C306 183 298 141 256 141Z"/>
+    <path d="M256 116V141"/>
+    <path d="M256 141V166"/>
+    <path d="M256 216V255"/>
+    <rect x="243" y="166" width="26" height="50" rx="13"/>
+  </g>
+
+  <g stroke="url(#dslkGold)" stroke-width="7" stroke-linecap="square" stroke-linejoin="round" fill="none">
+    <path d="M118 329V391H150C175 391 190 378 190 362C190 346 175 329 150 329H118Z"/>
+    <path d="M252 329H219C207 329 199 337 199 347C199 357 207 362 219 362H236C249 362 257 368 257 378C257 386 249 391 236 391H199"/>
+    <path d="M288 329V391H347"/>
+    <path d="M379 329V391"/>
+    <path d="M441 329L392 365"/>
+    <path d="M392 365L441 391"/>
+  </g>
+</svg>
