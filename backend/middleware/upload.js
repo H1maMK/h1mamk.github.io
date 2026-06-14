@@ -3,18 +3,20 @@ const path = require('path');
 const fs = require('fs');
 const { productStorage, articleStorage, avatarStorage } = require('../config/cloudinary');
 
+const backendUploadsRoot = path.join(__dirname, '..', 'uploads');
+
 // Локальное хранилище (fallback)
 const localStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    let uploadPath = './uploads/';
+    let uploadPath = backendUploadsRoot;
     
     // Определяем папку по типу файла
     if (req.route.path.includes('products')) {
-      uploadPath += 'products/';
+      uploadPath = path.join(uploadPath, 'products');
     } else if (req.route.path.includes('articles')) {
-      uploadPath += 'articles/';
+      uploadPath = path.join(uploadPath, 'articles');
     } else if (req.route.path.includes('avatar')) {
-      uploadPath += 'avatars/';
+      uploadPath = path.join(uploadPath, 'avatars');
     }
     
     // Создаем папку если не существует

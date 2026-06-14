@@ -835,7 +835,7 @@ const updateUserAvatar = async (req, res) => {
 
     // Delete old avatar if exists
     if (user.profile?.avatar) {
-      const oldAvatarPath = path.join(__dirname, '..', user.profile.avatar);
+      const oldAvatarPath = path.join(__dirname, '..', 'uploads', 'avatars', path.basename(user.profile.avatar));
       try {
         await fs.unlink(oldAvatarPath);
       } catch (deleteError) {
@@ -844,7 +844,7 @@ const updateUserAvatar = async (req, res) => {
     }
 
     // Update avatar path
-    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    const avatarUrl = `/api/image/avatars/${req.file.filename}`;
     if (!user.profile) {
       user.profile = {};
     }
