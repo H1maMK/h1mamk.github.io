@@ -1,8 +1,7 @@
 // API Configuration
-// В production адрес backend берется из переменной окружения Netlify/Vite.
-// Локально оставляем пустую строку, чтобы запросы шли через Vite proxy.
-// Если VITE_API_BASE_URL не задана, используем Railway URL
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://h1mamkgithubio-production.up.railway.app';
+// Локально: пустая строка → запросы идут через Vite proxy (localhost:3000 -> localhost:3002)
+// Production (Netlify): Railway URL по умолчанию, можно переопределить через VITE_API_BASE_URL
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? 'https://h1mamkgithubio-production.up.railway.app' : '');
 
 // API Endpoints
 export const API_ENDPOINTS = {
