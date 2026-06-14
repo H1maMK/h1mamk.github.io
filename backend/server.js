@@ -188,8 +188,42 @@ app.use('/api/articles', require('./routes/articles'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/sync', require('./routes/sync'));
 
-// 404 handler
-app.use('*', (req, res) => {
+// В production раздаём фронтенд как статику
+if (process.env.NODE_ENV === 'production') {
+  const path = require('path');
+  
+  // Сначала пробуем dist в корне (если фронт собран вручную)
+  const distPaths = [
+    path.join(__dirname, '..', 'frontend', 'dist'),
+    path.join(__dirname, '..', 'dist'),
+  ];
+  
+  let distPath = null;
+  for (const p of distPaths) {
+    try {
+      if (require('fs').existsSync(p)) {
+        distPath = p;
+        break;
+      }
+    } catch (e) {}
+  }
+  
+  if (distPath) {
+    console.log('📦 Раздаём фронтенд из:', distPath);
+    app.use(express.static(distPath));
+    
+    // Все не-API запросы → index.html (SPA роутинг)
+    app.get('*', (req, res) => {
+      if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.startsWith('/health')) {
+        return res.status(404).json({ error: 'Route not found', path: req.originalUrl });
+      }
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  }
+}
+
+// 404 handler (только для API путей, если фронтенд не нашёлся)
+app.use('/api/*', (req, res) => {
   res.status(404).json({ 
     error: 'Route not found',
     path: req.originalUrl 
@@ -238,31 +272,62 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Build frontend on first start (production)
+const buildFrontend = async () => {
+  if (process.env.NODE_ENV !== 'production') return;
+  
+  const { execSync } = require('child_process');
+  const path = require('path');
+  const fs = require('fs');
+  
+  const frontendDir = path.join(__dirname, '..', 'frontend');
+  const distDir = path.join(frontendDir, 'dist');
+  
+  // Проверяем, есть ли уже собранный фронтенд
+  if (!fs.existsSync(path.join(distDir, 'index.html'))) {
+    console.log('🏗️ Сборка фронтенда...');
+    try {
+      execSync('npm install && npm run build', {
+        cwd: frontendDir,
+        stdio: 'inherit',
+        env: { ...process.env, NODE_ENV: 'production' }
+      });
+      console.log('✅ Фронтенд собран');
+    } catch (err) {
+      console.error('❌ Ошибка сборки фронтенда:', err.message);
+    }
+  }
+};
+
 // Start server
 const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== 'test') {
-  // Сначала запускаем сервер
-  const server = app.listen(PORT, () => {
-    console.log(`🚀 Server starting on port ${PORT}...`);
-    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
-  });
-
-  // Затем подключаемся к MongoDB
-  connectDB()
-    .then(async () => {
-      console.log('✅ MongoDB подключена успешно');
-      // Автоматическая инициализация базы данных
-      const { autoInitDatabase } = require('./scripts/autoInit');
-      await autoInitDatabase();
-      console.log('✅ Сервер готов к работе');
-    })
-    .catch((err) => {
-      console.error('⚠️ MongoDB недоступна, сервер работает без БД:', err.message);
-      console.log('📝 Проверьте подключение к интернету и настройки MongoDB');
-      console.log('⚠️ API будет возвращать пустые данные');
+  const startServer = async () => {
+    // Сборка фронтенда (в production)
+    await buildFrontend();
+    
+    // Запускаем сервер
+    const server = app.listen(PORT, () => {
+      console.log(`🚀 Сервер запущен на порту ${PORT}`);
+      console.log(`📊 Режим: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🌐 Открой: http://localhost:${PORT}`);
     });
+
+    // Подключаем MongoDB
+    connectDB()
+      .then(async () => {
+        console.log('✅ MongoDB подключена успешно');
+        const { autoInitDatabase } = require('./scripts/autoInit');
+        await autoInitDatabase();
+        console.log('✅ Сервер готов к работе');
+      })
+      .catch((err) => {
+        console.error('⚠️ MongoDB недоступна:', err.message);
+      });
+  };
+  
+  startServer();
 }
 
 module.exports = app;
