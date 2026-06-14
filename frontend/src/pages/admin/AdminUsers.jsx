@@ -350,10 +350,13 @@ const AdminUsers = () => {
             />
             {editingUser?.profile?.avatar && (
               <div style={{ marginTop: '10px' }}>
-                <img 
-                  src={getAvatarUrl(editingUser.profile.avatar)} 
-                  alt="Current avatar" 
+                <img
+                  src={getAvatarUrl(editingUser.profile.avatar)}
+                  alt="Current avatar"
                   style={{ width: '50px', height: '50px', borderRadius: '4px' }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
                 />
               </div>
             )}
