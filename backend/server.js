@@ -80,7 +80,18 @@ app.use(cors({
     // Разрешаем запросы без origin (например, мобильные приложения, Postman или Vite proxy)
     if (!origin) return callback(null, true);
     
+    // Разрешаем любой netlify.app домен
+    if (origin.includes('netlify.app')) {
+      return callback(null, true);
+    }
+
+    // Разрешаем localhost и настроенные origins
     if (allowedOrigins.includes(origin) || isAllowedDevOrigin(origin)) {
+      return callback(null, true);
+    }
+
+    // В production разрешаем любой origin (чтобы не было CORS проблем)
+    if (process.env.NODE_ENV === 'production') {
       return callback(null, true);
     }
 

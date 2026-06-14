@@ -129,6 +129,10 @@ const getProducts = async (req, res) => {
     }
 
     // Обрабатываем изображения для всех товаров
+    const BASE_IMAGE_URL = process.env.RAILWAY_PUBLIC_DOMAIN
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+      : `${req.protocol}://${req.get('host')}`;
+
     const processedProducts = products.map(product => {
       let processedImages = [];
       if (product.images && product.images.length > 0) {
@@ -136,11 +140,11 @@ const getProducts = async (req, res) => {
           if (img.startsWith('http')) {
             return img; // Уже полный URL (Cloudinary)
           } else {
-            return `${req.protocol}://${req.get('host')}${img.startsWith('/') ? img : '/' + img}`;
+            return `${BASE_IMAGE_URL}${img.startsWith('/') ? img : '/' + img}`;
           }
         });
       } else {
-        processedImages = [`${req.protocol}://${req.get('host')}/uploads/default-product.png`];
+        processedImages = [`${BASE_IMAGE_URL}/uploads/default-product.png`];
       }
 
       return {
@@ -220,17 +224,21 @@ const getProduct = async (req, res) => {
     }
 
     // Обрабатываем изображения
+    const BASE_IMAGE_URL = process.env.RAILWAY_PUBLIC_DOMAIN
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+      : `${req.protocol}://${req.get('host')}`;
+
     let processedImages = [];
     if (product.images && product.images.length > 0) {
       processedImages = product.images.map(img => {
         if (img.startsWith('http')) {
           return img; // Уже полный URL (Cloudinary)
         } else {
-          return `${req.protocol}://${req.get('host')}${img.startsWith('/') ? img : '/' + img}`;
+          return `${BASE_IMAGE_URL}${img.startsWith('/') ? img : '/' + img}`;
         }
       });
     } else {
-      processedImages = [`${req.protocol}://${req.get('host')}/uploads/default-product.png`];
+      processedImages = [`${BASE_IMAGE_URL}/uploads/default-product.png`];
     }
 
     const processedProduct = {
