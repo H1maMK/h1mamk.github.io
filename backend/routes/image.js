@@ -18,15 +18,22 @@ router.get('/:type/:filename', (req, res) => {
   // Construct file path
   const filePath = path.join(__dirname, '..', 'uploads', type, filename);
   
-  // Check if file exists
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'Image not found' });
-  }
-  
   // Set CORS headers
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  
+  // For missing avatars return default placeholder instead of 404
+  if (!fs.existsSync(filePath)) {
+    if (type === 'avatars') {
+      const defaultAvatarPath = path.join(__dirname, '..', 'uploads', 'avatars', 'default.svg');
+      if (fs.existsSync(defaultAvatarPath)) {
+        return res.sendFile(defaultAvatarPath);
+      }
+    }
+
+    return res.status(404).json({ error: 'Image not found' });
+  }
   
   // Serve the file
   res.sendFile(filePath);

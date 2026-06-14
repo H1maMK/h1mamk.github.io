@@ -6,6 +6,8 @@ import { buildAssetUrl } from '../config/api';
 import toast from 'react-hot-toast';
 import './Profile.css';
 
+const DEFAULT_AVATAR_URL = '/api/image/avatars/default.svg';
+
 const Profile = () => {
   const { user, logout, refreshUser, loading: authLoading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
@@ -183,11 +185,10 @@ const Profile = () => {
             <div className="profile-header">
               <div className="profile-avatar">
                 <img 
-                  src={user.profile?.avatar ? `${buildAssetUrl(user.profile.avatar)}?t=${Date.now()}` : '/uploads/avatars/default.svg'} 
+                  src={user.profile?.avatar ? `${buildAssetUrl(user.profile.avatar)}?t=${Date.now()}` : DEFAULT_AVATAR_URL} 
                   alt="Аватар пользователя"
                   onError={(e) => {
-                    console.log('Avatar failed to load:', user.profile?.avatar);
-                    e.target.src = '/uploads/avatars/default.svg';
+                    e.currentTarget.src = DEFAULT_AVATAR_URL;
                   }}
                 />
               </div>

@@ -5,6 +5,7 @@ import { buildAssetUrl } from '../../config/api';
 const PROTECTED_ADMIN_EMAIL = 'mr.maxim.8806@mail.ru';
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+const DEFAULT_AVATAR_URL = '/api/image/avatars/default.svg';
 
 const isAllowedImageFile = (file) => {
   const extension = file?.name?.split('.').pop()?.toLowerCase();
@@ -28,7 +29,7 @@ const AdminUsers = () => {
   });
 
   const getAvatarUrl = (avatarPath) => {
-    if (!avatarPath) return null;
+    if (!avatarPath) return DEFAULT_AVATAR_URL;
     return buildAssetUrl(avatarPath);
   };
 
@@ -246,13 +247,19 @@ const AdminUsers = () => {
               <tr key={user._id}>
                 <td>
                   <div className="user-name-cell">
-                    {user.profile?.avatar && (
-                      <img 
-                        src={getAvatarUrl(user.profile.avatar)} 
-                        alt="" 
-                        className="product-image-thumbnail" 
-                      />
-                    )}
+                    <img 
+                      src={getAvatarUrl(user.profile?.avatar)} 
+                      alt="" 
+                      className="product-image-thumbnail"
+                      onError={(e) => {
+                        if (!e.currentTarget.src.endsWith(DEFAULT_AVATAR_URL)) {
+                          e.currentTarget.src = DEFAULT_AVATAR_URL;
+                          return;
+                        }
+
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
                     <span>{user.username}</span>
                   </div>
                 </td>
@@ -355,6 +362,11 @@ const AdminUsers = () => {
                   alt="Current avatar"
                   style={{ width: '50px', height: '50px', borderRadius: '4px' }}
                   onError={(e) => {
+                    if (!e.currentTarget.src.endsWith(DEFAULT_AVATAR_URL)) {
+                      e.currentTarget.src = DEFAULT_AVATAR_URL;
+                      return;
+                    }
+
                     e.currentTarget.style.display = 'none';
                   }}
                 />
