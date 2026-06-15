@@ -54,7 +54,7 @@ app.use(compression());
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
-  skip: (req) => req.path.startsWith('/api/image/'),
+  skip: (req) => req.path.startsWith('/api/image/') || req.path === '/api/auth/me' || req.path === '/api/auth/refresh',
   message: {
     error: 'Too many requests',
     message: 'Too many requests from this IP, please try again later.',
