@@ -351,9 +351,11 @@ const updateProduct = async (req, res) => {
           // Delete old image if exists
           if (newImages[index] && !/^https?:\/\//i.test(newImages[index])) {
             const oldImagePath = path.join(__dirname, '..', newImages[index]);
-            fs.unlink(oldImagePath).catch(err => 
-              console.error('Error deleting old image:', err)
-            );
+            fs.unlink(oldImagePath).catch(err => {
+              if (err?.code !== 'ENOENT') {
+                console.error('Error deleting old image:', err);
+              }
+            });
           }
            
           // Add new image
