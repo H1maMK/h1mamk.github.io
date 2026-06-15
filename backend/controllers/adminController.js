@@ -35,6 +35,22 @@ const deleteUploadedFiles = async (files) => {
 
 const isWeeklySpecialRequested = (value) => value === 'true' || value === true;
 
+const resolveStoredImagePath = (file, type = 'products') => {
+  if (!file) {
+    return '';
+  }
+
+  if (typeof file.path === 'string' && /^https?:\/\//i.test(file.path)) {
+    return file.path;
+  }
+
+  if (typeof file.secure_url === 'string' && /^https?:\/\//i.test(file.secure_url)) {
+    return file.secure_url;
+  }
+
+  return `/uploads/${type}/${file.filename}`;
+};
+
 const normalizeProductImagePath = (image) => {
   if (typeof image !== 'string') return image;
 
@@ -208,8 +224,7 @@ const createProduct = async (req, res) => {
       ['image1', 'image2', 'image3'].forEach(fieldName => {
         if (req.files[fieldName] && req.files[fieldName][0]) {
           const file = req.files[fieldName][0];
-          // Store relative path for database
-          images.push(`/uploads/products/${file.filename}`);
+          images.push(resolveStoredImagePath(file, 'products'));
         }
       });
     }
@@ -331,10 +346,10 @@ const updateProduct = async (req, res) => {
       ['image1', 'image2', 'image3'].forEach((fieldName, index) => {
         if (req.files[fieldName] && req.files[fieldName][0]) {
           const file = req.files[fieldName][0];
-          const uploadedImagePath = `/uploads/products/${file.filename}`;
+          const uploadedImagePath = resolveStoredImagePath(file, 'products');
           
           // Delete old image if exists
-          if (newImages[index]) {
+          if (newImages[index] && !/^https?:\/\//i.test(newImages[index])) {
             const oldImagePath = path.join(__dirname, '..', newImages[index]);
             fs.unlink(oldImagePath).catch(err => 
               console.error('Error deleting old image:', err)
@@ -445,7 +460,7 @@ const deleteProduct = async (req, res) => {
     // Delete associated images
     if (product.images && product.images.length > 0) {
       for (const imagePath of product.images) {
-        if (imagePath) {
+        if (imagePath && !/^https?:\/\//i.test(imagePath)) {
           const fullPath = path.join(__dirname, '..', imagePath);
           try {
             await fs.unlink(fullPath);

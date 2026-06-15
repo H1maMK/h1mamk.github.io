@@ -41,7 +41,10 @@ const {
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { validateObjectId } = require('../middleware/validation');
 const { body } = require('express-validator');
-const { uploadAvatar: uploadAvatarMiddleware } = require('../middleware/upload');
+const {
+  uploadAvatar: uploadAvatarMiddleware,
+  uploadProduct: uploadProductMiddleware
+} = require('../middleware/upload');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -152,7 +155,7 @@ router.get('/products',
 router.post('/products', 
   authenticateToken,
   requireAdmin,
-  upload.fields([
+  uploadProductMiddleware.fields([
     { name: 'image1', maxCount: 1 },
     { name: 'image2', maxCount: 1 },
     { name: 'image3', maxCount: 1 }
@@ -168,7 +171,7 @@ router.put('/products/:id',
   authenticateToken,
   requireAdmin,
   validateObjectId,
-  upload.fields([
+  uploadProductMiddleware.fields([
     { name: 'image1', maxCount: 1 },
     { name: 'image2', maxCount: 1 },
     { name: 'image3', maxCount: 1 }
