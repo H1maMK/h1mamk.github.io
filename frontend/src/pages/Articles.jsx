@@ -89,7 +89,7 @@ const Articles = () => {
                 return (
                   <article key={article._id || index} className="article-card">
                     <Link to={`/articles/${article._id}`} className="article-card-image-link">
-                      <img src={imageUrl} alt={article.title} className="article-card-image" />
+                      <img src={imageUrl} alt={article.title} className="article-card-image" loading="lazy" decoding="async" />
                       <div className="article-card-overlay">
                         <span className="article-card-badge">{badge}</span>
                         <span className="article-card-icon">{icon}</span>

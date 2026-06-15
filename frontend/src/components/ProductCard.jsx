@@ -33,7 +33,7 @@ const ProductCard = ({ product }) => {
     <div className="product-card" data-price={product.price}>
       <div className="product-image-container">
         <Link to={`/product/${product._id}`} className="product-image-link">
-          <img src={productImage} alt={product.name} />
+          <img src={productImage} alt={product.name} loading="lazy" decoding="async" />
         </Link>
       </div>
 

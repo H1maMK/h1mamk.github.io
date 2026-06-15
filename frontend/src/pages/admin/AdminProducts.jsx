@@ -54,38 +54,28 @@ const AdminProducts = () => {
     }
 
     try {
-      const allProducts = [];
-      let page = 1;
-      let hasNext = true;
-
-      while (hasNext) {
-        const response = await fetch(`/api/admin/products?status=all&limit=100&page=${page}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        
-        const data = await response.json();
-        
-        if (!data.success) {
-          console.error('Error fetching products:', data.message || data.error?.message);
-          setProducts([]);
-          toast.error(data.message || data.error?.message || 'Ошибка загрузки товаров');
-          return;
+      const response = await fetch(`/api/admin/products?status=all&limit=500&page=1`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
+      });
 
-        const productsPage = Array.isArray(data.data?.products)
-          ? data.data.products
-          : Array.isArray(data.data)
-            ? data.data
-            : [];
+      const data = await response.json();
 
-        allProducts.push(...productsPage);
-        hasNext = Boolean(data.pagination?.hasNext);
-        page += 1;
+      if (!data.success) {
+        console.error('Error fetching products:', data.message || data.error?.message);
+        setProducts([]);
+        toast.error(data.message || data.error?.message || 'Ошибка загрузки товаров');
+        return;
       }
 
-      setProducts(allProducts);
+      const productsPage = Array.isArray(data.data?.products)
+        ? data.data.products
+        : Array.isArray(data.data)
+          ? data.data
+          : [];
+
+      setProducts(productsPage);
     } catch (error) {
       console.error('Error fetching products:', error);
       setProducts([]);

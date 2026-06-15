@@ -19,8 +19,15 @@ const Home = () => {
 
   const loadData = async () => {
     try {
-      const productsResponse = await fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}?limit=50`))
-      const productsData = await productsResponse.json()
+      const [productsResponse, articlesResponse] = await Promise.all([
+        fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}?limit=50`)),
+        fetch(buildApiUrl(`${API_ENDPOINTS.ARTICLES}?limit=20`)),
+      ])
+
+      const [productsData, articlesData] = await Promise.all([
+        productsResponse.json(),
+        articlesResponse.json(),
+      ])
 
       if (productsData.success && productsData.data) {
         const allProducts = Array.isArray(productsData.data)
@@ -36,9 +43,6 @@ const Home = () => {
         setArticleProducts(allProducts.slice(0, 4))
         setPromoProductId(lamzuAtlantisProduct?._id || lamzuAtlantisProduct?.id || null)
       }
-
-      const articlesResponse = await fetch(buildApiUrl(`${API_ENDPOINTS.ARTICLES}?limit=20`))
-      const articlesData = await articlesResponse.json()
 
       if (articlesData.success && articlesData.data) {
         const articlesList = articlesData.data.articles || articlesData.data || []
@@ -170,7 +174,7 @@ const Home = () => {
     return (
       <div key={productId} className="product">
         <Link to={`/product/${productId}`}>
-          <img {...imageProps} />
+          <img {...imageProps} loading="lazy" decoding="async" />
         </Link>
         <div className="item___name">
           <Link to={`/product/${productId}`}>{productName}</Link>
@@ -208,7 +212,7 @@ const Home = () => {
     return (
       <div key={article._id} className="statii-card">
         <Link to={`/articles/${article._id}`} className="statii-image-link">
-          <img src={imageUrl} alt={article.title} />
+          <img src={imageUrl} alt={article.title} loading="lazy" decoding="async" />
           <span className="statii-title">{article.title}</span>
           <div className="statii-overlay">
             <span className="statii-badge">{meta.badge}</span>
@@ -223,14 +227,14 @@ const Home = () => {
     <div className="main-content-wrapper">
       <main>
         <Link to="/product/69481ab9a6adbe0a36ec3f88">
-          <img className="promo_sell" src="/body/promo_sell.png" alt="Промо-акция" />
+          <img className="promo_sell" src="/body/promo_sell.png" alt="Промо-акция" fetchPriority="high" decoding="async" />
         </Link>
 
         <p className="category_text">Категории</p>
         <div className="category-content">
           {categories.map((category, index) => (
             <Link key={index} to={category.link} className="category">
-              <img src={category.image} alt={category.name} />
+              <img src={category.image} alt={category.name} loading="lazy" decoding="async" />
             </Link>
           ))}
         </div>

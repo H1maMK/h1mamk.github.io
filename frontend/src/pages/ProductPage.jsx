@@ -91,10 +91,16 @@ const ProductPage = () => {
         const productInfo = productData.data.product || productData.data;
         setProduct(productInfo);
 
-        // Загружаем рекомендуемые товары
         try {
-          const listResponse = await fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}?limit=30`));
-          const listData = await listResponse.json();
+          const [listResponse, reviewsResponse] = await Promise.all([
+            fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}?limit=30`)),
+            fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}/${id}/reviews`)),
+          ]);
+
+          const [listData, reviewsData] = await Promise.all([
+            listResponse.json(),
+            reviewsResponse.json(),
+          ]);
 
           if (listData.success && Array.isArray(listData.data)) {
             const currentCategory = productInfo?.category?.name || '';
@@ -111,15 +117,6 @@ const ProductPage = () => {
           } else {
             setRecommendedProducts([]);
           }
-        } catch (recommendedError) {
-          console.error('Error loading recommended products:', recommendedError);
-          setRecommendedProducts([]);
-        }
-        
-        // Загружаем отзывы отдельно
-        try {
-          const reviewsResponse = await fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}/${id}/reviews`));
-          const reviewsData = await reviewsResponse.json();
           
           console.log('Reviews API response:', reviewsData);
           
@@ -147,6 +144,7 @@ const ProductPage = () => {
             setReviews(fallbackReviews);
             setReviewStats({ averageRating: fallbackAverageRating, totalReviews: fallbackReviews.length });
           }
+
         } catch (reviewError) {
           const fallbackReviews = getApprovedReviewsFromProduct(productInfo);
           const fallbackAverageRating = fallbackReviews.length > 0
@@ -380,7 +378,9 @@ const ProductPage = () => {
                 <img 
                   id="main-product-image-display" 
                   src={images[selectedImage] || images[0]} 
-                  alt="Основное изображение товара" 
+                  alt="Основное изображение товара"
+                  fetchPriority="high"
+                  decoding="async" 
                 />
               </div>
               <div className="thumbnails-container">
@@ -390,6 +390,8 @@ const ProductPage = () => {
                     src={img}
                     alt="Миниатюра"
                     className={`thumbnail-image ${selectedImage === index ? 'active' : ''}`}
+                    loading="lazy"
+                    decoding="async"
                     onClick={() => handleImageSelect(index)}
                   />
                 ))}

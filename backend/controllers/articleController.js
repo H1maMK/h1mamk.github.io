@@ -155,6 +155,8 @@ const buildArticleData = (req) => {
 // Получение всех статей (только опубликованные для публичного доступа)
 const getArticles = async (req, res) => {
   try {
+    res.set('Cache-Control', 'public, max-age=60, s-maxage=300')
+
     const { page = 1, limit = 10, search, includeUnpublished } = req.query
 
     const pageNum = Math.max(1, parseInt(page, 10))
@@ -175,7 +177,12 @@ const getArticles = async (req, res) => {
     }
 
     const [articles, totalCount] = await Promise.all([
-      Article.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limitNum).lean(),
+      Article.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .select('title content imageUrl publishedAt presentation createdAt updatedAt mysqlId')
+        .lean(),
       Article.countDocuments(filter),
     ])
 
@@ -204,6 +211,8 @@ const getArticles = async (req, res) => {
 
 const getArticle = async (req, res) => {
   try {
+    res.set('Cache-Control', 'public, max-age=120, s-maxage=600')
+
     const { id } = req.params
 
     const article = await Article.findById(id).lean()
