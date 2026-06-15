@@ -140,8 +140,8 @@ const Catalog = () => {
   const fetchProducts = async () => {
     try {
       console.log('Загрузка товаров из API...');
-      // Загружаем товары из API (уменьшаем лимит для скорости)
-      const response = await fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}?limit=50`));
+      // Загружаем все товары для каталога, иначе часть позиций пропадает из списка.
+      const response = await fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}?limit=500`));
       
       console.log('Ответ получен, статус:', response.status);
       
