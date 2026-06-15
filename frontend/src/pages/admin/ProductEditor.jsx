@@ -622,6 +622,13 @@ const ProductEditor = () => {
 
         try {
           const imageUrl = new URL(image);
+
+          // Для внешних CDN/Cloudinary ссылок нельзя подменять значение pathname,
+          // иначе в БД сохранится обрезанный путь без домена и картинка «пропадёт».
+          if (!/\/uploads\//i.test(imageUrl.pathname)) {
+            return [image];
+          }
+
           return [image, imageUrl.pathname];
         } catch {
           return [image];

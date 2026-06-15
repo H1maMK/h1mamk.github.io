@@ -70,6 +70,11 @@ const normalizeProductImagePath = (image) => {
 
   try {
     const imageUrl = new URL(image);
+
+    if (/^https?:\/\//i.test(image) && !/\/uploads\//i.test(imageUrl.pathname)) {
+      return image;
+    }
+
     return normalizeLegacyFlatFilePath(imageUrl.pathname);
   } catch {
     return normalizeLegacyFlatFilePath(image);
