@@ -6,10 +6,13 @@ const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+const path = require('path');
+
 const connectDB = require('./config/database');
 const { consoleLogger, fileLogger, errorLogger, slowRequestLogger, authLogger } = require('./middleware/logger');
 
 const app = express();
+const uploadsPath = path.join(__dirname, 'uploads');
 
 // Security middleware
 app.use(helmet({
@@ -110,6 +113,19 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Static files
+['avatars', 'products', 'articles'].forEach((type) => app.use(`/uploads/${type}`, (req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return next();
+  }
+
+  const filename = req.path.replace(/^\//, '');
+  if (filename) {
+    return res.redirect(301, `/api/image/${type}/${filename}`);
+  }
+
+  next();
+}));
+
 app.use('/uploads', (req, res, next) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     return next();
@@ -123,7 +139,7 @@ app.use('/uploads', (req, res, next) => {
   return res.redirect(301, `/${encodeURIComponent(requestedPath)}`);
 });
 
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(uploadsPath));
 
 // Health check endpoint
 app.get('/health', (req, res) => {

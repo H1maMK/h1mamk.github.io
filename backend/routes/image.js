@@ -3,6 +3,12 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 
+const fallbackImageByType = {
+  avatars: path.join(__dirname, '..', 'uploads', 'avatars', 'default.svg'),
+  products: path.join(__dirname, '..', 'uploads', 'products', 'default.svg'),
+  articles: path.join(__dirname, '..', 'uploads', 'articles', 'default.svg')
+};
+
 // @route   GET /api/image/:type/:filename
 // @desc    Serve images with proper CORS headers
 // @access  Public
@@ -23,13 +29,11 @@ router.get('/:type/:filename', (req, res) => {
   res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
   
-  // For missing avatars return default placeholder instead of 404
+  // For missing files return default placeholder instead of 404
   if (!fs.existsSync(filePath)) {
-    if (type === 'avatars') {
-      const defaultAvatarPath = path.join(__dirname, '..', 'uploads', 'avatars', 'default.svg');
-      if (fs.existsSync(defaultAvatarPath)) {
-        return res.sendFile(defaultAvatarPath);
-      }
+    const fallbackPath = fallbackImageByType[type];
+    if (fallbackPath && fs.existsSync(fallbackPath)) {
+      return res.sendFile(fallbackPath);
     }
 
     return res.status(404).json({ error: 'Image not found' });

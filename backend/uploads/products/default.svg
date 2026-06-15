@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" role="img" aria-label="Изображение товара недоступно">
+  <rect width="400" height="400" fill="#1f1f1f"/>
+  <rect x="24" y="24" width="352" height="352" rx="20" fill="#2b2b2b" stroke="#5f5f5f"/>
+  <path d="M120 255l48-54 38 37 57-70 57 87H120z" fill="#8f8f8f"/>
+  <circle cx="158" cy="145" r="24" fill="#b7b7b7"/>
+  <text x="200" y="315" text-anchor="middle" fill="#e7e7e7" font-family="Arial, sans-serif" font-size="24">Нет изображения</text>
+</svg>

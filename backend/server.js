@@ -5,6 +5,8 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+const path = require('path');
+
 // Import database connection
 const connectDB = require('./config/database');
 
@@ -13,6 +15,7 @@ const { consoleLogger, fileLogger, errorLogger, slowRequestLogger, authLogger } 
 const { checkDbConnection } = require('./middleware/dbCheck');
 
 const app = express();
+const uploadsPath = path.join(__dirname, 'uploads');
 
 // Security middleware
 app.use(helmet({
@@ -145,7 +148,7 @@ if (process.env.NODE_ENV === 'production') {
 // Redirect /uploads/avatars/* → /api/image/avatars/* so the fallback to default.svg works
 // (Uploaded files are ephemeral on Render, so they'll almost always be missing after restart)
 // This MUST come before the generic /uploads static middleware
-app.use('/uploads/avatars', (req, res, next) => {
+['avatars', 'products', 'articles'].forEach((type) => app.use(`/uploads/${type}`, (req, res, next) => {
   // Only redirect GET/HEAD — pass through other methods
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     return next();
@@ -154,10 +157,10 @@ app.use('/uploads/avatars', (req, res, next) => {
   // Extract the filename from the original URL and redirect to the image route
   const filename = req.path.replace(/^\//, '');
   if (filename) {
-    return res.redirect(301, `/api/image/avatars/${filename}`);
+    return res.redirect(301, `/api/image/${type}/${filename}`);
   }
   next();
-});
+}));
 
 // Legacy product/article images from JSON data were historically stored as `uploads/<file>`
 // while the actual files now live in the frontend public root and are published as `/<file>`.
@@ -184,7 +187,7 @@ app.use('/uploads', (req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
-}, express.static('uploads'));
+}, express.static(uploadsPath));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -243,8 +246,6 @@ app.use('/api/sync', require('./routes/sync'));
 
 // В production раздаём фронтенд как статику
 if (process.env.NODE_ENV === 'production') {
-  const path = require('path');
-  
   // Сначала пробуем dist в корне (если фронт собран вручную)
   const distPaths = [
     path.join(__dirname, '..', 'frontend', 'dist'),

@@ -4,6 +4,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+const backendUploadsRoot = path.join(__dirname, '..', 'uploads');
+
 // Import controllers
 const {
   getProductsForAdmin,
@@ -44,7 +46,7 @@ const { uploadAvatar: uploadAvatarMiddleware } = require('../middleware/upload')
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const dir = 'uploads/products/';
+    const dir = path.join(backendUploadsRoot, 'products');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -200,7 +202,7 @@ router.delete('/products/:id',
 // Configure multer for category images
 const categoryStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const dir = 'uploads/categories/';
+    const dir = path.join(backendUploadsRoot, 'categories');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -317,7 +319,7 @@ router.patch('/users/:id/block',
 // Configure multer for article images
 const articleStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const dir = 'uploads/articles/';
+    const dir = path.join(backendUploadsRoot, 'articles');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
