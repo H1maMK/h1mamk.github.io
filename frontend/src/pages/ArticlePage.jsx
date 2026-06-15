@@ -143,15 +143,9 @@ const ArticlePage = () => {
           <section className="article-hero">
             <div className="article-hero-image-wrap">
               <img src={imageUrl} alt={article.title} className="article-hero-image" />
-              <div className="article-hero-badges">
-                <span className="article-badge">{articleMeta.badge}</span>
-              </div>
             </div>
 
             <div className="article-hero-copy">
-              <p className="article-kicker">
-                {articleMeta.icon} {articleMeta.badge}
-              </p>
               <h1 className="article-title">{article.title}</h1>
               <p className="article-summary">{articleMeta.summary}</p>
 
