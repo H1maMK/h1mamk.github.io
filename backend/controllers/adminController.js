@@ -38,11 +38,25 @@ const isWeeklySpecialRequested = (value) => value === 'true' || value === true;
 const normalizeProductImagePath = (image) => {
   if (typeof image !== 'string') return image;
 
+  const normalizeLegacyFlatFilePath = (value) => {
+    const trimmedValue = value.trim();
+
+    if (/^\/[^/]+\.(jpg|jpeg|png|webp|gif|svg)$/i.test(trimmedValue)) {
+      return `/uploads${trimmedValue}`;
+    }
+
+    if (/^uploads\//i.test(trimmedValue)) {
+      return `/${trimmedValue.replace(/^\/+/, '')}`;
+    }
+
+    return trimmedValue;
+  };
+
   try {
     const imageUrl = new URL(image);
-    return imageUrl.pathname;
+    return normalizeLegacyFlatFilePath(imageUrl.pathname);
   } catch {
-    return image;
+    return normalizeLegacyFlatFilePath(image);
   }
 };
 
