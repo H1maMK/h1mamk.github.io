@@ -285,7 +285,80 @@ const ProductEditor = () => {
     });
   };
 
-  const handlePasteImage = (index, event) => {
+  const resizeImageFile = (file) => new Promise((resolve, reject) => {
+    if (!(file instanceof File)) {
+      resolve(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const image = new Image();
+      image.onload = () => {
+        const MAX_WIDTH = 1600;
+        const MAX_HEIGHT = 1600;
+        const MAX_FILE_SIZE = 1.4 * 1024 * 1024;
+
+        let { width, height } = image;
+        const scale = Math.min(1, MAX_WIDTH / width, MAX_HEIGHT / height);
+
+        width = Math.max(1, Math.round(width * scale));
+        height = Math.max(1, Math.round(height * scale));
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext('2d');
+        if (!context) {
+          resolve(file);
+          return;
+        }
+
+        context.drawImage(image, 0, 0, width, height);
+
+        const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+        let quality = outputType === 'image/png' ? undefined : 0.9;
+
+        const exportBlob = () => {
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+
+            if (blob.size > MAX_FILE_SIZE && outputType === 'image/jpeg' && quality && quality > 0.55) {
+              quality -= 0.1;
+              exportBlob();
+              return;
+            }
+
+            const extension = outputType === 'image/png' ? 'png' : 'jpg';
+            const resizedFile = new File(
+              [blob],
+              file.name.replace(/\.[^.]+$/, '') + `-optimized.${extension}`,
+              {
+                type: outputType,
+                lastModified: Date.now()
+              }
+            );
+
+            resolve(resizedFile.size < file.size ? resizedFile : file);
+          }, outputType, quality);
+        };
+
+        exportBlob();
+      };
+
+      image.onerror = () => resolve(file);
+      image.src = reader.result;
+    };
+
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+
+  const handlePasteImage = async (index, event) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -304,7 +377,8 @@ const ProductEditor = () => {
     }
 
     const file = createImageFileFromBlob(pastedFile);
-    if (setImageAtIndex(index, file)) {
+    const optimizedFile = await resizeImageFile(file);
+    if (setImageAtIndex(index, optimizedFile)) {
       toast.success('Изображение вставлено');
     }
   };
@@ -324,8 +398,9 @@ const ProductEditor = () => {
 
         const blob = await clipboardItem.getType(imageType);
         const file = createImageFileFromBlob(blob);
+        const optimizedFile = await resizeImageFile(file);
 
-        if (setImageAtIndex(index, file)) {
+        if (setImageAtIndex(index, optimizedFile)) {
           toast.success('Изображение вставлено из буфера');
         }
         return;
