@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
+import { buildAssetUrl } from '../config/api';
 import api from '../services/api';
 import './Cart.css';
 
@@ -424,7 +425,7 @@ const Cart = () => {
               <ul className="cart-list">
                 {items.map((item) => {
                   const rawImage = item.image || '/placeholder-product.jpg';
-                  const itemImage = rawImage.startsWith('http') ? rawImage : `http://localhost:3002${rawImage}`;
+                  const itemImage = buildAssetUrl(rawImage);
                   const productId = item.id || item._id;
                   const isInvalid = invalidItems.some(invalid => (invalid.id || invalid._id) === productId);
                   const availableStock = Number.isFinite(Number(item.stock)) ? Math.max(0, Math.floor(Number(item.stock))) : null;

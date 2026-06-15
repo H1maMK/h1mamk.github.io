@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { buildApiUrl, API_ENDPOINTS } from '../config/api';
+import { buildApiUrl, buildAssetUrl, API_ENDPOINTS } from '../config/api';
 import './Orders.css';
-
-const API_ROOT = (import.meta.env.VITE_API_URL || 'http://localhost:3002/api').replace(/\/api\/?$/, '');
 
 const Orders = () => {
   const { user, loading: authLoading } = useAuth();
@@ -110,11 +108,7 @@ const Orders = () => {
       return '/placeholder-product.jpg';
     }
 
-    if (image.startsWith('http')) {
-      return image;
-    }
-
-    return `${API_ROOT}${image.startsWith('/') ? image : `/${image}`}`;
+    return buildAssetUrl(image);
   };
 
   if (loading) {

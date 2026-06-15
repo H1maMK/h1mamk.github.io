@@ -1,6 +1,4 @@
-import { API_BASE_URL } from '../config/api'
-
-const BACKEND_HOST = API_BASE_URL
+import { buildAssetUrl } from '../config/api'
 
 const ARTICLE_BLUEPRINTS = [
   {
@@ -336,7 +334,7 @@ const getFallbackArticleImage = (article) => {
     item.match.some((needle) => title.includes(needle))
   )
 
-  return fallback ? `${BACKEND_HOST}/uploads/articles/${fallback.file}` : ''
+  return fallback ? buildAssetUrl(`/uploads/articles/${fallback.file}`) : ''
 }
 
 const getArticleFieldValue = (article, key) => {
@@ -360,16 +358,16 @@ export const getArticleImageUrl = (article) => {
   const normalizedPath = imageUrl.replace(/^\/+/, '')
 
   if (normalizedPath.startsWith('uploads/articles/')) {
-    return `${BACKEND_HOST}/${normalizedPath}`
+    return buildAssetUrl(`/${normalizedPath}`)
   }
 
   if (normalizedPath.startsWith('uploads/')) {
     const fallbackImage = getFallbackArticleImage(article)
-    return fallbackImage || `${BACKEND_HOST}/uploads/articles/${normalizedPath.replace(/^uploads\//, '')}`
+    return fallbackImage || buildAssetUrl(`/uploads/articles/${normalizedPath.replace(/^uploads\//, '')}`)
   }
 
   const fallbackImage = getFallbackArticleImage(article)
-  return fallbackImage || (normalizedPath ? `${BACKEND_HOST}/${normalizedPath}` : '')
+  return fallbackImage || (normalizedPath ? buildAssetUrl(`/${normalizedPath}`) : '')
 }
 
 export const formatArticleDate = (value) => {

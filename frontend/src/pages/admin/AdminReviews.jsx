@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { buildAssetUrl } from '../../config/api';
 import api from '../../services/api';
 import './AdminPanel.css';
 
@@ -202,9 +203,7 @@ const AdminReviews = () => {
                 <div className="review-product">
                   {review.productImage && (
                     <img 
-                      src={review.productImage.startsWith('http') 
-                        ? review.productImage 
-                        : `http://localhost:3002${review.productImage}`} 
+                      src={buildAssetUrl(review.productImage)} 
                       alt={review.productName}
                       className="product-thumb"
                     />

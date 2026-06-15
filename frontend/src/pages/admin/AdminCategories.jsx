@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { buildApiUrl, buildAssetUrl } from '../../config/api';
 
-const API_URL = 'http://localhost:3002';
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
 const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
 
@@ -27,7 +27,7 @@ const AdminCategories = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/products/categories`);
+      const response = await fetch(buildApiUrl('/api/products/categories'));
       
       const data = await response.json();
       
@@ -74,8 +74,8 @@ const AdminCategories = () => {
       }
 
       const url = editingCategory 
-        ? `${API_URL}/api/admin/categories/${editingCategory._id}`
-        : `${API_URL}/api/admin/categories`;
+        ? buildApiUrl(`/api/admin/categories/${editingCategory._id}`)
+        : buildApiUrl('/api/admin/categories');
       
       const method = editingCategory ? 'PUT' : 'POST';
 
@@ -118,7 +118,7 @@ const AdminCategories = () => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/admin/categories/${categoryId}`, {
+      const response = await fetch(buildApiUrl(`/api/admin/categories/${categoryId}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -151,8 +151,7 @@ const AdminCategories = () => {
 
   const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
-    if (imagePath.startsWith('http')) return imagePath;
-    return `${API_URL}${imagePath}`;
+    return buildAssetUrl(imagePath);
   };
 
   if (loading) {

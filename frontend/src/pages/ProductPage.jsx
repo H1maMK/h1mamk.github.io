@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useFavorites } from '../contexts/FavoritesContext';
-import { buildApiUrl, API_ENDPOINTS } from '../config/api';
+import { buildApiUrl, buildAssetUrl, API_ENDPOINTS } from '../config/api';
 import api from '../services/api';
 import ProductCard from '../components/ProductCard';
 import RatingStars from '../components/RatingStars';
@@ -363,7 +363,7 @@ const ProductPage = () => {
   }
 
   const rawImages = product?.images && product.images.length > 0 ? product.images : ['/uploads/default-product.jpg'];
-  const images = rawImages.map(img => img.startsWith('http') ? img : `http://localhost:3002${img}`);
+  const images = rawImages.map((img) => buildAssetUrl(img));
   const specifications = product?.specifications || {};
   const productRating = reviewStats.averageRating ?? product?.averageRating ?? 0;
   const productReviewCount = reviewStats.totalReviews ?? product?.reviewCount ?? 0;

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { useAuth } from '../contexts/AuthContext';
+import { buildAssetUrl } from '../config/api';
 import RatingStars from './RatingStars';
 
 const ProductCard = ({ product }) => {
@@ -21,7 +22,7 @@ const ProductCard = ({ product }) => {
   };
 
   const rawImage = product.images?.[0] || '/placeholder-product.jpg';
-  const productImage = rawImage.startsWith('http') ? rawImage : `http://localhost:3002${rawImage}`;
+  const productImage = buildAssetUrl(rawImage);
   const productPrice = new Intl.NumberFormat('ru-RU').format(product.price);
   const isInFavorites = isFavorite(product._id);
   const rating = product.averageRating ?? product.avgRating ?? product.rating ?? 0;

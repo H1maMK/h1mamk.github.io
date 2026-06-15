@@ -33,6 +33,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
       scriptSrc: ["'self'"],
+      frameSrc: ["'self'", "https://www.openstreetmap.org"],
       connectSrc: [
         "'self'",
         "https:",
@@ -156,6 +157,24 @@ app.use('/uploads/avatars', (req, res, next) => {
     return res.redirect(301, `/api/image/avatars/${filename}`);
   }
   next();
+});
+
+// Legacy product/article images from JSON data were historically stored as `uploads/<file>`
+// while the actual files now live in the frontend public root and are published as `/<file>`.
+// On production these old URLs cause 404 in admin/product pages, so redirect flat legacy
+// `/uploads/<file>` requests to the root static asset path. Nested paths like
+// `/uploads/products/...` must keep working as-is and therefore are skipped here.
+app.use('/uploads', (req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return next();
+  }
+
+  const requestedPath = req.path.replace(/^\//, '');
+  if (!requestedPath || requestedPath.includes('/')) {
+    return next();
+  }
+
+  return res.redirect(301, `/${encodeURIComponent(requestedPath)}`);
 });
 
 // Static files with CORS headers

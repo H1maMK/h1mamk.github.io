@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import RichEditor from '../../components/RichEditor'
+import { buildAssetUrl } from '../../config/api'
 import api from '../../services/api'
 import './ArticleEditor.css'
 
@@ -112,9 +113,7 @@ const ArticleEditor = () => {
         setContent(article.content || '')
         setIsPublished(article.isPublished ?? true)
         setExistingCoverUrl(
-          article.imageUrl
-            ? `${article.imageUrl.startsWith('http') ? '' : 'http://localhost:3002/'}${article.imageUrl.replace(/^\//, '')}`
-            : '',
+          article.imageUrl ? buildAssetUrl(article.imageUrl) : '',
         )
         setCoverPreview('')
         setCoverImage(null)

@@ -110,6 +110,19 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Static files
+app.use('/uploads', (req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return next();
+  }
+
+  const requestedPath = req.path.replace(/^\//, '');
+  if (!requestedPath || requestedPath.includes('/')) {
+    return next();
+  }
+
+  return res.redirect(301, `/${encodeURIComponent(requestedPath)}`);
+});
+
 app.use('/uploads', express.static('uploads'));
 
 // Health check endpoint

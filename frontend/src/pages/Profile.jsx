@@ -293,8 +293,8 @@ const Profile = () => {
             ) : (
               <>
                 <div className="profile-menu">
-                  <Link to="/orders" className="profile-menu-item">
-                    <span>Мои заказы</span>
+                  <Link to={user.role === 'admin' ? '/admin/orders' : '/orders'} className="profile-menu-item">
+                    <span>{user.role === 'admin' ? 'Заказы' : 'Мои заказы'}</span>
                     <span className="arrow">→</span>
                   </Link>
                   <Link to="/favorites" className="profile-menu-item">

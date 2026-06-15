@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { buildApiUrl, buildAssetUrl } from '../../config/api';
 import './ProductEditor.css';
 
 const SPECIFICATION_TEMPLATES = {
@@ -164,7 +165,7 @@ const ProductEditor = () => {
 
   const fetchWeeklySpecials = async () => {
     try {
-      const response = await fetch('http://localhost:3002/api/products?limit=500', {
+      const response = await fetch(buildApiUrl('/api/products?limit=500'), {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       const data = await response.json();
@@ -179,7 +180,7 @@ const ProductEditor = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:3002/api/products/categories', {
+      const response = await fetch(buildApiUrl('/api/products/categories'), {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       const data = await response.json();
@@ -198,7 +199,7 @@ const ProductEditor = () => {
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch(`http://localhost:3002/api/products/${id}`, {
+      const response = await fetch(buildApiUrl(`/api/products/${id}`), {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       const data = await response.json();
@@ -554,8 +555,8 @@ const ProductEditor = () => {
       formDataToSend.append('existingImages', JSON.stringify([...new Set(normalizedExistingImages)]));
 
       const url = id
-        ? `http://localhost:3002/api/admin/products/${id}`
-        : 'http://localhost:3002/api/admin/products';
+        ? buildApiUrl(`/api/admin/products/${id}`)
+        : buildApiUrl('/api/admin/products');
 
       const response = await fetch(url, {
         method: id ? 'PUT' : 'POST',
@@ -583,8 +584,7 @@ const ProductEditor = () => {
       return URL.createObjectURL(formData.images[index]);
     }
     if (existingImages[index]) {
-      const img = existingImages[index];
-      return img.startsWith('http') ? img : `http://localhost:3002${img}`;
+      return buildAssetUrl(existingImages[index]);
     }
     return null;
   };

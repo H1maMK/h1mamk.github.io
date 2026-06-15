@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { buildApiUrl, API_ENDPOINTS } from '../config/api';
+import { buildApiUrl, buildAssetUrl, API_ENDPOINTS } from '../config/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useFavorites } from '../contexts/FavoritesContext';
@@ -651,7 +651,7 @@ const Catalog = () => {
                 const rawImageUrl = product.images && product.images.length > 0 
                   ? product.images[0] 
                   : '/uploads/default-product.png';
-                const imageUrl = rawImageUrl.startsWith('http') ? rawImageUrl : `http://localhost:3002${rawImageUrl}`;
+                const imageUrl = buildAssetUrl(rawImageUrl);
                 // Используем реальную категорию из базы данных
                 const categoryName = product.category?.name || 'Прочее';
                 const rating = product.averageRating ?? product.avgRating ?? product.rating ?? 0;
