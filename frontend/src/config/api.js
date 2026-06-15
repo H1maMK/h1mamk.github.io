@@ -64,17 +64,37 @@ export const API_ENDPOINTS = {
 export const buildApiUrl = (endpoint) => `${API_BASE_URL}${endpoint}`;
 export const buildAssetUrl = (assetPath) => {
   if (!assetPath) return assetPath;
-  if (assetPath.startsWith('http')) return assetPath;
 
-  const normalizedAssetPath = assetPath.startsWith('/') ? assetPath : `/${assetPath}`;
+  const normalizeLegacyFlatUploadPath = (pathValue) => {
+    const normalizedPath = pathValue.startsWith('/') ? pathValue : `/${pathValue}`;
+    const legacyFlatUploadMatch = normalizedPath.match(/^\/uploads\/([^/]+)$/);
+
+    if (legacyFlatUploadMatch) {
+      return `/${legacyFlatUploadMatch[1]}`;
+    }
+
+    return normalizedPath;
+  };
+
+  if (assetPath.startsWith('http')) {
+    try {
+      const assetUrl = new URL(assetPath);
+      const normalizedPath = normalizeLegacyFlatUploadPath(assetUrl.pathname);
+
+      if (normalizedPath !== assetUrl.pathname) {
+        return `${assetUrl.origin}${normalizedPath}${assetUrl.search}${assetUrl.hash}`;
+      }
+
+      return assetPath;
+    } catch {
+      return assetPath;
+    }
+  }
+
+  const normalizedAssetPath = normalizeLegacyFlatUploadPath(assetPath);
 
   // Старые товары из JSON используют плоские пути вида /uploads/<file>.
   // Реальные файлы для них лежат в public-корне как /<file>, поэтому сразу
   // нормализуем такой формат на фронте и не зависим от серверного редиректа.
-  const legacyFlatUploadMatch = normalizedAssetPath.match(/^\/uploads\/([^/]+)$/);
-  if (legacyFlatUploadMatch) {
-    return `${API_ORIGIN}/${legacyFlatUploadMatch[1]}`;
-  }
-
   return `${API_ORIGIN}${normalizedAssetPath}`;
 };
