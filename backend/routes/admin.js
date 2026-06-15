@@ -1,10 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-
-const backendUploadsRoot = path.join(__dirname, '..', 'uploads');
 
 // Import controllers
 const {
@@ -42,43 +37,12 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { validateObjectId } = require('../middleware/validation');
 const { body } = require('express-validator');
 const {
+  ensurePersistentUploadStorage,
+  uploadArticle: uploadArticleMiddleware,
+  uploadCategory: uploadCategoryMiddleware,
   uploadAvatar: uploadAvatarMiddleware,
   uploadProduct: uploadProductMiddleware
 } = require('../middleware/upload');
-
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = path.join(backendUploadsRoot, 'products');
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  },
-  fileFilter: function (req, file, cb) {
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    const allowedExtensions = ['.jpeg', '.jpg', '.png', '.webp', '.gif'];
-    const extname = allowedExtensions.includes(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedMimeTypes.includes(file.mimetype);
-
-    if (mimetype && extname) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Разрешена загрузка только изображений'));
-    }
-  }
-});
 
 // Validation middleware for products
 const validateProduct = [
@@ -155,6 +119,7 @@ router.get('/products',
 router.post('/products', 
   authenticateToken,
   requireAdmin,
+  ensurePersistentUploadStorage,
   uploadProductMiddleware.fields([
     { name: 'image1', maxCount: 1 },
     { name: 'image2', maxCount: 1 },
@@ -171,6 +136,7 @@ router.put('/products/:id',
   authenticateToken,
   requireAdmin,
   validateObjectId,
+  ensurePersistentUploadStorage,
   uploadProductMiddleware.fields([
     { name: 'image1', maxCount: 1 },
     { name: 'image2', maxCount: 1 },
@@ -202,43 +168,14 @@ router.delete('/products/:id',
 
 // === CATEGORY MANAGEMENT ROUTES ===
 
-// Configure multer for category images
-const categoryStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = path.join(backendUploadsRoot, 'categories');
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'category-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const categoryUpload = multer({
-  storage: categoryStorage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: function (req, file, cb) {
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
-    const allowedExtensions = ['.jpeg', '.jpg', '.png', '.webp', '.gif', '.svg'];
-    const extname = allowedExtensions.includes(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedMimeTypes.includes(file.mimetype);
-    if (mimetype && extname) {
-      return cb(null, true);
-    }
-    cb(new Error('Разрешена загрузка только изображений'));
-  }
-});
-
 // @route   POST /api/admin/categories
 // @desc    Create a new category
 // @access  Private (Admin only)
 router.post('/categories',
   authenticateToken,
   requireAdmin,
-  categoryUpload.single('image'),
+  ensurePersistentUploadStorage,
+  uploadCategoryMiddleware.single('image'),
   validateCategory,
   createCategory
 );
@@ -250,7 +187,8 @@ router.put('/categories/:id',
   authenticateToken,
   requireAdmin,
   validateObjectId,
-  categoryUpload.single('image'),
+  ensurePersistentUploadStorage,
+  uploadCategoryMiddleware.single('image'),
   validateCategory,
   updateCategory
 );
@@ -319,43 +257,14 @@ router.patch('/users/:id/block',
 
 // === ARTICLE MANAGEMENT ROUTES ===
 
-// Configure multer for article images
-const articleStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = path.join(backendUploadsRoot, 'articles');
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'article-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const articleUpload = multer({
-  storage: articleStorage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: function (req, file, cb) {
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    const allowedExtensions = ['.jpeg', '.jpg', '.png', '.webp'];
-    const extname = allowedExtensions.includes(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedMimeTypes.includes(file.mimetype);
-    if (mimetype && extname) {
-      return cb(null, true);
-    }
-    cb(new Error('Разрешена загрузка только изображений'));
-  }
-});
-
 // @route   POST /api/admin/articles
 // @desc    Create a new article
 // @access  Private (Admin only)
 router.post('/articles',
   authenticateToken,
   requireAdmin,
-  articleUpload.single('image'),
+  ensurePersistentUploadStorage,
+  uploadArticleMiddleware.single('image'),
   createArticle
 );
 
@@ -376,7 +285,8 @@ router.put('/articles/:id',
   authenticateToken,
   requireAdmin,
   validateObjectId,
-  articleUpload.single('image'),
+  ensurePersistentUploadStorage,
+  uploadArticleMiddleware.single('image'),
   updateArticle
 );
 

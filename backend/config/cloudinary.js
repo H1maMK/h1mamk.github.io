@@ -34,6 +34,19 @@ const articleStorage = new CloudinaryStorage({
   }
 });
 
+// Хранилище для категорий
+const categoryStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'devicemaster/categories',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'svg'],
+    transformation: [
+      { width: 1200, height: 1200, crop: 'limit' },
+      { quality: 'auto' }
+    ]
+  }
+});
+
 // Хранилище для аватаров
 const avatarStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -51,5 +64,6 @@ module.exports = {
   cloudinary,
   productStorage,
   articleStorage,
+  categoryStorage,
   avatarStorage
 };
