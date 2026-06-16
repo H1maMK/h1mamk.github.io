@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { buildApiUrl, API_ENDPOINTS } from '../config/api'
-import { getArticleMeta, getArticleImageUrl, stripHtmlTags } from '../utils/articlePresentation'
+import { getArticleMeta, getArticleImageUrl } from '../utils/articlePresentation'
 import './ArticlePage.css'
 
 const FALLBACK_ARTICLES = [
@@ -38,12 +38,6 @@ const FALLBACK_ARTICLES = [
     publishedAt: '2025-06-21T19:43:21.000Z',
   },
 ]
-
-const splitArticleContent = (content = '') =>
-  `${content}`
-    .split(/\r?\n+/)
-    .map((part) => stripHtmlTags(part))
-    .filter(Boolean)
 
 const ArticlePage = () => {
   const { id } = useParams()
@@ -126,6 +120,7 @@ const ArticlePage = () => {
   }
 
   const imageUrl = getArticleImageUrl(article)
+  const hasRenderableHtmlContent = typeof article.content === 'string' && /<[^>]+>/.test(article.content)
 
   return (
     <div className="page-wrapper article-page">
@@ -142,7 +137,20 @@ const ArticlePage = () => {
 
           <section className="article-hero">
             <div className="article-hero-image-wrap">
-              <img src={imageUrl} alt={article.title} className="article-hero-image" />
+              <img
+                src={imageUrl}
+                alt={article.title}
+                className="article-hero-image"
+                onError={(event) => {
+                  const fallbackSrc = articleMeta.imageUrl
+                  if (fallbackSrc && event.currentTarget.dataset.fallbackApplied !== 'true' && event.currentTarget.src !== fallbackSrc) {
+                    event.currentTarget.dataset.fallbackApplied = 'true'
+                    event.currentTarget.src = fallbackSrc
+                    return
+                  }
+                  event.currentTarget.style.visibility = 'hidden'
+                }}
+              />
             </div>
 
             <div className="article-hero-copy">
@@ -151,15 +159,6 @@ const ArticlePage = () => {
 
               <div className="article-meta-row">
                 <span>{articleMeta.dateLabel || 'Без даты'}</span>
-                {article.mysqlId ? <span>ID #{article.mysqlId}</span> : null}
-              </div>
-
-              <div className="article-links-row">
-                {articleMeta.links.map((link) => (
-                  <Link key={link.label} to={link.to} className="article-chip-link">
-                    {link.label}
-                  </Link>
-                ))}
               </div>
             </div>
           </section>
@@ -178,29 +177,25 @@ const ArticlePage = () => {
 
               <div className="article-body">
                 <h2 className="article-section-title">Материал статьи</h2>
-                <div className="article-section-stack">
-                  {articleMeta.sections.map((section) => (
-                    <section key={section.title} className="article-text-block">
-                      <h3>{section.title}</h3>
-                      <ul>
-                        {section.points.map((point) => (
-                          <li key={point}>{point}</li>
-                        ))}
-                      </ul>
-                    </section>
-                  ))}
-                </div>
-
-                {splitArticleContent(article.content).length > 0 ? (
-                  <section className="article-text-block article-raw-content">
-                    <h3>Текст статьи</h3>
-                    <div className="article-raw-content-list">
-                      {splitArticleContent(article.content).map((paragraph) => (
-                        <p key={paragraph}>{paragraph}</p>
-                      ))}
-                    </div>
-                  </section>
-                ) : null}
+                {hasRenderableHtmlContent ? (
+                  <div
+                    className="article-content-html"
+                    dangerouslySetInnerHTML={{ __html: article.content }}
+                  />
+                ) : (
+                  <div className="article-section-stack">
+                    {articleMeta.sections.map((section) => (
+                      <section key={section.title} className="article-text-block">
+                        <h3>{section.title}</h3>
+                        <ul>
+                          {section.points.map((point) => (
+                            <li key={point}>{point}</li>
+                          ))}
+                        </ul>
+                      </section>
+                    ))}
+                  </div>
+                )}
               </div>
             </article>
 
@@ -213,7 +208,6 @@ const ArticlePage = () => {
                   ))}
                 </ul>
               </div>
-
 
               <div className="article-sidebar-card article-sidebar-cta">
                 <h3>Хочешь сравнить товары?</h3>

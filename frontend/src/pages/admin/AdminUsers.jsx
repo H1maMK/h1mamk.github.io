@@ -6,6 +6,7 @@ const PROTECTED_ADMIN_EMAIL = 'mr.maxim.8806@mail.ru';
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 const DEFAULT_AVATAR_URL = '/api/image/avatars/default.svg';
+const MAX_AVATAR_FILE_SIZE = 10 * 1024 * 1024;
 
 const isAllowedImageFile = (file) => {
   const extension = file?.name?.split('.').pop()?.toLowerCase();
@@ -93,6 +94,11 @@ const AdminUsers = () => {
       const file = files?.[0];
       if (file && !isAllowedImageFile(file)) {
         toast.error('Можно загружать только изображения: JPG, PNG или WEBP');
+        e.target.value = '';
+        return;
+      }
+      if (file && file.size > MAX_AVATAR_FILE_SIZE) {
+        toast.error('Размер аватара не должен превышать 10 МБ');
         e.target.value = '';
         return;
       }

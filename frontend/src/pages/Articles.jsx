@@ -83,16 +83,30 @@ const Articles = () => {
           <section className="articles-grid-section">
             <div className="articles-grid">
               {displayArticles.map((article, index) => {
-                const { badge, icon, summary, dateLabel, excerpt, imageUrl, links, highlights } =
+                const { badge, summary, dateLabel, excerpt, imageUrl, highlights } =
                   article.meta
 
                 return (
                   <article key={article._id || index} className="article-card">
                     <Link to={`/articles/${article._id}`} className="article-card-image-link">
-                      <img src={imageUrl} alt={article.title} className="article-card-image" loading="lazy" decoding="async" />
+                      <img
+                        src={imageUrl}
+                        alt={article.title}
+                        className="article-card-image"
+                        loading="lazy"
+                        decoding="async"
+                        onError={(event) => {
+                          const fallbackSrc = article.meta.imageUrl
+                          if (fallbackSrc && event.currentTarget.dataset.fallbackApplied !== 'true' && event.currentTarget.src !== fallbackSrc) {
+                            event.currentTarget.dataset.fallbackApplied = 'true'
+                            event.currentTarget.src = fallbackSrc
+                            return
+                          }
+                          event.currentTarget.style.visibility = 'hidden'
+                        }}
+                      />
                       <div className="article-card-overlay">
                         <span className="article-card-badge">{badge}</span>
-                        <span className="article-card-icon">{icon}</span>
                       </div>
                     </Link>
 
@@ -118,14 +132,6 @@ const Articles = () => {
                         <Link to={`/articles/${article._id}`} className="article-card-readmore">
                           Читать статью
                         </Link>
-                      </div>
-
-                      <div className="article-card-links">
-                        {links.map((link) => (
-                          <Link key={link.label} to={link.to} className="article-mini-link">
-                            {link.label}
-                          </Link>
-                        ))}
                       </div>
                     </div>
                   </article>

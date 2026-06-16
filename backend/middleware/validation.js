@@ -2,7 +2,7 @@ const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const { validationError } = require('../utils/response');
 
-// Обработчик ошибок валидации
+
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   
@@ -19,7 +19,7 @@ const handleValidationErrors = (req, res, next) => {
   next();
 };
 
-// Валидация регистрации пользователя
+
 const validateUserRegistration = [
   body('username')
     .trim()
@@ -51,7 +51,7 @@ const validateUserRegistration = [
   handleValidationErrors
 ];
 
-// Валидация входа пользователя
+
 const validateUserLogin = [
   body('email')
     .isEmail()
@@ -63,7 +63,7 @@ const validateUserLogin = [
   handleValidationErrors,
 ];
 
-// Валидация обновления профиля пользователя
+
 const validateProfileUpdate = [
   body('username')
     .optional()
@@ -90,7 +90,7 @@ const validateProfileUpdate = [
   handleValidationErrors,
 ];
 
-// Валидация параметров поиска
+
 const validateSearchParams = (req, res, next) => {
   const { page, limit, minPrice, maxPrice } = req.query;
   
@@ -132,7 +132,7 @@ const validateSearchParams = (req, res, next) => {
   next();
 };
 
-// Валидация создания/обновления товара
+
 const validateProduct = [
   body('name')
     .trim()
@@ -162,7 +162,7 @@ const validateProduct = [
   handleValidationErrors
 ];
 
-// Валидация отзыва
+
 const validateReview = [
   body('rating')
     .isInt({ min: 1, max: 5 })
@@ -178,7 +178,7 @@ const validateReview = [
   handleValidationErrors
 ];
 
-// Валидация заказа
+
 const validateOrder = [
   body('items')
     .isArray({ min: 1 })
@@ -204,7 +204,7 @@ const validateOrder = [
   handleValidationErrors
 ];
 
-// Валидация статьи
+
 const validateArticle = [
   body('title')
     .trim()
@@ -230,7 +230,7 @@ const validateArticle = [
   handleValidationErrors
 ];
 
-// Валидация ID параметра
+
 const validateMongoId = (paramName = 'id') => [
   body(paramName)
     .isMongoId()
@@ -239,7 +239,7 @@ const validateMongoId = (paramName = 'id') => [
   handleValidationErrors
 ];
 
-// Валидация ObjectId в параметрах маршрута
+
 const validateObjectId = (req, res, next) => {
   const { id, productId, reviewId } = req.params;
   const idToValidate = id || productId || reviewId;

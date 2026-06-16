@@ -3,7 +3,7 @@
     "username": "Макс",
     "email": "mr.maxim.8806@mail.ru",
     "password": "$2a$12$defaulthashedpassword",
-    "role": "user",
+    "role": "admin",
     "profile": {
       "yearBirth": null,
       "gender": null,
@@ -19,7 +19,7 @@
     "username": "Администратор",
     "email": "admin@mail.ru",
     "password": "$2a$12$defaulthashedpassword",
-    "role": "user",
+    "role": "admin",
     "profile": {
       "yearBirth": null,
       "gender": null,

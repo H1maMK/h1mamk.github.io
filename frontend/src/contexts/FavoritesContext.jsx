@@ -20,7 +20,7 @@ export const FavoritesProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Загружаем избранное при входе пользователя
+
   useEffect(() => {
     if (user) {
       loadFavorites();
@@ -40,7 +40,7 @@ export const FavoritesProvider = ({ children }) => {
         setFavorites(response.data.data.favorites || []);
       }
     } catch (error) {
-      // Если токен невалидный или истёк (обработано интерсептором), просто очищаем
+
       if (error?.response?.status === 401 || error?.response?.status === 404) {
         setFavorites([]);
         return;
@@ -63,7 +63,7 @@ export const FavoritesProvider = ({ children }) => {
       return false;
     }
 
-    // Извлекаем ID если передан объект
+
     const id = typeof productId === 'object' ? productId._id || productId.id : productId;
     
     if (!id) {
@@ -75,7 +75,7 @@ export const FavoritesProvider = ({ children }) => {
       const response = await api.post(`/users/favorites/${id}`);
 
       if (response.data.success) {
-        await loadFavorites(); // Перезагружаем список
+        await loadFavorites();
         toast.success('Товар добавлен в избранное');
         return true;
       } else {
@@ -101,7 +101,7 @@ export const FavoritesProvider = ({ children }) => {
       return false;
     }
 
-    // Извлекаем ID если передан объект
+
     const id = typeof productId === 'object' ? productId._id || productId.id : productId;
     
     if (!id) {
@@ -113,7 +113,7 @@ export const FavoritesProvider = ({ children }) => {
       const response = await api.delete(`/users/favorites/${id}`);
 
       if (response.data.success) {
-        // Перезагружаем список с сервера для синхронизации
+
         await loadFavorites();
         toast.success('Товар удалён из избранного');
         return true;
@@ -133,7 +133,7 @@ export const FavoritesProvider = ({ children }) => {
   };
 
   const toggleFavorite = async (productId) => {
-    // Извлекаем ID если передан объект
+
     const id = typeof productId === 'object' ? productId._id || productId.id : productId;
     
     if (!id) {
@@ -152,10 +152,10 @@ export const FavoritesProvider = ({ children }) => {
 
   const isFavorite = (productId) => {
     if (!productId) return false;
-    // Извлекаем ID если передан объект
+
     const id = typeof productId === 'object' ? productId._id || productId.id : productId;
     if (!id) return false;
-    // Проверяем по _id и id
+
     return favorites.some((item) => {
       const itemId = item._id || item.id;
       return itemId === id || String(itemId) === String(id);

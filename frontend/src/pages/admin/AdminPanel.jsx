@@ -35,7 +35,7 @@ const AdminPanel = () => {
     );
   }
 
-  // Редакторы - без хедера и сайдбара
+
   return (
     <div className="admin-panel">
       <Routes>

@@ -58,8 +58,8 @@ export const AuthProvider = ({ children }) => {
           toast.error('Сессия истекла, войдите снова')
           clearAuthState()
         } else {
-          // Серверная или сетевая ошибка — не удаляем токен, 
-          // просто оставляем пользователя как есть (из localStorage)
+
+
           console.warn('Auth check failed (non-auth error):', status || error.message)
         }
       }

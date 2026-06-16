@@ -1,4 +1,4 @@
-/* Profile Page Styles - адаптированные из PHP сайта */
+
 
 .profile-container {
   display: flex;
@@ -133,7 +133,7 @@
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
-/* Стили для формы редактирования профиля */
+
 .profile-card form {
   display: flex;
   flex-direction: column;
@@ -235,7 +235,7 @@
   text-align: center;
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
   .profile-container {
     padding: 120px 15px 20px 15px;

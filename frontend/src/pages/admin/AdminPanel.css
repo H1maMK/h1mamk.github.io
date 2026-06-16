@@ -1,4 +1,4 @@
-/* Основные стили админки - точная копия из PHP */
+
 .admin-panel {
   font-family: 'Comfortaa', sans-serif;
   margin: 0;
@@ -41,7 +41,7 @@
   font-size: 1.2rem;
 }
 
-/* Хедер админки */
+
 .admin-header {
   background-color: #222;
   padding: 0 30px;
@@ -103,7 +103,7 @@
   font-weight: 600;
 }
 
-/* Основной контент */
+
 .main-content {
   padding: 20px;
   max-width: none;
@@ -122,7 +122,7 @@
   box-sizing: border-box;
 }
 
-/* Контейнер таблицы */
+
 .table-container {
   flex: 1;
   background-color: rgba(30, 30, 30, 0.95);
@@ -134,13 +134,13 @@
   min-width: 0;
 }
 
-/* Таблица заказов - укомплектованный дизайн */
+
 .admin-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0 8px;
   font-size: 13px;
-  table-layout: fixed; /* Фиксированная раскладка для пропорций */
+  table-layout: fixed; 
 }
 
 .admin-table thead th {
@@ -156,16 +156,16 @@
   white-space: nowrap;
 }
 
-/* Пропорции колонок */
-.admin-table.orders-table th:nth-child(1) { width: 10%; } /* Пользователь */
-.admin-table.orders-table th:nth-child(2) { width: 11%; } /* Дата */
-.admin-table.orders-table th:nth-child(3) { width: 10%; } /* Статус */
-.admin-table.orders-table th:nth-child(4) { width: 15%; } /* Адрес */
-.admin-table.orders-table th:nth-child(5) { width: 8%; }  /* Оплата */
-.admin-table.orders-table th:nth-child(6) { width: 8%; }  /* Доставка */
-.admin-table.orders-table th:nth-child(7) { width: 9%; }  /* Сумма */
-.admin-table.orders-table th:nth-child(8) { width: 20%; } /* Товары */
-.admin-table.orders-table th:nth-child(9) { width: 9%; }  /* Действия */
+
+.admin-table.orders-table th:nth-child(1) { width: 10%; } 
+.admin-table.orders-table th:nth-child(2) { width: 11%; } 
+.admin-table.orders-table th:nth-child(3) { width: 10%; } 
+.admin-table.orders-table th:nth-child(4) { width: 15%; } 
+.admin-table.orders-table th:nth-child(5) { width: 8%; }  
+.admin-table.orders-table th:nth-child(6) { width: 8%; }  
+.admin-table.orders-table th:nth-child(7) { width: 9%; }  
+.admin-table.orders-table th:nth-child(8) { width: 20%; } 
+.admin-table.orders-table th:nth-child(9) { width: 9%; }  
 
 .admin-table tbody tr {
   background-color: rgba(255, 255, 255, 0.03);
@@ -186,7 +186,7 @@
   text-overflow: ellipsis;
 }
 
-/* Статус-бейджи компактные */
+
 .status-badge {
   display: inline-block;
   padding: 4px 10px;
@@ -200,7 +200,7 @@
   box-sizing: border-box;
 }
 
-/* Список товаров компактный */
+
 .order-items-list {
   display: flex;
   flex-direction: column;
@@ -226,7 +226,7 @@
   font-size: 11px;
 }
 
-/* Селект в тон */
+
 .order-status-select {
   width: 100%;
   padding: 6px;
@@ -262,7 +262,7 @@
   width: 100%;
 }
 
-/* Контейнер таблицы */
+
 .table-container {
   flex: 1 1 auto;
   background-color: rgba(34, 34, 34, 0.95);
@@ -284,7 +284,7 @@
   color: #fff;
 }
 
-/* Таблица заказов - современный дизайн */
+
 .admin-table {
   width: 100%;
   border-collapse: separate;
@@ -348,7 +348,7 @@
   border-radius: 0 8px 8px 0;
 }
 
-/* Специфичные стили для таблицы заказов */
+
 .admin-table.orders-table tbody td:nth-child(1) {
   font-weight: 600;
   color: #fff;
@@ -374,7 +374,7 @@
   white-space: nowrap;
 }
 
-/* Поиск в админке */
+
 .search-box {
   position: relative;
   display: flex;
@@ -445,7 +445,7 @@
   line-height: 1.35;
 }
 
-/* Выравнивание строк только в таблице пользователей */
+
 .users-table tbody td {
   vertical-align: middle;
 }
@@ -549,7 +549,7 @@
   border-radius: 4px;
 }
 
-/* Контейнер формы */
+
 .form-container {
   flex: 0 0 380px;
   background-color: rgba(34, 34, 34, 0.95);
@@ -564,7 +564,7 @@
   scrollbar-color: #FFE6BB #222;
 }
 
-/* Кастомный скроллбар для формы */
+
 .form-container::-webkit-scrollbar {
   width: 8px;
 }
@@ -623,7 +623,7 @@
   resize: vertical;
 }
 
-/* Широкие поля для формы товаров */
+
 .form-container.wide .form-group input,
 .form-container.wide .form-group select,
 .form-container.wide .form-group textarea {
@@ -660,7 +660,7 @@
   justify-content: flex-end;
 }
 
-/* Кнопки */
+
 .action-button {
   padding: 8px 12px;
   border: none;
@@ -757,7 +757,7 @@
   background-color: #666;
 }
 
-/* Стили для кнопок в таблице */
+
 .admin-table tbody td .action-button {
   display: block;
   width: 100%;
@@ -769,7 +769,7 @@
   margin-bottom: 0;
 }
 
-/* Чекбокс стили */
+
 .form-group-checkbox {
   display: flex;
   align-items: center;
@@ -793,7 +793,7 @@
   line-height: 18px;
 }
 
-/* Статус заказа */
+
 .status-badge {
   display: inline-block;
   padding: 6px 14px;
@@ -835,7 +835,7 @@
   border: 1px solid rgba(120, 120, 120, 0.3);
 }
 
-/* Список товаров в заказе */
+
 .order-items-list {
   display: flex;
   flex-direction: column;
@@ -914,7 +914,7 @@
   color: #888;
 }
 
-/* Select для статуса заказа */
+
 .order-status-select {
   width: 100%;
   min-width: 100px;
@@ -943,7 +943,7 @@
   color: #ef4444;
 }
 
-/* Редактор характеристик */
+
 .specs-editor {
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid #444;
@@ -1106,12 +1106,12 @@
   cursor: not-allowed;
 }
 
-/* Ограничение ширины колонок ТОЛЬКО в таблице заказов */
+
 .admin-table.orders-table {
   width: 100%;
 }
 
-/* Для страницы товаров - более гибкий layout */
+
 .content-wrapper:has(.form-container.wide) {
   gap: 25px;
 }
@@ -1121,12 +1121,12 @@
   min-width: 0;
 }
 
-/* Ячейка статуса */
+
 .admin-table.orders-table td:nth-child(3) {
   padding: 12px;
 }
 
-/* Ячейка адреса */
+
 .admin-table.orders-table td:nth-child(4) {
   max-width: 150px;
   font-size: 12px;
@@ -1144,7 +1144,7 @@
   box-sizing: border-box;
 }
 
-/* Responsive */
+
 @media (max-width: 1200px) {
   .content-wrapper {
     flex-direction: column;
@@ -1160,7 +1160,7 @@
   border: 1px solid #444;
 }
 
-/* Широкая форма для редактирования товаров */
+
 .form-container.wide {
   flex: 1;
   max-width: 600px;
@@ -1197,7 +1197,7 @@
     flex-direction: column;
   }
   
-  /* Стили для страницы модерации отзывов - адаптив */
+  
   .admin-reviews-page {
     padding: 15px;
   }
@@ -1225,7 +1225,7 @@
   }
 }
 
-/* Страница модерации отзывов */
+
 .admin-reviews-page {
   padding: 30px;
   max-width: 1200px;
@@ -1415,7 +1415,7 @@
   transform: translateY(-2px);
 }
 
-/* Модальное окно для причины отказа */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1516,7 +1516,7 @@
   padding: 10px 20px;
 }
 
-/* Пустое состояние */
+
 .empty-reviews {
   text-align: center;
   padding: 60px 20px;
@@ -1543,7 +1543,7 @@
   font-size: 1rem;
 }
 
-/* Статистика отзывов */
+
 .reviews-stats {
   display: flex;
   gap: 15px;
@@ -1583,7 +1583,7 @@
   color: #ef4444;
 }
 
-/* Уведомления */
+
 .notification {
   position: fixed;
   top: 20px;
@@ -1617,7 +1617,7 @@
   }
 }
 
-/* Старые классы для AdminReviews - для совместимости */
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -1720,7 +1720,7 @@
   margin-left: 5px;
 }
 
-/* Модальное окно - старый класс */
+
 .modal-content {
   background-color: #222;
   border-radius: 12px;
@@ -1808,7 +1808,7 @@
  background-color: #dc2626;
 }
 
-/* ===== Orders table layout hotfix ===== */
+
 .admin-table.orders-table {
  width:100%;
  table-layout: fixed;

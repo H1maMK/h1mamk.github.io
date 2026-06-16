@@ -14,7 +14,7 @@ const { consoleLogger, fileLogger, errorLogger, slowRequestLogger, authLogger } 
 const app = express();
 const uploadsPath = path.join(__dirname, 'uploads');
 
-// Security middleware
+
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   contentSecurityPolicy: {
@@ -29,10 +29,10 @@ app.use(helmet({
 }));
 app.use(compression());
 
-// Rate limiting
+
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
   skip: (req) => ['GET', 'HEAD', 'OPTIONS'].includes(req.method),
   message: {
     error: 'Too many requests',
@@ -44,7 +44,7 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// CORS configuration
+
 const devOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
@@ -80,7 +80,7 @@ const isAllowedDevOrigin = (origin) => {
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Разрешаем запросы без origin (например, мобильные приложения, Postman или Vite proxy)
+
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin) || isAllowedDevOrigin(origin)) {
@@ -93,7 +93,7 @@ app.use(cors({
   credentials: true,
 }));
 
-// Body parsing middleware
+
 app.use(express.json({ 
   limit: '10mb',
   verify: (req, res, buf) => {
@@ -102,18 +102,18 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Custom logging middleware
+
 app.use(slowRequestLogger);
 app.use(authLogger);
 
-// Logging middleware
+
 if (process.env.NODE_ENV === 'production') {
   app.use(fileLogger);
 } else {
   app.use(consoleLogger);
 }
 
-// Static files
+
 ['avatars', 'products', 'articles'].forEach((type) => app.use(`/uploads/${type}`, (req, res, next) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     return next();
@@ -142,7 +142,7 @@ app.use('/uploads', (req, res, next) => {
 
 app.use('/uploads', express.static(uploadsPath));
 
-// Health check endpoint
+
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
@@ -153,7 +153,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Database status endpoint
+
 app.get('/api/status', async (req, res) => {
   try {
     const dbState = mongoose.connection.readyState;
@@ -187,7 +187,7 @@ app.get('/api/status', async (req, res) => {
   }
 });
 
-// API routes
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/products', require('./routes/products'));
@@ -197,7 +197,7 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/image', require('./routes/image'));
 app.use('/api/sync', require('./routes/sync'));
 
-// 404 handler
+
 app.use('*', (req, res) => {
   res.status(404).json({ 
     error: 'Route not found',
@@ -205,7 +205,7 @@ app.use('*', (req, res) => {
   });
 });
 
-// Global error handler
+
 app.use(errorLogger);
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -270,7 +270,7 @@ const startServer = async () => {
       console.log('\n🛑 Shutting down server...');
       await mongoose.connection.close();
       server.close(() => {
-        console.log('� Server stopped');
+        console.log('✅ Server stopped');
         process.exit(0);
       });
     });

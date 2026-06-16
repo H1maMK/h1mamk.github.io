@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
-// Функция перевода английских ошибок на русский
+
 const translateError = (message) => {
   const translations = {
     'Invalid email or password': 'Неверный email или пароль',
@@ -62,21 +62,21 @@ const Login = () => {
       const data = err.response?.data;
 
       if (data) {
-        // Формат: { error: { message: "..." } }
+
         if (data.error?.message) {
           errorMessage = data.error.message;
         }
-        // Формат: { error: "string" }
+
         else if (typeof data.error === 'string') {
           errorMessage = data.error;
         }
-        // Формат: { message: "..." }
+
         else if (data.message) {
           errorMessage = data.message;
         }
       }
 
-      // Переводим на русский
+
       errorMessage = translateError(errorMessage);
       if (/парол/i.test(errorMessage) || /password/i.test(errorMessage)) {
         toast.error(errorMessage);

@@ -5,7 +5,7 @@ const checkDatabaseConnection = async () => {
   try {
     console.log('🔍 Checking MongoDB connection...\n');
     
-    // Display connection info
+
     console.log('Connection details:');
     console.log(`- MongoDB URI: ${process.env.MONGODB_URI}`);
     console.log(`- Node Environment: ${process.env.NODE_ENV || 'development'}`);

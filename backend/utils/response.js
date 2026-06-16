@@ -1,6 +1,6 @@
-// Стандартные ответы API для консистентности
 
-// Успешный ответ
+
+
 const success = (res, data = null, message = 'Success', statusCode = 200) => {
   const response = {
     success: true,
@@ -15,7 +15,7 @@ const success = (res, data = null, message = 'Success', statusCode = 200) => {
   return res.status(statusCode).json(response);
 };
 
-// Ответ с данными и пагинацией
+
 const successWithPagination = (res, data, pagination, message = 'Success') => {
   return res.status(200).json({
     success: true,
@@ -33,7 +33,7 @@ const successWithPagination = (res, data, pagination, message = 'Success') => {
   });
 };
 
-// Ответ об ошибке
+
 const error = (res, message = 'An error occurred', statusCode = 500, details = null) => {
   const response = {
     success: false,
@@ -51,7 +51,7 @@ const error = (res, message = 'An error occurred', statusCode = 500, details = n
   return res.status(statusCode).json(response);
 };
 
-// Ошибка валидации
+
 const validationError = (res, errors, message = 'Validation failed') => {
   return res.status(400).json({
     success: false,
@@ -65,7 +65,7 @@ const validationError = (res, errors, message = 'Validation failed') => {
   });
 };
 
-// Ошибка аутентификации
+
 const unauthorized = (res, message = 'Unauthorized access') => {
   return res.status(401).json({
     success: false,
@@ -78,7 +78,7 @@ const unauthorized = (res, message = 'Unauthorized access') => {
   });
 };
 
-// Ошибка доступа
+
 const forbidden = (res, message = 'Access forbidden') => {
   return res.status(403).json({
     success: false,
@@ -91,7 +91,7 @@ const forbidden = (res, message = 'Access forbidden') => {
   });
 };
 
-// Ресурс не найден
+
 const notFound = (res, message = 'Resource not found') => {
   return res.status(404).json({
     success: false,
@@ -104,7 +104,7 @@ const notFound = (res, message = 'Resource not found') => {
   });
 };
 
-// Конфликт (например, дублирование)
+
 const conflict = (res, message = 'Resource already exists') => {
   return res.status(409).json({
     success: false,
@@ -117,7 +117,7 @@ const conflict = (res, message = 'Resource already exists') => {
   });
 };
 
-// Слишком много запросов
+
 const tooManyRequests = (res, message = 'Too many requests', retryAfter = null) => {
   const response = {
     success: false,
@@ -136,7 +136,7 @@ const tooManyRequests = (res, message = 'Too many requests', retryAfter = null) 
   return res.status(429).json(response);
 };
 
-// Внутренняя ошибка сервера
+
 const internalError = (res, message = 'Internal server error', details = null) => {
   const response = {
     success: false,
@@ -148,7 +148,7 @@ const internalError = (res, message = 'Internal server error', details = null) =
     timestamp: new Date().toISOString()
   };
   
-  // В production не показываем детали ошибок
+
   if (process.env.NODE_ENV !== 'production' && details) {
     response.error.details = details;
   }
@@ -156,22 +156,22 @@ const internalError = (res, message = 'Internal server error', details = null) =
   return res.status(500).json(response);
 };
 
-// Создано успешно
+
 const created = (res, data, message = 'Resource created successfully') => {
   return success(res, data, message, 201);
 };
 
-// Обновлено успешно
+
 const updated = (res, data, message = 'Resource updated successfully') => {
   return success(res, data, message, 200);
 };
 
-// Удалено успешно
+
 const deleted = (res, message = 'Resource deleted successfully') => {
   return success(res, null, message, 200);
 };
 
-// Нет контента
+
 const noContent = (res) => {
   return res.status(204).send();
 };

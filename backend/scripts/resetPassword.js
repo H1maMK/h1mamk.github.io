@@ -9,7 +9,7 @@ async function resetPassword() {
     console.log('✅ Подключено к MongoDB');
     
     const email = 'maximiliansov@gmail.com';
-    const newPassword = '123456'; // Простой пароль для теста
+    const newPassword = '123456';
     
     console.log(`Ищем пользователя: ${email}`);
     const user = await User.findOne({ email });
@@ -22,7 +22,7 @@ async function resetPassword() {
     console.log(`✅ Пользователь найден: ${user.username} (${user.email})`);
     console.log(`Текущая роль: ${user.role}`);
     
-    // Устанавливаем пароль напрямую (модель сама захеширует через pre-save hook)
+
     user.password = newPassword;
     await user.save();
     

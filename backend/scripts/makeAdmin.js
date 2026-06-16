@@ -4,13 +4,13 @@ require('dotenv').config();
 
 const makeAdmin = async () => {
   try {
-    // Подключение к MongoDB
+
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
 
     const email = 'admin@test.com';
 
-    // Находим пользователя
+
     const user = await User.findOne({ email });
     
     if (!user) {
@@ -20,7 +20,7 @@ const makeAdmin = async () => {
 
     console.log('User found:', user.email, 'Current role:', user.role);
 
-    // Делаем администратором
+
     user.role = 'admin';
     await user.save();
 

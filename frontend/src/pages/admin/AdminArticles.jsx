@@ -206,7 +206,6 @@ const AdminArticles = () => {
                     <img src={imageUrl} alt={article.title} className="admin-article-image" />
                     <div className="admin-article-overlay">
                       <span className="admin-article-badge">{meta.badge}</span>
-                      <span className="admin-article-icon">{meta.icon}</span>
                     </div>
                   </Link>
 

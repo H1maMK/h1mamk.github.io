@@ -1,4 +1,4 @@
-/* Cart/Basket styles */
+
 .main-wrapper {
   max-width: 100%;
   width: 100%;
@@ -13,16 +13,16 @@
   color: #FFE6BB;
 }
 
-/* Контейнер корзины (flex) */
+
 .basket-container {
   display: flex;
   gap: 30px;
   align-items: flex-start;
 }
 
-/* Левая колонка - список товаров */
+
 .cart-items-column {
-  flex: 1; /* Занимает всё оставшееся пространство */
+  flex: 1; 
   min-width: 0;
   background-color: #252525;
   border-radius: 12px;
@@ -114,9 +114,9 @@
   color: #ff6b6b;
 }
 
-/* Правая колонка - сайдбар */
+
 .cart-sidebar-column {
-  flex: 0 0 400px; /* Фиксированная ширина 400px */
+  flex: 0 0 400px; 
   min-width: 350px;
   position: sticky;
   top: 140px;
@@ -125,7 +125,7 @@
   gap: 25px;
 }
 
-/* Блок с итоговой суммой */
+
 .order-summary, .delivery-address, .payment-options {
   background-color: #252525;
   border-radius: 12px;
@@ -169,7 +169,7 @@
   cursor: not-allowed;
 }
 
-/* Блок с адресом */
+
 .delivery-address h2, .payment-options h2 {
   font-size: 1.3rem;
   font-weight: 600;
@@ -322,7 +322,7 @@
   margin-bottom: 0;
 }
 
-/* Блок с опциями оплаты/доставки */
+
 .option-group {
   display: flex;
   flex-direction: column;
@@ -338,7 +338,7 @@
   color: #ccc;
 }
 
-/* Сообщение о пустой корзине */
+
 .empty-cart-message {
   text-align: center;
   font-size: 1.2rem;
@@ -346,7 +346,7 @@
   color: #888;
 }
 
-/* Адаптивность */
+
 @media (max-width: 900px) {
   .main-wrapper {
     padding: 140px 20px 120px;

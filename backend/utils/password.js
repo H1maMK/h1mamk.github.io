@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 
-// Хеширование пароля
+
 const hashPassword = async (password) => {
   try {
     const saltRounds = 12;
@@ -11,7 +11,7 @@ const hashPassword = async (password) => {
   }
 };
 
-// Проверка пароля
+
 const comparePassword = async (password, hashedPassword) => {
   try {
     const isMatch = await bcrypt.compare(password, hashedPassword);
@@ -21,7 +21,7 @@ const comparePassword = async (password, hashedPassword) => {
   }
 };
 
-// Генерация случайного пароля
+
 const generateRandomPassword = (length = 12) => {
   const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
   let password = '';
@@ -33,7 +33,7 @@ const generateRandomPassword = (length = 12) => {
   return password;
 };
 
-// Проверка силы пароля
+
 const validatePasswordStrength = (password) => {
   const minLength = 8;
   const hasUpperCase = /[A-Z]/.test(password);
@@ -80,7 +80,7 @@ const calculatePasswordStrength = (password) => {
   if (/\d/.test(password)) score += 15;
   if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 15;
   
-  // Дополнительные баллы за длину
+
   if (password.length >= 12) score += 10;
   if (password.length >= 16) score += 5;
   

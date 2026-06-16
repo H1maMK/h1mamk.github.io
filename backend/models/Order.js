@@ -67,18 +67,18 @@ const orderSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes
+
 orderSchema.index({ user: 1 });
 orderSchema.index({ createdAt: -1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ mysqlId: 1 }, { unique: true, sparse: true });
 
-// Virtual for order number
+
 orderSchema.virtual('orderNumber').get(function() {
   return `ORD-${this._id.toString().slice(-8).toUpperCase()}`;
 });
 
-// Virtual for total items count
+
 orderSchema.virtual('totalItems').get(function() {
   return this.items.reduce((total, item) => total + item.quantity, 0);
 });

@@ -1,4 +1,4 @@
-/* Orders Page Styles - точная копия из PHP сайта */
+
 
 .orders-card {
   padding: 30px 40px;
@@ -246,7 +246,7 @@
   color: #FFE6BB;
 }
 
-/* Responsive Design */
+
 @media (max-width: 1024px) {
   .orders-card {
     min-width: auto;

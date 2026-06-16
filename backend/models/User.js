@@ -92,14 +92,14 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Indexes (email and username already have unique indexes from schema)
+
 userSchema.index({ createdAt: -1 });
 userSchema.index({ role: 1 });
 userSchema.index({ isBlocked: 1 });
 userSchema.index({ tokenInvalidBefore: 1 });
 userSchema.index({ mysqlId: 1 }, { unique: true, sparse: true });
 
-// Pre-save middleware to hash password
+
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
@@ -112,7 +112,7 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Instance method to check password
+
 userSchema.methods.comparePassword = async function(candidatePassword) {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
@@ -121,7 +121,7 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   }
 };
 
-// Virtual for admin check
+
 userSchema.virtual('isAdmin').get(function() {
   return this.role === 'admin';
 });

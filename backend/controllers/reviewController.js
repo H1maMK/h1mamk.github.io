@@ -3,7 +3,7 @@ const Product = require('../models/Product');
 const User = require('../models/User');
 const { success, error, notFound, validationError, unauthorized, forbidden } = require('../utils/response');
 
-// Получение отзывов для конкретного товара (только одобренные для обычных пользователей)
+
 const getProductReviews = async (req, res) => {
   try {
     const { id } = req.params;
@@ -15,14 +15,14 @@ const getProductReviews = async (req, res) => {
       rating
     } = req.query;
 
-    // Проверяем, существует ли товар
+
     const product = await Product.findById(id);
     if (!product) {
       return notFound(res, 'Product not found');
     }
 
-    // Построение фильтра для отзывов - только одобренные.
-    // После $unwind поля отзыва лежат в reviews.*, поэтому фильтровать нужно по reviews.status.
+
+
     let reviewMatchFilter = { 'reviews.status': 'approved' };
     if (rating) {
       const ratingNum = parseInt(rating);
@@ -31,19 +31,19 @@ const getProductReviews = async (req, res) => {
       }
     }
 
-    // Настройка сортировки
+
     const sortOptions = {};
     const validSortFields = ['created_at', 'rating'];
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'created_at';
     const order = sortOrder === 'asc' ? 1 : -1;
     sortOptions[`reviews.${sortField}`] = order;
 
-    // Пагинация
+
     const pageNum = Math.max(1, parseInt(page));
     const limitNum = Math.min(50, Math.max(1, parseInt(limit)));
     const skip = (pageNum - 1) * limitNum;
 
-    // Агрегация для получения отзывов с пагинацией
+
     const pipeline = [
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       { $unwind: '$reviews' },
@@ -81,7 +81,7 @@ const getProductReviews = async (req, res) => {
     const reviews = result[0]?.reviews || [];
     const totalCount = result[0]?.totalCount[0]?.count || 0;
 
-    // Статистика отзывов (только одобренные)
+
     const statsResult = await Product.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       { $unwind: '$reviews' },
@@ -109,7 +109,7 @@ const getProductReviews = async (req, res) => {
       stats.averageRating = Math.round(stat.averageRating * 10) / 10;
       stats.totalReviews = stat.totalReviews;
       
-      // Подсчет распределения рейтингов
+
       stat.ratingDistribution.forEach(rating => {
         stats.ratingDistribution[rating]++;
       });
@@ -152,7 +152,7 @@ const getProductReviews = async (req, res) => {
   }
 };
 
-// Добавление отзыва к товару
+
 const addProductReview = async (req, res) => {
   try {
     const { id } = req.params;
@@ -170,7 +170,7 @@ const addProductReview = async (req, res) => {
       params: req.params
     });
 
-    // Проверяем, существует ли товар
+
     const product = await Product.findById(id);
     if (!product) {
       console.log('Product not found:', id);
@@ -179,7 +179,7 @@ const addProductReview = async (req, res) => {
 
     console.log('Product found:', product.name, 'Reviews count:', product.reviews.length);
 
-    // Проверяем, не оставлял ли пользователь уже отзыв на этот товар (независимо от статуса)
+
     const existingReview = product.reviews.find(review => 
       review.user.toString() === userId.toString()
     );
@@ -189,24 +189,24 @@ const addProductReview = async (req, res) => {
       return error(res, 'Вы уже оставили отзыв на этот товар', 409);
     }
 
-    // Создаем новый отзыв со статусом "pending"
+
     const newReview = {
       user: userId,
       rating: parseInt(rating),
       comment: comment.trim(),
-      status: 'pending' // По умолчанию ожидает модерации
+      status: 'pending'
     };
 
     console.log('Creating new review:', newReview);
 
-    // Добавляем отзыв к товару
+
     product.reviews.push(newReview);
     
     console.log('Saving product with new review...');
     await product.save();
     console.log('Product saved successfully');
 
-    // Возвращаем информацию о созданном отзыве
+
     return success(res, {
       review: newReview,
       productId: id,
@@ -241,14 +241,14 @@ const addProductReview = async (req, res) => {
   }
 };
 
-// Обновление отзыва пользователя
+
 const updateProductReview = async (req, res) => {
   try {
     const { id, reviewId } = req.params;
     const { rating, comment } = req.body;
     const userId = req.user._id;
 
-    // Валидация входных данных
+
     if (rating !== undefined && (rating < 1 || rating > 5)) {
       return validationError(res, [{ field: 'rating', message: 'Rating must be between 1 and 5' }]);
     }
@@ -261,24 +261,24 @@ const updateProductReview = async (req, res) => {
       return validationError(res, [{ field: 'comment', message: 'Comment must be less than 1000 characters' }]);
     }
 
-    // Находим товар
+
     const product = await Product.findById(id);
     if (!product) {
       return notFound(res, 'Product not found');
     }
 
-    // Находим отзыв
+
     const review = product.reviews.id(reviewId);
     if (!review) {
       return notFound(res, 'Review not found');
     }
 
-    // Проверяем, что пользователь является автором отзыва
+
     if (review.user.toString() !== userId.toString()) {
       return forbidden(res, 'You can only edit your own reviews');
     }
 
-    // Обновляем отзыв
+
     if (rating !== undefined) {
       review.rating = parseInt(rating);
     }
@@ -311,30 +311,30 @@ const updateProductReview = async (req, res) => {
   }
 };
 
-// Удаление отзыва пользователя
+
 const deleteProductReview = async (req, res) => {
   try {
     const { id, reviewId } = req.params;
     const userId = req.user._id;
 
-    // Находим товар
+
     const product = await Product.findById(id);
     if (!product) {
       return notFound(res, 'Product not found');
     }
 
-    // Находим отзыв
+
     const review = product.reviews.id(reviewId);
     if (!review) {
       return notFound(res, 'Review not found');
     }
 
-    // Проверяем, что пользователь является автором отзыва или администратором
+
     if (review.user.toString() !== userId.toString() && req.user.role !== 'admin') {
       return forbidden(res, 'You can only delete your own reviews');
     }
 
-    // Удаляем отзыв
+
     product.reviews.pull(reviewId);
     await product.save();
 
@@ -355,7 +355,7 @@ const deleteProductReview = async (req, res) => {
   }
 };
 
-// Получение отзывов пользователя
+
 const getUserReviews = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -366,19 +366,19 @@ const getUserReviews = async (req, res) => {
       sortOrder = 'desc'
     } = req.query;
 
-    // Настройка сортировки
+
     const sortOptions = {};
     const validSortFields = ['created_at', 'rating'];
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'created_at';
     const order = sortOrder === 'asc' ? 1 : -1;
     sortOptions[`reviews.${sortField}`] = order;
 
-    // Пагинация
+
     const pageNum = Math.max(1, parseInt(page));
     const limitNum = Math.min(50, Math.max(1, parseInt(limit)));
     const skip = (pageNum - 1) * limitNum;
 
-    // Агрегация для получения отзывов пользователя
+
     const pipeline = [
       { $unwind: '$reviews' },
       { $match: { 'reviews.user': new mongoose.Types.ObjectId(userId) } },
@@ -435,18 +435,18 @@ const getUserReviews = async (req, res) => {
   }
 };
 
-// Получение статистики отзывов для товара
+
 const getProductReviewStats = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Проверяем, существует ли товар
+
     const product = await Product.findById(id);
     if (!product) {
       return notFound(res, 'Product not found');
     }
 
-    // Получаем статистику отзывов (только одобренные)
+
     const statsResult = await Product.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       { $unwind: '$reviews' },
@@ -481,12 +481,12 @@ const getProductReviewStats = async (req, res) => {
       stats.averageRating = Math.round(stat.averageRating * 10) / 10;
       stats.totalReviews = stat.totalReviews;
       
-      // Подсчет распределения рейтингов
+
       stat.ratingDistribution.forEach(rating => {
         stats.ratingDistribution[rating]++;
       });
 
-      // Процент рекомендаций (рейтинг 4 и 5)
+
       const positiveReviews = stats.ratingDistribution[4] + stats.ratingDistribution[5];
       stats.recommendationPercentage = Math.round((positiveReviews / stats.totalReviews) * 100);
     }
@@ -507,7 +507,7 @@ const getProductReviewStats = async (req, res) => {
   }
 };
 
-// Получение всех ожидающих отзывов (для админа)
+
 const getPendingReviews = async (req, res) => {
   try {
     const {
@@ -517,19 +517,19 @@ const getPendingReviews = async (req, res) => {
       sortOrder = 'desc'
     } = req.query;
 
-    // Настройка сортировки
+
     const sortOptions = {};
     const validSortFields = ['created_at', 'rating'];
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'created_at';
     const order = sortOrder === 'asc' ? 1 : -1;
     sortOptions[`reviews.${sortField}`] = order;
 
-    // Пагинация
+
     const pageNum = Math.max(1, parseInt(page));
     const limitNum = Math.min(50, Math.max(1, parseInt(limit)));
     const skip = (pageNum - 1) * limitNum;
 
-    // Агрегация для получения ожидающих отзывов
+
     const pipeline = [
       { $unwind: '$reviews' },
       { $match: { 'reviews.status': 'pending' } },
@@ -597,7 +597,7 @@ const getPendingReviews = async (req, res) => {
   }
 };
 
-// Получение всех отзывов сайта для администратора
+
 const getAllReviewsForAdmin = async (req, res) => {
   try {
     const {
@@ -706,11 +706,11 @@ const getAllReviewsForAdmin = async (req, res) => {
   }
 };
 
-// Одобрение или отклонение отзыва (для админа)
+
 const moderateReview = async (req, res) => {
   try {
     const { reviewId } = req.params;
-    const { action, reason } = req.body; // action: 'approve' или 'reject'
+    const { action, reason } = req.body;
 
     if (!action || !['approve', 'reject'].includes(action)) {
       return validationError(res, [{ field: 'action', message: 'Action must be "approve" or "reject"' }]);
@@ -720,20 +720,20 @@ const moderateReview = async (req, res) => {
       return validationError(res, [{ field: 'reason', message: 'Reason is required when rejecting a review' }]);
     }
 
-    // Находим товар с этим отзывом
+
     const product = await Product.findOne({ 'reviews._id': reviewId });
     
     if (!product) {
       return notFound(res, 'Review not found');
     }
 
-    // Находим отзыв
+
     const review = product.reviews.id(reviewId);
     if (!review) {
       return notFound(res, 'Review not found');
     }
 
-    // Обновляем статус отзыва
+
     if (action === 'approve') {
       review.status = 'approved';
       review.rejectedReason = null;
@@ -763,7 +763,7 @@ const moderateReview = async (req, res) => {
   }
 };
 
-// Получение всех отзывов товара для админа (включая.pending и rejected)
+
 const getAllProductReviewsForAdmin = async (req, res) => {
   try {
     const { id } = req.params;
@@ -772,34 +772,34 @@ const getAllProductReviewsForAdmin = async (req, res) => {
       limit = 10,
       sortBy = 'created_at',
       sortOrder = 'desc',
-      status // фильтр по статусу: pending, approved, rejected
+      status
     } = req.query;
 
-    // Проверяем, существует ли товар
+
     const product = await Product.findById(id);
     if (!product) {
       return notFound(res, 'Product not found');
     }
 
-    // Построение фильтра для отзывов
+
     let reviewMatchFilter = {};
     if (status && ['pending', 'approved', 'rejected'].includes(status)) {
       reviewMatchFilter['reviews.status'] = status;
     }
 
-    // Настройка сортировки
+
     const sortOptions = {};
     const validSortFields = ['created_at', 'rating'];
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'created_at';
     const order = sortOrder === 'asc' ? 1 : -1;
     sortOptions[`reviews.${sortField}`] = order;
 
-    // Пагинация
+
     const pageNum = Math.max(1, parseInt(page));
     const limitNum = Math.min(50, Math.max(1, parseInt(limit)));
     const skip = (pageNum - 1) * limitNum;
 
-    // Агрегация для получения всех отзывов с пагинацией
+
     const pipeline = [
       { $match: { _id: new mongoose.Types.ObjectId(id) } },
       { $unwind: '$reviews' },

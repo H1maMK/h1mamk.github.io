@@ -3,7 +3,7 @@ const User = require('../models/User');
 const { unauthorized, error } = require('../utils/response');
 const tokenService = require('../services/tokenService');
 
-// Middleware для проверки аутентификации
+
 const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
@@ -13,15 +13,15 @@ const authenticateToken = async (req, res, next) => {
       return unauthorized(res, 'Access token is required');
     }
 
-    // Проверяем, не находится ли токен в blacklist
+
     if (tokenService.isTokenBlacklisted(token)) {
       return unauthorized(res, 'Token has been invalidated');
     }
 
-    // Проверяем токен
+
     const decoded = verifyToken(token);
     
-    // Получаем пользователя
+
     const user = await User.findById(decoded.userId).select('-password');
     
     if (!user) {
@@ -32,7 +32,7 @@ const authenticateToken = async (req, res, next) => {
       return unauthorized(res, 'Account is blocked');
     }
 
-    // Постоянная инвалидация токенов через БД (после logout/change-password)
+
     if (user.tokenInvalidBefore && decoded.iat) {
       const tokenIssuedAtMs = decoded.iat * 1000;
       const invalidBeforeMs = new Date(user.tokenInvalidBefore).getTime();
@@ -41,7 +41,7 @@ const authenticateToken = async (req, res, next) => {
       }
     }
 
-    // Добавляем пользователя в request
+
     req.user = user;
     req.token = token;
     
@@ -60,7 +60,7 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Middleware для опциональной аутентификации (не требует токен)
+
 const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
@@ -84,19 +84,19 @@ const optionalAuth = async (req, res, next) => {
           req.token = token;
         }
       } catch (err) {
-        // Игнорируем ошибки для опциональной аутентификации
+
         console.log('Optional auth failed:', err.message);
       }
     }
     
     next();
   } catch (err) {
-    // Игнорируем ошибки для опциональной аутентификации
+
     next();
   }
 };
 
-// Middleware для проверки роли администратора
+
 const requireAdmin = (req, res, next) => {
   if (!req.user) {
     return unauthorized(res, 'Authentication required');
@@ -109,7 +109,7 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
-// Middleware для проверки роли модератора или администратора
+
 const requireModerator = (req, res, next) => {
   if (!req.user) {
     return unauthorized(res, 'Authentication required');
@@ -123,7 +123,7 @@ const requireModerator = (req, res, next) => {
   next();
 };
 
-// Middleware для проверки владельца ресурса или администратора
+
 const requireOwnerOrAdmin = (resourceUserIdField = 'userId') => {
   return (req, res, next) => {
     if (!req.user) {

@@ -97,7 +97,7 @@ const articleSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes
+
 articleSchema.index({ title: 'text', content: 'text' }, {
   weights: {
     title: 10,
@@ -110,7 +110,7 @@ articleSchema.index({ publishedAt: -1 });
 articleSchema.index({ isPublished: 1 });
 articleSchema.index({ mysqlId: 1 }, { unique: true, sparse: true });
 
-// Virtual for reading time (words per minute = 200)
+
 articleSchema.virtual('readingTime').get(function() {
   const wordsPerMinute = 200;
   const wordCount = this.content.split(/\s+/).length;
@@ -118,7 +118,7 @@ articleSchema.virtual('readingTime').get(function() {
   return minutes;
 });
 
-// Virtual for URL slug
+
 articleSchema.virtual('slug').get(function() {
   return this.title
     .toLowerCase()

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
-// Функция перевода английских ошибок на русский
+
 const translateError = (message) => {
   const translations = {
     'Password must contain at least one lowercase letter, one uppercase letter, and one number': 
@@ -46,12 +46,12 @@ const translateError = (message) => {
       'Ошибка валидации',
   };
   
-  // Проверяем точное совпадение
+
   if (translations[message]) {
     return translations[message];
   }
   
-  // Проверяем частичное совпадение
+
   for (const [eng, rus] of Object.entries(translations)) {
     if (message.includes(eng)) {
       return message.replace(eng, rus);
@@ -88,7 +88,7 @@ const Register = () => {
     e.preventDefault();
     setError('');
 
-    // Проверка имени пользователя
+
     if (!formData.username.trim()) {
       setError('Введите имя пользователя');
       return;
@@ -99,7 +99,7 @@ const Register = () => {
       return;
     }
 
-    // Проверка email
+
     if (!formData.email.trim()) {
       setError('Введите email');
       return;
@@ -111,7 +111,7 @@ const Register = () => {
       return;
     }
 
-    // Проверка пароля
+
     if (!formData.password) {
       toast.error('Введите пароль');
       return;
@@ -127,7 +127,7 @@ const Register = () => {
       return;
     }
 
-    // Проверка подтверждения пароля
+
     if (!formData.confirmPassword) {
       toast.error('Подтвердите пароль');
       return;
@@ -138,13 +138,13 @@ const Register = () => {
       return;
     }
 
-    // Проверка согласия на конфиденциальность
+
     if (!formData.agreeToPrivacy) {
       setError('Необходимо принять политику конфиденциальности');
       return;
     }
 
-    // Проверка согласия на обработку данных
+
     if (!formData.agreeToDataProcessing) {
       setError('Необходимо дать согласие на обработку персональных данных');
       return;
@@ -163,35 +163,35 @@ const Register = () => {
       console.error('Registration error:', err);
       console.log('Full error response:', err.response?.data);
       
-      // Извлекаем сообщение об ошибке из разных форматов ответа
+
       let errorMessage = 'Ошибка регистрации. Попробуйте позже.';
       
       const data = err.response?.data;
       
       if (data) {
-        // Формат: { error: { message: "...", details: [...] } }
+
         if (data.error?.message) {
           errorMessage = data.error.message;
         }
-        // Формат: { error: { details: [{ message: "..." }] } }
+
         if (data.error?.details && Array.isArray(data.error.details)) {
           errorMessage = data.error.details.map((d) => d.message).join('. ');
         }
-        // Формат: { error: "string" }
+
         if (typeof data.error === 'string') {
           errorMessage = data.error;
         }
-        // Формат: { message: "..." }
+
         if (data.message && !data.error) {
           errorMessage = data.message;
         }
-        // Формат: { errors: [{ msg: "..." }] } (express-validator)
+
         if (data.errors && Array.isArray(data.errors)) {
           errorMessage = data.errors.map((e) => e.msg || e.message).join('. ');
         }
       }
       
-      // Переводим английские ошибки на русский
+
       errorMessage = translateError(errorMessage);
 
       if (/парол/i.test(errorMessage) || /password/i.test(errorMessage)) {

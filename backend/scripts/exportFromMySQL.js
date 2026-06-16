@@ -2,7 +2,7 @@ const mysql = require('mysql2/promise');
 const fs = require('fs').promises;
 const path = require('path');
 
-// Конфигурация MySQL
+
 const mysqlConfig = {
   host: 'localhost',
   user: 'root',
@@ -11,7 +11,7 @@ const mysqlConfig = {
   charset: 'utf8mb4'
 };
 
-// Подключение к MySQL
+
 const connectMySQL = async () => {
   try {
     const connection = await mysql.createConnection(mysqlConfig);
@@ -23,7 +23,7 @@ const connectMySQL = async () => {
   }
 };
 
-// Экспорт категорий
+
 const exportCategories = async (mysqlConnection) => {
   try {
     console.log('📦 Экспортируем категории...');
@@ -53,7 +53,7 @@ const exportCategories = async (mysqlConnection) => {
   }
 };
 
-// Экспорт пользователей
+
 const exportUsers = async (mysqlConnection) => {
   try {
     console.log('👥 Экспортируем пользователей...');
@@ -67,7 +67,7 @@ const exportUsers = async (mysqlConnection) => {
     const mongoUsers = users.map(user => ({
       username: user.username,
       email: user.email,
-      password: '$2a$12$defaulthashedpassword', // Будет заменен при импорте
+      password: '$2a$12$defaulthashedpassword',
       role: user.role_name === 'admin' ? 'admin' : 'user',
       profile: {
         yearBirth: user.yearbirth ? parseInt(user.yearbirth) : null,
@@ -95,7 +95,7 @@ const exportUsers = async (mysqlConnection) => {
   }
 };
 
-// Экспорт товаров
+
 const exportProducts = async (mysqlConnection, categories) => {
   try {
     console.log('🛍️ Экспортируем товары...');
@@ -107,18 +107,18 @@ const exportProducts = async (mysqlConnection, categories) => {
     `);
     
     const mongoProducts = products.map(product => {
-      // Находим соответствующую категорию
+
       const category = categories.find(cat => cat.mysqlId === product.category_id);
       
-      // Парсим свойства товара
+
       let specifications = {};
       if (product.properties) {
         try {
-          // Пытаемся парсить как JSON
+
           const parsedProps = JSON.parse(product.properties);
           specifications = parsedProps;
         } catch (e) {
-          // Если не JSON, парсим как строку с разделителями
+
           const props = product.properties.split(';');
           props.forEach(prop => {
             const [key, value] = prop.split(':').map(s => s.trim());
@@ -129,7 +129,7 @@ const exportProducts = async (mysqlConnection, categories) => {
         }
       }
       
-      // Собираем изображения
+
       const images = [];
       if (product.image_url1) images.push(product.image_url1);
       if (product.image_url2) images.push(product.image_url2);
@@ -141,7 +141,7 @@ const exportProducts = async (mysqlConnection, categories) => {
         price: parseFloat(product.price),
         images: images,
         specifications: specifications,
-        categoryId: category ? category._id : null, // Будет заменен при импорте
+        categoryId: category ? category._id : null,
         stock: product.availability || 0,
         isActive: true,
         reviews: [],
@@ -166,7 +166,7 @@ const exportProducts = async (mysqlConnection, categories) => {
   }
 };
 
-// Экспорт статей
+
 const exportArticles = async (mysqlConnection) => {
   try {
     console.log('📰 Экспортируем статьи...');
@@ -198,7 +198,7 @@ const exportArticles = async (mysqlConnection) => {
   }
 };
 
-// Экспорт заказов
+
 const exportOrders = async (mysqlConnection) => {
   try {
     console.log('🛒 Экспортируем заказы...');
@@ -212,7 +212,7 @@ const exportOrders = async (mysqlConnection) => {
     const mongoOrders = [];
     
     for (const order of orders) {
-      // Получаем товары заказа
+
       const [orderItems] = await mysqlConnection.execute(`
         SELECT oi.*, p.product_name, p.price 
         FROM order_items oi 
@@ -221,7 +221,7 @@ const exportOrders = async (mysqlConnection) => {
       `, [order.id]);
       
       const items = orderItems.map(item => ({
-        productId: item.product_id, // Будет заменен при импорте
+        productId: item.product_id,
         quantity: item.quantity,
         price: parseFloat(item.price || 0)
       }));
@@ -232,7 +232,7 @@ const exportOrders = async (mysqlConnection) => {
       });
       
       mongoOrders.push({
-        userId: order.user_id, // Будет заменен при импорте
+        userId: order.user_id,
         items: items,
         totalAmount: totalAmount,
         status: order.status,
@@ -256,7 +256,7 @@ const exportOrders = async (mysqlConnection) => {
   }
 };
 
-// Экспорт отзывов
+
 const exportReviews = async (mysqlConnection) => {
   try {
     console.log('⭐ Экспортируем отзывы...');
@@ -269,8 +269,8 @@ const exportReviews = async (mysqlConnection) => {
     `);
     
     const mongoReviews = reviews.map(review => ({
-      productId: review.product_id, // Будет заменен при импорте
-      userId: review.user_id, // Будет заменен при импорте
+      productId: review.product_id,
+      userId: review.user_id,
       rating: review.rating,
       comment: review.comment,
       createdAt: review.created_at
@@ -290,20 +290,20 @@ const exportReviews = async (mysqlConnection) => {
   }
 };
 
-// Основная функция экспорта
+
 const runExport = async () => {
   console.log('🚀 Начинаем экспорт данных из MySQL...\n');
   
   let mysqlConnection;
   
   try {
-    // Создаем папку для данных
+
     await fs.mkdir(path.join(__dirname, '../data'), { recursive: true });
     
-    // Подключаемся к MySQL
+
     mysqlConnection = await connectMySQL();
     
-    // Выполняем экспорт в правильном порядке
+
     const categories = await exportCategories(mysqlConnection);
     console.log('');
     
@@ -324,7 +324,7 @@ const runExport = async () => {
     
     console.log('🎉 Экспорт данных успешно завершен!');
     
-    // Выводим статистику
+
     console.log('\n📊 Статистика экспорта:');
     console.log(`- Категории: ${categories.length}`);
     console.log(`- Пользователи: ${users.length}`);
@@ -344,7 +344,7 @@ const runExport = async () => {
   } catch (error) {
     console.error('❌ Критическая ошибка экспорта:', error);
   } finally {
-    // Закрываем соединение
+
     if (mysqlConnection) {
       await mysqlConnection.end();
       console.log('✅ Соединение с MySQL закрыто');
@@ -354,7 +354,7 @@ const runExport = async () => {
   }
 };
 
-// Запускаем экспорт
+
 if (require.main === module) {
   runExport();
 }

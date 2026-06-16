@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { validationResult } = require('express-validator');
 
-// Import controllers
+
 const {
   createOrder,
   getUserOrders,
@@ -14,11 +14,11 @@ const {
   deleteOrder
 } = require('../controllers/orderController');
 
-// Import middleware
+
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { body } = require('express-validator');
 
-// Middleware для обработки ошибок валидации
+
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -31,7 +31,7 @@ const handleValidationErrors = (req, res, next) => {
   next();
 };
 
-// Валидация для создания заказа
+
 const ASTRAKHAN_ADDRESS_REGEX = /^\s*(г\.?\s*)?(город\s*)?астрахан(?:[ьи])?(?=\s|,|$)/i;
 
 const validateCreateOrder = [
@@ -78,7 +78,7 @@ const validateCreateOrder = [
     .isIn(['courier'])
     .withMessage('Delivery method must be courier'),
 
-  // Критичные поля рассчитываются только сервером
+
   body('deliveryPrice')
     .custom((value) => value === undefined)
     .withMessage('deliveryPrice is calculated by server'),
@@ -88,51 +88,35 @@ const validateCreateOrder = [
     .withMessage('totalPrice is calculated by server')
 ];
 
-// Валидация для обновления статуса заказа
+
 const validateOrderStatus = [
   body('status')
     .isIn(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'])
     .withMessage('Status must be pending, confirmed, shipped, delivered, or cancelled')
 ];
 
-// @route   POST /api/orders
-// @desc    Create a new order
-// @access  Private
+
 router.post('/', authenticateToken, validateCreateOrder, handleValidationErrors, createOrder);
 
-// @route   GET /api/orders
-// @desc    Get user's orders
-// @access  Private
+
 router.get('/', authenticateToken, getUserOrders);
 
-// @route   GET /api/orders/stats
-// @desc    Get order statistics (admin only)
-// @access  Private (Admin)
+
 router.get('/stats', authenticateToken, requireAdmin, getOrderStats);
 
-// @route   GET /api/orders/all
-// @desc    Get all orders (admin only)
-// @access  Private (Admin)
+
 router.get('/all', authenticateToken, requireAdmin, getAllOrders);
 
-// @route   DELETE /api/orders/:id
-// @desc    Delete an order (admin only)
-// @access  Private (Admin)
+
 router.delete('/:id', authenticateToken, requireAdmin, deleteOrder);
 
-// @route   GET /api/orders/:id
-// @desc    Get specific order
-// @access  Private
+
 router.get('/:id', authenticateToken, getOrder);
 
-// @route   PUT /api/orders/:id/cancel
-// @desc    Cancel an order
-// @access  Private
+
 router.put('/:id/cancel', authenticateToken, cancelOrder);
 
-// @route   PUT /api/orders/:id/status
-// @desc    Update order status (admin only)
-// @access  Private (Admin)
+
 router.put('/:id/status', authenticateToken, requireAdmin, validateOrderStatus, handleValidationErrors, updateOrderStatus);
 
 module.exports = router;

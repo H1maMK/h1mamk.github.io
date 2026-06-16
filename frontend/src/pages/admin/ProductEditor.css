@@ -321,7 +321,6 @@
   color: #FFE6BB;
 }
 
-/* Изображения */
 .images-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -459,7 +458,6 @@
   border-color: rgba(255, 230, 187, 0.6);
 }
 
-/* Характеристики */
 .specs-section {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid #333;
@@ -605,7 +603,6 @@
   cursor: not-allowed;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
   .product-editor-body {
     padding: 15px;

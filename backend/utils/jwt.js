@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-// Генерация JWT токена
+
 const generateToken = (userId) => {
   return jwt.sign(
     { userId },
@@ -13,7 +13,7 @@ const generateToken = (userId) => {
   );
 };
 
-// Проверка JWT токена
+
 const verifyToken = (token) => {
   try {
     return jwt.verify(token, process.env.JWT_SECRET, {
@@ -25,12 +25,12 @@ const verifyToken = (token) => {
   }
 };
 
-// Декодирование токена без проверки (для отладки)
+
 const decodeToken = (token) => {
   return jwt.decode(token, { complete: true });
 };
 
-// Получение времени истечения токена
+
 const getTokenExpiration = (token) => {
   try {
     const decoded = jwt.decode(token);
@@ -40,20 +40,20 @@ const getTokenExpiration = (token) => {
   }
 };
 
-// Проверка, истек ли токен
+
 const isTokenExpired = (token) => {
   const expiration = getTokenExpiration(token);
   return expiration ? expiration < new Date() : true;
 };
 
-// Обновление токена (если до истечения осталось меньше 1 дня)
+
 const refreshTokenIfNeeded = (token) => {
   try {
     const decoded = jwt.decode(token);
     const now = Math.floor(Date.now() / 1000);
     const timeUntilExpiry = decoded.exp - now;
     
-    // Если до истечения осталось меньше 24 часов, создаем новый токен
+
     if (timeUntilExpiry < 24 * 60 * 60) {
       return generateToken(decoded.userId);
     }

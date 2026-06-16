@@ -5,7 +5,7 @@ const path = require('path');
 const https = require('https');
 const http = require('http');
 
-// Синхронизация изображений между устройствами
+
 const syncImages = async (req, res) => {
   try {
     const { imageUrl, productId } = req.body;
@@ -17,7 +17,7 @@ const syncImages = async (req, res) => {
       });
     }
 
-    // Если это уже локальный файл, ничего не делаем
+
     if (imageUrl.includes(req.get('host'))) {
       return res.json({
         success: true,
@@ -26,17 +26,17 @@ const syncImages = async (req, res) => {
       });
     }
 
-    // Скачиваем изображение
+
     const fileName = `synced-${productId}-${Date.now()}.jpg`;
     const localPath = path.join(__dirname, '../uploads/products', fileName);
     
-    // Создаем папку если не существует
+
     const uploadsDir = path.dirname(localPath);
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
-    // Определяем протокол
+
     const client = imageUrl.startsWith('https') ? https : http;
     
     return new Promise((resolve, reject) => {

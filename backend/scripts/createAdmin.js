@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const createAdmin = async () => {
   try {
-    // Подключение к MongoDB
+
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
 
@@ -12,13 +12,13 @@ const createAdmin = async () => {
     const adminPassword = 'Kuznetsova051979';
     const adminUsername = 'admin';
 
-    // Проверяем, существует ли пользователь с таким email
+
     let existingUser = await User.findOne({ email: adminEmail }).select('+password');
 
     if (existingUser) {
       console.log('User with this email already exists:', existingUser.email);
       
-      // Если пользователь существует, но не админ - делаем его админом
+
       if (existingUser.role !== 'admin') {
         existingUser.role = 'admin';
         await existingUser.save();
@@ -27,7 +27,7 @@ const createAdmin = async () => {
         console.log('User is already an admin');
       }
       
-      // Проверяем пароль только если он есть
+
       if (existingUser.password) {
         const isPasswordCorrect = await existingUser.comparePassword(adminPassword);
         if (!isPasswordCorrect) {
@@ -46,7 +46,7 @@ const createAdmin = async () => {
       }
       
     } else {
-      // Создаем нового администратора
+
       console.log('Creating new admin user...');
       
       const adminUser = new User({
@@ -70,5 +70,5 @@ const createAdmin = async () => {
   }
 };
 
-// Запускаем скрипт
+
 createAdmin();

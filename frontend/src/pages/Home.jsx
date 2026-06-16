@@ -206,18 +206,13 @@ const Home = () => {
   }
 
   const renderHomeArticleCard = (article) => {
-    const meta = getArticleMeta(article)
-    const imageUrl = meta.imageUrl || getArticleImageUrl(article)
+    const imageUrl = getArticleImageUrl(article)
 
     return (
       <div key={article._id} className="statii-card">
         <Link to={`/articles/${article._id}`} className="statii-image-link">
           <img src={imageUrl} alt={article.title} loading="lazy" decoding="async" />
           <span className="statii-title">{article.title}</span>
-          <div className="statii-overlay">
-            <span className="statii-badge">{meta.badge}</span>
-            <span className="statii-icon">{meta.icon}</span>
-          </div>
         </Link>
       </div>
     )

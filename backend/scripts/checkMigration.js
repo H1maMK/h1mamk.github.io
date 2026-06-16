@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-// Импорт моделей
+
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
@@ -10,11 +10,11 @@ const Order = require('../models/Order');
 
 const checkMigration = async () => {
   try {
-    // Подключение к MongoDB
+
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/devicemaster');
     console.log('✅ Подключение к MongoDB успешно\n');
 
-    // Проверка категорий
+
     console.log('📦 КАТЕГОРИИ:');
     const categories = await Category.find().sort({ name: 1 });
     console.log(`Всего категорий: ${categories.length}`);
@@ -23,7 +23,7 @@ const checkMigration = async () => {
     });
     console.log('');
 
-    // Проверка пользователей
+
     console.log('👥 ПОЛЬЗОВАТЕЛИ:');
     const users = await User.find().sort({ username: 1 });
     console.log(`Всего пользователей: ${users.length}`);
@@ -32,7 +32,7 @@ const checkMigration = async () => {
     });
     console.log('');
 
-    // Проверка товаров
+
     console.log('🛍️ ТОВАРЫ:');
     const products = await Product.find().populate('category').sort({ name: 1 });
     console.log(`Всего товаров: ${products.length}`);
@@ -49,7 +49,7 @@ const checkMigration = async () => {
       console.log('');
     });
 
-    // Проверка статей
+
     console.log('📰 СТАТЬИ:');
     const articles = await Article.find().sort({ title: 1 });
     console.log(`Всего статей: ${articles.length}`);

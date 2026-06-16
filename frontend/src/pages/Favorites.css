@@ -1,4 +1,4 @@
-/* Favorites Page Styles - точная копия из PHP сайта */
+
 
 .favorites-page-container {
   max-width: 1200px;
@@ -24,7 +24,7 @@
   margin: 0;
 }
 
-/* Карточка товара - точная копия из каталога */
+
 .product-card {
   width: 100%;
   height: auto;
@@ -300,7 +300,7 @@
   color: #FFE6BB;
 }
 
-/* Mobile Responsive */
+
 @media (max-width: 768px) {
   .favorites-page-container {
     padding: 0 15px 20px 15px;

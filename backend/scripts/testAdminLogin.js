@@ -4,14 +4,14 @@ require('dotenv').config();
 
 const testLogin = async () => {
   try {
-    // Подключение к MongoDB
+
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
 
     const email = 'mr.maxim.8806@mail.ru';
     const password = 'Kuznetsova051979';
 
-    // Находим пользователя
+
     const user = await User.findOne({ email }).select('+password');
     
     if (!user) {
@@ -24,11 +24,11 @@ const testLogin = async () => {
     console.log('- Role:', user.role);
     console.log('- Has password:', !!user.password);
 
-    // Проверяем пароль
+
     const isPasswordValid = await user.comparePassword(password);
     console.log('Password valid:', isPasswordValid);
 
-    // Попробуем разные пароли
+
     const testPasswords = ['123456', 'admin', 'password', 'Kuznetsova051979'];
     
     for (const testPass of testPasswords) {

@@ -4,28 +4,28 @@ const { generateToken, verifyToken } = require('../utils/jwt');
 const { success, error, unauthorized, conflict } = require('../utils/response');
 const tokenService = require('../services/tokenService');
 
-// Регистрация нового пользователя
+
 const register = async (req, res) => {
   try {
     const { username, email, password, yearbirth, gender } = req.body;
 
-    // Проверяем, существует ли пользователь с таким email
+
     const existingUserByEmail = await User.findOne({ email });
     if (existingUserByEmail) {
       return conflict(res, 'Пользователь с таким email уже существует');
     }
 
-    // Проверяем, существует ли пользователь с таким username
+
     const existingUserByUsername = await User.findOne({ username });
     if (existingUserByUsername) {
       return conflict(res, 'Пользователь с таким именем уже существует');
     }
 
-    // Создаем нового пользователя
+
     const newUser = new User({
       username,
       email,
-      password, // Пароль будет автоматически захеширован в pre-save middleware
+      password,
       profile: {
         yearBirth: yearbirth || null,
         gender: gender || null
@@ -33,13 +33,13 @@ const register = async (req, res) => {
       role: 'user'
     });
 
-    // Сохраняем пользователя
+
     const savedUser = await newUser.save();
 
-    // Генерируем JWT токен
+
     const token = generateToken(savedUser._id);
 
-    // Возвращаем данные пользователя без пароля
+
     const userResponse = {
       id: savedUser._id,
       username: savedUser.username,
@@ -61,14 +61,14 @@ const register = async (req, res) => {
   }
 };
 
-// Вход пользователя в систему
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     console.log('Login attempt for email:', email);
 
-    // Находим пользователя по email
+
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       console.log('User not found for email:', email);
@@ -81,7 +81,7 @@ const login = async (req, res) => {
 
     console.log('User found:', user.email, 'Role:', user.role, 'Has password:', !!user.password);
 
-    // Проверяем пароль
+
     const isPasswordValid = await user.comparePassword(password);
     console.log('Password validation result:', isPasswordValid);
     
@@ -90,14 +90,14 @@ const login = async (req, res) => {
       return unauthorized(res, 'Неверный email или пароль');
     }
 
-    // Обновляем время последнего входа
+
     user.updatedAt = new Date();
     await user.save();
 
-    // Генерируем JWT токен
+
     const token = generateToken(user._id);
 
-    // Возвращаем данные пользователя без пароля
+
     const userResponse = {
       id: user._id,
       username: user.username,
@@ -123,10 +123,10 @@ const login = async (req, res) => {
   }
 };
 
-// Получение текущего пользователя
+
 const getMe = async (req, res) => {
   try {
-    // req.user уже установлен middleware authenticateToken
+
     const user = req.user;
 
     const userResponse = {
@@ -148,21 +148,21 @@ const getMe = async (req, res) => {
   }
 };
 
-// Выход из системы (инвалидация токена)
+
 const logout = async (req, res) => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (req.user?._id) {
-      // Персистентная инвалидизация всех ранее выданных токенов пользователя
+
       await User.findByIdAndUpdate(req.user._id, {
         tokenInvalidBefore: new Date()
       });
     }
 
     if (token) {
-      // Добавляем токен в blacklist
+
       const blacklisted = tokenService.blacklistToken(token);
       
       if (blacklisted) {
@@ -180,7 +180,7 @@ const logout = async (req, res) => {
   }
 };
 
-// Проверка токена
+
 const verifyTokenEndpoint = async (req, res) => {
   try {
     const authHeader = req.headers['authorization'];
@@ -194,10 +194,10 @@ const verifyTokenEndpoint = async (req, res) => {
       return unauthorized(res, 'Token has been invalidated');
     }
 
-    // Проверяем токен
+
     const decoded = verifyToken(token);
     
-    // Получаем пользователя
+
     const user = await User.findById(decoded.userId).select('-password');
     
     if (!user) {
@@ -247,7 +247,7 @@ const verifyTokenEndpoint = async (req, res) => {
   }
 };
 
-// Обновление токена
+
 const refreshToken = async (req, res) => {
   try {
     const authHeader = req.headers['authorization'];
@@ -257,13 +257,13 @@ const refreshToken = async (req, res) => {
       return unauthorized(res, 'No token provided');
     }
 
-    // Нельзя обновлять токен после logout
+
     if (tokenService.isTokenBlacklisted(token)) {
       return unauthorized(res, 'Token has been invalidated');
     }
 
-    // Проверяем подпись токена даже при ignoreExpiration
-    // Это предотвращает выпуск нового токена по поддельному JWT.
+
+
     const jwt = require('jsonwebtoken');
     let decoded;
 
@@ -281,7 +281,7 @@ const refreshToken = async (req, res) => {
       return unauthorized(res, 'Invalid token payload');
     }
 
-    // Получаем пользователя
+
     const user = await User.findById(decoded.userId).select('-password');
     
     if (!user) {
@@ -300,7 +300,7 @@ const refreshToken = async (req, res) => {
       }
     }
 
-    // Генерируем новый токен
+
     const newToken = generateToken(user._id);
 
     const userResponse = {
@@ -326,13 +326,13 @@ const refreshToken = async (req, res) => {
   }
 };
 
-// Смена пароля
+
 const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     const userId = req.user._id;
 
-    // Получаем пользователя с паролем
+
     const user = await User.findById(userId).select('+password').exec();
     if (!user) {
       return unauthorized(res, 'User not found');
@@ -346,13 +346,13 @@ const changePassword = async (req, res) => {
       return error(res, 'Current and new password are required', 400);
     }
 
-    // Проверяем текущий пароль
+
     const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
     if (!isCurrentPasswordValid) {
       return unauthorized(res, 'Current password is incorrect');
     }
 
-    // Обновляем пароль (будет автоматически захеширован в pre-save middleware)
+
     user.password = newPassword;
     user.updatedAt = new Date();
     await user.save();

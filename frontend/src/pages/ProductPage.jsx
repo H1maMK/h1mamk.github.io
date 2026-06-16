@@ -80,14 +80,14 @@ const ProductPage = () => {
       setLoading(true);
       setError('');
       
-      // Загружаем товар из API
+
       const productResponse = await fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}/${id}`));
       const productData = await productResponse.json();
       
       console.log('Product API response:', productData);
       
       if (productData.success && productData.data) {
-        // API возвращает data.product или data напрямую
+
         const productInfo = productData.data.product || productData.data;
         setProduct(productInfo);
 
@@ -178,13 +178,13 @@ const ProductPage = () => {
       return;
     }
 
-    // Проверка роли администратора
+
     if (user.role === 'admin') {
       toast.error('Администраторы не могут оставлять отзывы');
       return;
     }
 
-    // Валидация на frontend
+
     if (!reviewForm.comment.trim()) {
       toast.error('Пожалуйста, введите комментарий');
       return;
@@ -215,13 +215,13 @@ const ProductPage = () => {
       console.log('Ответ сервера на отзыв:', response.data);
       
       if (response.data.success) {
-        // Перезагружаем товар с обновленными отзывами
+
         await loadProduct();
         setReviewForm({ rating: 5, comment: '' });
-        // Показываем сообщение о модерации
+
         toast.success('Ваш отзыв отправлен на модерацию и будет опубликован после проверки администратором!');
       } else {
-        // Показываем детальную ошибку
+
         if (response.data.error?.details) {
           const errorMessages = response.data.error.details.map(d => d.message).join(', ');
           toast.error(`Ошибка: ${errorMessages}`);
@@ -286,7 +286,7 @@ const ProductPage = () => {
       return;
     }
     
-    // Проверка роли администратора
+
     if (user.role === 'admin') {
       toast.error('Администраторы не могут добавлять товары в корзину');
       return;
@@ -372,7 +372,6 @@ const ProductPage = () => {
       <main>
         <div className="main-wrapper">
           <div className="product-container">
-            {/* Левая колонка: Галерея */}
             <div className="product-gallery">
               <div className="main-product-image-container">
                 <img 
@@ -398,7 +397,6 @@ const ProductPage = () => {
               </div>
             </div>
 
-            {/* Правая колонка: Информация */}
             <div className="product-info">
               <h1 className="product-title">{product?.name}</h1>
               <RatingStars rating={productRating} reviewCount={productReviewCount} className="product-page-rating" />
@@ -438,7 +436,6 @@ const ProductPage = () => {
             </div>
           </div>
 
-          {/* Секция Характеристики */}
           <div className="details-section">
             <h2 className="section-title">Характеристики</h2>
             {Object.keys(specifications).length > 0 ? (
@@ -472,7 +469,6 @@ const ProductPage = () => {
             )}
           </div>
 
-          {/* Секция Отзывы */}
           <div className="reviews-section" id="reviews">
             <h2 className="section-title">Отзывы</h2>
             

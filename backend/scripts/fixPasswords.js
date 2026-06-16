@@ -21,7 +21,7 @@ async function fixPasswords() {
 
     for (const [email, password] of Object.entries(userPasswords)) {
       const user = await User.findOne({ email }).select('+password');
-      
+
       if (!user) {
         console.log(`✗ ${email} не найден`);
         continue;
@@ -29,7 +29,7 @@ async function fixPasswords() {
 
       const salt = await bcrypt.genSalt(12);
       const hashedPassword = await bcrypt.hash(password, salt);
-      
+
       await User.updateOne({ email }, { $set: { password: hashedPassword } });
 
       console.log(`✓ ${email} | пароль: ${password}`);

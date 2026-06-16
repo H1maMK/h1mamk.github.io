@@ -1,20 +1,20 @@
-/**
- * Утилиты для работы с изображениями
- */
+
+
+
 import { API_BASE_URL } from '../config/api';
 
-// Получение правильного URL изображения для текущего хоста
+
 export const getImageUrl = (imagePath) => {
   if (!imagePath) {
     return '/uploads/default-product.png';
   }
 
-  // Если это уже полный URL (внешний или Cloudinary)
+
   if (imagePath.startsWith('http')) {
     return imagePath;
   }
 
-  // Если это относительный путь, используем API_BASE_URL
+
   return `${API_BASE_URL}${imagePath.startsWith('/') ? imagePath : '/' + imagePath}`;
 };
 

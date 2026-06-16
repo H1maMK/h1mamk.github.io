@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import { buildApiUrl, buildAssetUrl } from '../../config/api';
 import './ProductEditor.css';
 
+const MAX_IMAGE_FILE_SIZE = 10 * 1024 * 1024;
+
 const SPECIFICATION_TEMPLATES = {
   default: {
     'Основные характеристики': {
@@ -263,6 +265,11 @@ const ProductEditor = () => {
 
     if (!file.type || !file.type.startsWith('image/')) {
       toast.error('Можно загружать только изображения');
+      return false;
+    }
+
+    if (file.size > MAX_IMAGE_FILE_SIZE) {
+      toast.error('Размер изображения не должен превышать 10 МБ');
       return false;
     }
 
@@ -606,7 +613,7 @@ const ProductEditor = () => {
       formDataToSend.append('description', formData.description);
       formDataToSend.append('specifications', JSON.stringify(formData.specifications));
       formDataToSend.append('isWeeklySpecial', formData.isWeeklySpecial);
-      
+
       // Добавляем новые изображения
       formData.images.forEach((image, index) => {
         if (image) {
@@ -757,7 +764,7 @@ const ProductEditor = () => {
           {/* Основная информация */}
           <div className="editor-section">
             <h2 className="editor-section-title">Основная информация</h2>
-            
+
             <div className="editor-field">
               <label>Название товара</label>
               <input
@@ -899,7 +906,7 @@ const ProductEditor = () => {
                       <label htmlFor={inputId} className="image-upload-placeholder">
                         <span className="upload-icon">📷</span>
                         <span className="upload-text">Добавить фото</span>
-                        <span className="upload-hint">или Ctrl + V</span>
+                        <span className="upload-hint">или Ctrl + V · до 10 МБ</span>
                       </label>
                     )}
 
@@ -919,12 +926,12 @@ const ProductEditor = () => {
           {/* Характеристики */}
           <div className="editor-section">
             <h2 className="editor-section-title">Характеристики</h2>
-            
+
             {Object.entries(formData.specifications).map(([sectionName, fields]) => (
               <div key={sectionName} className="specs-section">
                 <div className="specs-section-header">
                   <span className="specs-section-title">{sectionName}</span>
-                  <button 
+                  <button
                     type="button"
                     className="specs-remove-btn"
                     onClick={() => removeSection(sectionName)}
@@ -961,7 +968,7 @@ const ProductEditor = () => {
                             className="specs-field-input"
                           />
                         )}
-                        <button 
+                        <button
                           type="button"
                           className="specs-remove-btn small"
                           onClick={() => removeField(sectionName, fieldName)}
@@ -972,7 +979,7 @@ const ProductEditor = () => {
                     );
                   })}
                 </div>
-                
+
                 <div className="specs-add-field">
                   <input
                     type="text"
@@ -994,7 +1001,7 @@ const ProductEditor = () => {
                     }}
                     className="specs-small-input"
                   />
-                  <button 
+                  <button
                     type="button"
                     className="specs-add-btn"
                     onClick={() => addField(sectionName)}
@@ -1005,7 +1012,7 @@ const ProductEditor = () => {
                 </div>
               </div>
             ))}
-            
+
             <div className="specs-add-section">
               <input
                 type="text"
@@ -1014,7 +1021,7 @@ const ProductEditor = () => {
                 onChange={(e) => setNewSectionName(e.target.value)}
                 className="specs-input"
               />
-              <button 
+              <button
                 type="button"
                 className="specs-add-btn"
                 onClick={addSection}

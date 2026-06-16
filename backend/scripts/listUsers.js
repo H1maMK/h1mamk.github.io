@@ -9,9 +9,9 @@ async function checkUsers() {
     console.log('✓ Подключено к MongoDB\n');
 
     const users = await User.find({});
-    
+
     console.log(`Найдено пользователей: ${users.length}\n`);
-    
+
     users.forEach((user, index) => {
       console.log(`${index + 1}. ${user.username}`);
       console.log(`   Email: ${user.email}`);

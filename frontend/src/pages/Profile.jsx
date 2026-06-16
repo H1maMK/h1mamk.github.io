@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import './Profile.css';
 
 const DEFAULT_AVATAR_URL = '/api/image/avatars/default.svg';
+const MAX_AVATAR_FILE_SIZE = 10 * 1024 * 1024;
 
 const Profile = () => {
   const { user, logout, refreshUser, loading: authLoading } = useAuth();
@@ -54,6 +55,14 @@ const Profile = () => {
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'avatar') {
+      const file = files?.[0] || null;
+
+      if (file && file.size > MAX_AVATAR_FILE_SIZE) {
+        toast.error('Размер аватара не должен превышать 10 МБ');
+        e.target.value = '';
+        return;
+      }
+
       setFormData(prev => ({ ...prev, avatar: files[0] }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -74,7 +83,7 @@ const Profile = () => {
     try {
       const notices = [];
 
-      // Сначала обновляем профиль (username, email)
+
       if (formData.username !== user.username || formData.email !== user.email) {
         const profileResponse = await fetch('/api/users/profile', {
           method: 'PUT',

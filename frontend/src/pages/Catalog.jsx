@@ -18,10 +18,10 @@ const Catalog = () => {
   const [categories, setCategories] = useState([]);
   const [manufacturers, setManufacturers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [dataSource, setDataSource] = useState('loading'); // 'api', 'mock', 'loading'
-  const [showFilters, setShowFilters] = useState(false); // Для мобильной версии
+  const [dataSource, setDataSource] = useState('loading');
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Состояние фильтров
+
   const [filters, setFilters] = useState({
     device_category: [],
     usage_type: [],
@@ -33,7 +33,7 @@ const Catalog = () => {
     search: ''
   });
 
-  // Mock данные для демонстрации (как в оригинальном PHP сайте)
+
   const mockProducts = [
     {
       _id: '1',
@@ -112,16 +112,16 @@ const Catalog = () => {
     { _id: '6', name: 'Игровые Микрофоны', deviceType: 'Игровое' }
   ];
 
-  // Загрузка данных при монтировании компонента
+
   useEffect(() => {
     const loadData = async () => {
       await fetchProducts();
       await fetchCategories();
     };
     loadData();
-  }, []); // Пустой массив зависимостей - загружаем только один раз!
+  }, []);
 
-  // Применение фильтров при изменении URL параметров
+
   useEffect(() => {
     const newFilters = {
       device_category: searchParams.getAll('device_category') || [],
@@ -140,7 +140,7 @@ const Catalog = () => {
   const fetchProducts = async () => {
     try {
       console.log('Загрузка товаров из API...');
-      // Загружаем все товары для каталога, иначе часть позиций пропадает из списка.
+
       const response = await fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}?limit=500`));
       
       console.log('Ответ получен, статус:', response.status);
@@ -158,7 +158,7 @@ const Catalog = () => {
         setProducts(apiProducts);
         setFilteredProducts(apiProducts);
         
-        // Извлекаем производителей из названий товаров
+
         const manufacturerSet = new Set();
         apiProducts.forEach(product => {
           const name = product.name.toLowerCase();
@@ -196,7 +196,7 @@ const Catalog = () => {
     } catch (error) {
       console.error('❌ Ошибка загрузки товаров:', error);
       console.log('Используем mock данные как fallback');
-      // Fallback к mock данным только при реальной ошибке
+
       setProducts(mockProducts);
       setFilteredProducts(mockProducts);
       setDataSource('mock');
@@ -207,7 +207,7 @@ const Catalog = () => {
 
   const fetchCategories = async () => {
     try {
-      // Загружаем категории из API
+
       const response = await fetch(buildApiUrl(`${API_ENDPOINTS.CATEGORIES}`));
       const data = await response.json();
       
@@ -215,12 +215,12 @@ const Catalog = () => {
         setCategories(data.data.categories);
       } else {
         console.error('Ошибка API категорий:', data.message);
-        // Fallback к mock данным
+
         setCategories(mockCategories);
       }
     } catch (error) {
       console.error('Ошибка загрузки категорий:', error);
-      // Fallback к mock данным
+
       setCategories(mockCategories);
     }
   };
@@ -228,7 +228,7 @@ const Catalog = () => {
   const applyFilters = (currentFilters) => {
     let filtered = [...products];
 
-    // Фильтр по категории устройства
+
     if (currentFilters.device_category.length > 0) {
       filtered = filtered.filter(product => {
         return currentFilters.device_category.some(category => {
@@ -256,20 +256,20 @@ const Catalog = () => {
       });
     }
           
-    // Фильтр по назначению (игровые/офисные)
+
     if (currentFilters.usage_type.length > 0) {
       filtered = filtered.filter(product => {
         const deviceType = product.category?.deviceType?.toLowerCase() || '';
         const categoryName = product.category?.name?.toLowerCase() || '';
         
-        // Проверяем каждый выбранный тип назначения
+
         return currentFilters.usage_type.some(usage => {
           if (usage === 'gaming') {
-            // Проверяем deviceType из БД или название категории
+
             return deviceType === 'игровое' || deviceType === 'gaming' || 
                    categoryName.includes('игров');
           } else if (usage === 'office') {
-            // Проверяем deviceType из БД или название категории
+
             return deviceType === 'офисное' || deviceType === 'office' || 
                    categoryName.includes('офис');
           }
@@ -279,7 +279,7 @@ const Catalog = () => {
       });
     }
         
-    // Фильтр по производителю
+
     if (currentFilters.manufacturer.length > 0) {
       filtered = filtered.filter(product => {
         return currentFilters.manufacturer.some(manufacturer => {
@@ -288,7 +288,7 @@ const Catalog = () => {
       });
     }
 
-    // Фильтр по типу подключения
+
     if (currentFilters.connection_type.length > 0) {
       filtered = filtered.filter(product => {
         const specs = product.specifications || {};
@@ -307,7 +307,7 @@ const Catalog = () => {
       });
     }
 
-    // Фильтр по диапазону цен
+
     if (currentFilters.price_range) {
       filtered = filtered.filter(product => {
         const price = product.price;
@@ -330,7 +330,7 @@ const Catalog = () => {
       });
     }
 
-    // Фильтр по ручному вводу цены
+
     if (currentFilters.min_price) {
       filtered = filtered.filter(product => product.price >= parseInt(currentFilters.min_price));
     }
@@ -338,7 +338,7 @@ const Catalog = () => {
       filtered = filtered.filter(product => product.price <= parseInt(currentFilters.max_price));
     }
 
-    // Поиск только по названию
+
     if (currentFilters.search) {
       const searchTerm = currentFilters.search.toLowerCase();
       filtered = filtered.filter(product => 
@@ -427,7 +427,7 @@ const Catalog = () => {
       return;
     }
 
-    // Проверка роли администратора
+
     if (user.role === 'admin') {
       toast.error('Администраторы не могут добавлять товары в корзину');
       return;
@@ -488,8 +488,7 @@ const Catalog = () => {
   return (
     <div className="page-wrapper catalog-page">
       <h1 className="page-title">Каталог товаров</h1>
-      
-      {/* Индикатор источника данных (только для отладки) */}
+
       {dataSource === 'mock' && (
         <div style={{
           background: '#ff6b6b',
@@ -503,7 +502,6 @@ const Catalog = () => {
       )}
       
       <main className="catalog-main">
-        {/* Кнопка показа фильтров на мобильных */}
         <button 
           className="mobile-filter-toggle"
           onClick={() => setShowFilters(!showFilters)}
@@ -514,7 +512,6 @@ const Catalog = () => {
         <aside className={`filters-sidebar ${showFilters ? 'show' : ''}`} id="filtersSidebar">
           <form id="filters-form">
             
-            {/* Фильтр по типу устройства */}
             <div className="filter-section">
               <h3 className="filter-title">Тип устройства</h3>
               {deviceCategories.map(category => (
@@ -530,7 +527,6 @@ const Catalog = () => {
               ))}
             </div>
 
-            {/* Фильтр по назначению */}
             <div className="filter-section">
               <h3 className="filter-title">Назначение</h3>
               <label className="checkbox-label">
@@ -553,7 +549,6 @@ const Catalog = () => {
               </label>
             </div>
 
-            {/* Фильтр по производителю */}
             <div className="filter-section">
               <h3 className="filter-title">Производитель</h3>
               {manufacturers.map(manufacturer => (
@@ -569,7 +564,6 @@ const Catalog = () => {
               ))}
             </div>
 
-            {/* Фильтр по типу подключения */}
             <div className="filter-section">
               <h3 className="filter-title">Тип подключения</h3>
               <label className="checkbox-label">
@@ -592,7 +586,6 @@ const Catalog = () => {
               </label>
             </div>
 
-            {/* Готовые диапазоны цен */}
             <div className="filter-section">
               <h3 className="filter-title">Диапазон цен</h3>
               {[
@@ -616,7 +609,6 @@ const Catalog = () => {
               ))}
             </div>
 
-            {/* Фильтр по цене (ручной ввод) */}
             <div className="filter-section">
               <h3 className="filter-title">Цена (ручной ввод)</h3>
               <div className="price-inputs">
@@ -652,7 +644,6 @@ const Catalog = () => {
                   ? product.images[0] 
                   : '/uploads/default-product.png';
                 const imageUrl = buildAssetUrl(rawImageUrl);
-                // Используем реальную категорию из базы данных
                 const categoryName = product.category?.name || 'Прочее';
                 const rating = product.averageRating ?? product.avgRating ?? product.rating ?? 0;
                 const reviewCount = product.reviewCount ?? product.totalReviews ?? product.reviewsCount ?? 0;

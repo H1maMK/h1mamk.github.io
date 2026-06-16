@@ -4,6 +4,7 @@ import { buildApiUrl, buildAssetUrl } from '../../config/api';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
 const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
+const MAX_CATEGORY_IMAGE_SIZE = 10 * 1024 * 1024;
 
 const isAllowedImageFile = (file) => {
   const extension = file?.name?.split('.').pop()?.toLowerCase();
@@ -28,11 +29,11 @@ const AdminCategories = () => {
   const fetchCategories = async () => {
     try {
       const response = await fetch(buildApiUrl('/api/products/categories'));
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
-        // API возвращает { categories: [...] }
+
         const categoriesList = data.data?.categories || data.data || [];
         setCategories(Array.isArray(categoriesList) ? categoriesList : []);
       } else {
@@ -56,6 +57,11 @@ const AdminCategories = () => {
         e.target.value = '';
         return;
       }
+      if (file && file.size > MAX_CATEGORY_IMAGE_SIZE) {
+        toast.error('Размер изображения не должен превышать 10 МБ');
+        e.target.value = '';
+        return;
+      }
       setFormData(prev => ({ ...prev, image: files[0] }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -73,10 +79,10 @@ const AdminCategories = () => {
         formDataToSend.append('image', formData.image);
       }
 
-      const url = editingCategory 
+      const url = editingCategory
         ? buildApiUrl(`/api/admin/categories/${editingCategory._id}`)
         : buildApiUrl('/api/admin/categories');
-      
+
       const method = editingCategory ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -176,10 +182,10 @@ const AdminCategories = () => {
               <tr key={category._id}>
                 <td>
                   {category.image ? (
-                    <img 
-                      src={getImageUrl(category.image)} 
-                      alt="" 
-                      className="product-image-thumbnail" 
+                    <img
+                      src={getImageUrl(category.image)}
+                      alt=""
+                      className="product-image-thumbnail"
                     />
                   ) : (
                     <span style={{ color: '#888' }}>Нет</span>
@@ -188,13 +194,13 @@ const AdminCategories = () => {
                 <td>{category.name}</td>
                 <td>{category.deviceType}</td>
                 <td>
-                  <button 
+                  <button
                     className="action-button edit-button"
                     onClick={() => handleEdit(category)}
                   >
                     Редактировать
                   </button>
-                  <button 
+                  <button
                     className="action-button delete-button"
                     onClick={() => handleDelete(category._id)}
                   >
@@ -259,9 +265,9 @@ const AdminCategories = () => {
             />
             {editingCategory?.image && (
               <div style={{ marginTop: '10px' }}>
-                <img 
-                  src={getImageUrl(editingCategory.image)} 
-                  alt="Current" 
+                <img
+                  src={getImageUrl(editingCategory.image)}
+                  alt="Current"
                   style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
                 />
                 <span style={{ marginLeft: '10px', color: '#888', fontSize: '12px' }}>
@@ -276,8 +282,8 @@ const AdminCategories = () => {
               {editingCategory ? 'Обновить' : 'Создать'}
             </button>
             {editingCategory && (
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="action-button cancel-button"
                 onClick={resetForm}
               >

@@ -50,12 +50,12 @@ const categorySchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes (name already has unique index from schema)
+
 categorySchema.index({ deviceType: 1 });
 categorySchema.index({ isActive: 1 });
 categorySchema.index({ mysqlId: 1 }, { unique: true, sparse: true });
 
-// Virtual for URL slug
+
 categorySchema.virtual('slug').get(function() {
   return this.name
     .toLowerCase()

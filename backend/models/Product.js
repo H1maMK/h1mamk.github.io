@@ -103,7 +103,7 @@ const productSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes
+
 productSchema.index({ category: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ stock: 1 });
@@ -112,7 +112,7 @@ productSchema.index({ viewCount: -1 });
 productSchema.index({ isActive: 1 });
 productSchema.index({ mysqlId: 1 }, { unique: true, sparse: true });
 
-// Text search index
+
 productSchema.index({
   name: 'text',
   description: 'text'
@@ -124,7 +124,7 @@ productSchema.index({
   name: 'product_text_search'
 });
 
-// Virtual for average rating (only approved reviews)
+
 productSchema.virtual('averageRating').get(function() {
   if (!this.reviews || this.reviews.length === 0) return 0;
   
@@ -135,18 +135,18 @@ productSchema.virtual('averageRating').get(function() {
   return Math.round((sum / approvedReviews.length) * 10) / 10;
 });
 
-// Virtual for review count (only approved reviews)
+
 productSchema.virtual('reviewCount').get(function() {
   if (!this.reviews) return 0;
   return this.reviews.filter(review => review.status === 'approved').length;
 });
 
-// Virtual for in stock status
+
 productSchema.virtual('inStock').get(function() {
   return this.stock > 0;
 });
 
-// Virtual for main image
+
 productSchema.virtual('mainImage').get(function() {
   return (this.images && this.images.length > 0) ? this.images[0] : '/uploads/default-product.jpg';
 });

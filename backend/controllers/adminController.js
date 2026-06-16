@@ -4,9 +4,17 @@ const Category = require('../models/Category');
 const User = require('../models/User');
 const fs = require('fs').promises;
 const path = require('path');
+const { MAX_IMAGE_FILE_SIZE } = require('../middleware/upload');
 const PROTECTED_ADMIN_EMAIL = 'mr.maxim.8806@mail.ru';
 
-// Helper function to handle validation errors
+const resolveLocalUploadFilePath = (storedPath = '') => {
+  if (!storedPath || /^https?:\/\//i.test(storedPath)) {
+    return '';
+  }
+
+  return path.join(__dirname, '..', storedPath.replace(/^\/+/, ''));
+};
+
 const handleValidationErrors = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -19,13 +27,15 @@ const handleValidationErrors = (req, res) => {
   return null;
 };
 
-// Helper function to delete uploaded files on error
+
 const deleteUploadedFiles = async (files) => {
   if (files) {
     const allFiles = Object.values(files).flat();
     for (const file of allFiles) {
       try {
-        await fs.unlink(file.path);
+        if (file?.path && !/^https?:\/\//i.test(file.path)) {
+          await fs.unlink(file.path);
+        }
       } catch (error) {
         console.error('Error deleting file:', error);
       }
@@ -100,6 +110,26 @@ const validateWeeklySpecialLimit = async (res, productId, requestedWeeklySpecial
   }
 
   return false;
+};
+
+const handleUploadControllerError = async (res, req, uploadError, fallbackMessage) => {
+  if (!uploadError) {
+    return false;
+  }
+
+  await deleteUploadedFiles(req.files);
+
+  if (uploadError.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({
+      success: false,
+      message: `Размер изображения не должен превышать ${Math.round(MAX_IMAGE_FILE_SIZE / (1024 * 1024))} МБ`
+    });
+  }
+
+  return res.status(400).json({
+    success: false,
+    message: uploadError.message || fallbackMessage
+  });
 };
 
 // @desc    Get all products for admin, including hidden products
@@ -185,6 +215,11 @@ const getProductsForAdmin = async (req, res) => {
 // @access  Private (Admin only)
 const createProduct = async (req, res) => {
   try {
+    const uploadErrorResponse = await handleUploadControllerError(res, req, req.uploadError, 'Ошибка загрузки изображений товара');
+    if (uploadErrorResponse) {
+      return;
+    }
+
     // Check for validation errors
     const validationError = handleValidationErrors(req, res);
     if (validationError) {
@@ -298,6 +333,11 @@ const createProduct = async (req, res) => {
 // @access  Private (Admin only)
 const updateProduct = async (req, res) => {
   try {
+    const uploadErrorResponse = await handleUploadControllerError(res, req, req.uploadError, 'Ошибка загрузки изображений товара');
+    if (uploadErrorResponse) {
+      return;
+    }
+
     // Check for validation errors
     const validationError = handleValidationErrors(req, res);
     if (validationError) {
@@ -355,7 +395,7 @@ const updateProduct = async (req, res) => {
           
           // Delete old image if exists
           if (newImages[index] && !/^https?:\/\//i.test(newImages[index])) {
-            const oldImagePath = path.join(__dirname, '..', newImages[index]);
+            const oldImagePath = resolveLocalUploadFilePath(newImages[index]);
             fs.unlink(oldImagePath).catch(err => {
               if (err?.code !== 'ENOENT') {
                 console.error('Error deleting old image:', err);
@@ -468,7 +508,7 @@ const deleteProduct = async (req, res) => {
     if (product.images && product.images.length > 0) {
       for (const imagePath of product.images) {
         if (imagePath && !/^https?:\/\//i.test(imagePath)) {
-          const fullPath = path.join(__dirname, '..', imagePath);
+          const fullPath = resolveLocalUploadFilePath(imagePath);
           try {
             await fs.unlink(fullPath);
           } catch (error) {
@@ -548,6 +588,15 @@ const toggleProductVisibility = async (req, res) => {
 // @access  Private (Admin only)
 const createCategory = async (req, res) => {
   try {
+    if (req.uploadError) {
+      return res.status(400).json({
+        success: false,
+        message: req.uploadError.code === 'LIMIT_FILE_SIZE'
+          ? `Размер изображения не должен превышать ${Math.round(MAX_IMAGE_FILE_SIZE / (1024 * 1024))} МБ`
+          : req.uploadError.message || 'Ошибка загрузки изображения категории'
+      });
+    }
+
     // Check for validation errors
     const validationError = handleValidationErrors(req, res);
     if (validationError) return validationError;
@@ -568,7 +617,7 @@ const createCategory = async (req, res) => {
     }
 
     // Process uploaded image
-    const imageUrl = req.file ? `/uploads/categories/${req.file.filename}` : '';
+    const imageUrl = req.file ? resolveStoredImagePath(req.file, 'categories') : '';
 
     // Create new category
     const category = new Category({
@@ -604,6 +653,15 @@ const createCategory = async (req, res) => {
 // @access  Private (Admin only)
 const updateCategory = async (req, res) => {
   try {
+    if (req.uploadError) {
+      return res.status(400).json({
+        success: false,
+        message: req.uploadError.code === 'LIMIT_FILE_SIZE'
+          ? `Размер изображения не должен превышать ${Math.round(MAX_IMAGE_FILE_SIZE / (1024 * 1024))} МБ`
+          : req.uploadError.message || 'Ошибка загрузки изображения категории'
+      });
+    }
+
     // Check for validation errors
     const validationError = handleValidationErrors(req, res);
     if (validationError) return validationError;
@@ -646,14 +704,14 @@ const updateCategory = async (req, res) => {
     if (req.file) {
       // Delete old image if exists
       if (existingCategory.image) {
-        const oldImagePath = path.join(__dirname, '..', existingCategory.image);
+        const oldImagePath = resolveLocalUploadFilePath(existingCategory.image);
         try {
           await fs.unlink(oldImagePath);
         } catch (deleteError) {
           console.warn('Failed to delete old category image:', deleteError.message);
         }
       }
-      imageUrl = `/uploads/categories/${req.file.filename}`;
+      imageUrl = resolveStoredImagePath(req.file, 'categories');
     }
 
     // Update category
@@ -693,6 +751,15 @@ const updateCategory = async (req, res) => {
 // @access  Private (Admin only)
 const deleteCategory = async (req, res) => {
   try {
+    if (req.uploadError) {
+      return res.status(400).json({
+        success: false,
+        message: req.uploadError.code === 'LIMIT_FILE_SIZE'
+          ? `Размер изображения не должен превышать ${Math.round(MAX_IMAGE_FILE_SIZE / (1024 * 1024))} МБ`
+          : req.uploadError.message || 'Ошибка загрузки изображения категории'
+      });
+    }
+
     const categoryId = req.params.id;
 
     // Check if category exists
@@ -715,7 +782,7 @@ const deleteCategory = async (req, res) => {
 
     // Delete category image if exists
     if (category.image) {
-      const imagePath = path.join(__dirname, '..', category.image);
+      const imagePath = resolveLocalUploadFilePath(category.image);
       try {
         await fs.unlink(imagePath);
       } catch (deleteError) {
@@ -880,7 +947,7 @@ const updateUserAvatar = async (req, res) => {
     }
 
     // Update avatar path
-    const avatarUrl = `/api/image/avatars/${req.file.filename}`;
+    const avatarUrl = resolveStoredImagePath(req.file, 'avatars');
     if (!user.profile) {
       user.profile = {};
     }

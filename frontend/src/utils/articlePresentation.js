@@ -1,5 +1,8 @@
 import { buildAssetUrl } from '../config/api'
 
+const DEFAULT_ARTICLE_IMAGE = buildAssetUrl('/placeholder-article.jpg')
+const HTML_IMAGE_SRC_REGEX = /<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i
+
 const ARTICLE_BLUEPRINTS = [
   {
     match: ['мыш', 'fps'],
@@ -345,29 +348,56 @@ const getArticleFieldValue = (article, key) => {
   return article?.[key]
 }
 
+const getInlineContentImageUrl = (article) => {
+  const content = `${article?.content || ''}`
+  const match = content.match(HTML_IMAGE_SRC_REGEX)
+  return match?.[1] || ''
+}
+
 export const stripHtmlTags = (value = '') =>
   `${value}`.replace(HTML_TAG_REGEX, ' ').replace(/\s+/g, ' ').trim()
 
 export const getArticleImageUrl = (article) => {
   const imageUrl = article?.imageUrl || article?.image || ''
+  const inlineContentImageUrl = getInlineContentImageUrl(article)
+  const cacheKey = article?.updatedAt || article?.publishedAt || article?._id || ''
+  const appendCacheKey = (url) => {
+    if (!url || !cacheKey) return url
+    return `${url}${url.includes('?') ? '&' : '?'}v=${encodeURIComponent(cacheKey)}`
+  }
+  const normalizeImageUrl = (rawUrl) => {
+    if (!rawUrl) return ''
+    if (rawUrl.startsWith('data:image/')) {
+      return rawUrl
+    }
+    if (rawUrl.startsWith('http')) {
+      return appendCacheKey(rawUrl)
+    }
 
-  if (imageUrl.startsWith('http')) {
-    return imageUrl
+    const normalizedPath = rawUrl.replace(/^\/+/, '')
+
+    if (normalizedPath.startsWith('uploads/articles/')) {
+      return appendCacheKey(buildAssetUrl(`/${normalizedPath}`))
+    }
+
+    if (normalizedPath.startsWith('uploads/')) {
+      const fallbackImage = getFallbackArticleImage(article)
+      return appendCacheKey(fallbackImage || buildAssetUrl(`/uploads/articles/${normalizedPath.replace(/^uploads\//, '')}`))
+    }
+
+    return appendCacheKey(buildAssetUrl(rawUrl.startsWith('/') ? rawUrl : `/${rawUrl}`))
   }
 
-  const normalizedPath = imageUrl.replace(/^\/+/, '')
-
-  if (normalizedPath.startsWith('uploads/articles/')) {
-    return buildAssetUrl(`/${normalizedPath}`)
+  if (imageUrl) {
+    return normalizeImageUrl(imageUrl)
   }
 
-  if (normalizedPath.startsWith('uploads/')) {
-    const fallbackImage = getFallbackArticleImage(article)
-    return fallbackImage || buildAssetUrl(`/uploads/articles/${normalizedPath.replace(/^uploads\//, '')}`)
+  if (inlineContentImageUrl) {
+    return normalizeImageUrl(inlineContentImageUrl)
   }
 
   const fallbackImage = getFallbackArticleImage(article)
-  return fallbackImage || (normalizedPath ? buildAssetUrl(`/${normalizedPath}`) : '')
+  return appendCacheKey(fallbackImage || DEFAULT_ARTICLE_IMAGE)
 }
 
 export const formatArticleDate = (value) => {

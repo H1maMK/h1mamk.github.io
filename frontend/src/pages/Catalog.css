@@ -1,4 +1,4 @@
-/* Catalog Page Styles - точная копия оригинального PHP сайта */
+
 
 .catalog-page,
 .catalog-page * {
@@ -11,7 +11,7 @@
   text-decoration: none;
 }
 
-/* Page Title */
+
 .page-title {
   text-align: center;
   max-width: 1200px;
@@ -24,7 +24,7 @@
   text-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
-/* Main Catalog Layout */
+
 .catalog-main {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
@@ -33,10 +33,10 @@
   margin: 0 auto;
   padding: 0 16px;
   gap: 30px;
-  align-items: flex-start; /* Выравнивание по верхнему краю */
+  align-items: flex-start; 
 }
 
-/* Filters Sidebar */
+
 .filters-sidebar {
   flex: 0 0 280px;
   background: linear-gradient(180deg, rgba(37, 37, 37, 0.98), rgba(25, 25, 25, 0.92));
@@ -45,7 +45,7 @@
   border-radius: 12px;
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
-  /* Оставляем зазор от фиксированной навигации при прилипании */
+  
   max-height: calc(100vh - 200px);
   overflow-y: auto;
   position: sticky;
@@ -87,7 +87,7 @@
   accent-color: #FFE6BB;
 }
 
-/* Price Inputs */
+
 .price-inputs {
   display: flex;
   flex-direction: column;
@@ -109,7 +109,7 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* Search Container */
+
 .catalog-search-container {
   margin-bottom: 20px;
 }
@@ -128,7 +128,7 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* Filter Buttons */
+
 .apply-filters-btn,
 .reset-filters-btn {
   width: 100%;
@@ -163,7 +163,7 @@
   color: #222;
 }
 
-/* Products Grid Container */
+
 .products-grid-container {
   width: 100%;
   min-width: 0;
@@ -173,7 +173,7 @@
   padding: 0 4px;
 }
 
-/* ОРИГИНАЛЬНАЯ СТРУКТУРА КАРТОЧЕК ИЗ PHP САЙТА */
+
 .product-list-grid {
   display: flex;
   flex-direction: column;
@@ -188,7 +188,7 @@
   min-height: 420px;
 }
 
-/* Карточка товара - фиксированная ширина */
+
 .product-card {
   width: min(850px, 100%);
   min-width: 0;
@@ -213,7 +213,7 @@
   box-shadow: var(--shadow-hover);
 }
 
-/* Контейнер изображения */
+
 .product-image-container {
   flex-shrink: 0;
   margin-right: 20px;
@@ -261,7 +261,7 @@
   transform: none;
 }
 
-/* Контейнер информации */
+
 .product-info-container {
   display: flex;
   flex-direction: column;
@@ -338,7 +338,7 @@
   color: #FFE6BB;
 }
 
-/* Контейнер кнопок */
+
 .product-purchase-container {
   display: flex;
   flex-direction: column;
@@ -349,7 +349,7 @@
   gap: 8px;
 }
 
-/* Новый дизайн: цена и сердечко в одну строку */
+
 .price-row {
   display: flex;
   align-items: stretch;
@@ -485,7 +485,7 @@
   display: block;
 }
 
-/* No Products Found */
+
 .no-products-found {
   text-align: center;
   padding: 36px 28px;
@@ -530,7 +530,7 @@
   transform: translateY(-2px);
 }
 
-/* Loading State */
+
 .loading {
   display: flex;
   justify-content: center;
@@ -540,7 +540,7 @@
   color: #FFE6BB;
 }
 
-/* Mobile Filter Toggle Button */
+
 .mobile-filter-toggle {
   display: none;
   width: 100%;
@@ -560,7 +560,7 @@
   background: linear-gradient(45deg, #FFD488, #FFC555);
 }
 
-/* Tablet/Small desktop adaptation */
+
 @media (max-width: 1100px) {
   .catalog-main {
     display: flex;
@@ -616,7 +616,7 @@
   }
 }
 
-/* Mobile Responsive */
+
 @media (max-width: 992px) {
   .mobile-filter-toggle {
     display: block;
@@ -835,7 +835,7 @@
   }
 }
 
-/* Scrollbar Styling for Filters */
+
 .filters-sidebar::-webkit-scrollbar {
   width: 6px;
 }

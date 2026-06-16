@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-// Импорт моделей MongoDB
+
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Article = require('../models/Article');
 const Order = require('../models/Order');
 
-// Тестовые данные из MySQL
+
 const testData = {
   categories: [
     { id: 1, category_name: 'Игровые Микрофоны', device_type: 'Игровое' },
@@ -76,7 +76,7 @@ const testData = {
   ]
 };
 
-// Подключение к MongoDB
+
 const connectMongoDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/devicemaster');
@@ -88,7 +88,7 @@ const connectMongoDB = async () => {
   }
 };
 
-// Очистка базы данных
+
 const clearDatabase = async () => {
   try {
     await User.deleteMany({});
@@ -102,7 +102,7 @@ const clearDatabase = async () => {
   }
 };
 
-// Тестовая миграция категорий
+
 const testMigrateCategories = async () => {
   try {
     console.log('📦 Тестируем миграцию категорий...');
@@ -122,7 +122,7 @@ const testMigrateCategories = async () => {
   }
 };
 
-// Тестовая миграция пользователей
+
 const testMigrateUsers = async () => {
   try {
     console.log('👥 Тестируем миграцию пользователей...');
@@ -131,7 +131,7 @@ const testMigrateUsers = async () => {
       await User.create({
         username: user.username,
         email: user.email,
-        password: user.password, // Будет автоматически хеширован
+        password: user.password,
         role: user.role_name === 'admin' ? 'admin' : 'user',
         profile: {
           yearBirth: user.yearbirth ? parseInt(user.yearbirth) : null,
@@ -149,16 +149,16 @@ const testMigrateUsers = async () => {
   }
 };
 
-// Тестовая миграция товаров
+
 const testMigrateProducts = async () => {
   try {
     console.log('🛍️ Тестируем миграцию товаров...');
     
     for (const product of testData.products) {
-      // Находим соответствующую категорию в MongoDB
+
       const category = await Category.findOne({ mysqlId: product.category_id });
       
-      // Парсим свойства товара
+
       let specifications = {};
       if (product.properties) {
         const props = product.properties.split(';');
@@ -170,7 +170,7 @@ const testMigrateProducts = async () => {
         });
       }
       
-      // Собираем изображения
+
       const images = [];
       if (product.image_url1) images.push(product.image_url1);
       if (product.image_url2) images.push(product.image_url2);
@@ -196,7 +196,7 @@ const testMigrateProducts = async () => {
   }
 };
 
-// Тестовая миграция статей
+
 const testMigrateArticles = async () => {
   try {
     console.log('📰 Тестируем миграцию статей...');
@@ -219,19 +219,19 @@ const testMigrateArticles = async () => {
   }
 };
 
-// Основная функция тестирования
+
 const runTestMigration = async () => {
   console.log('🧪 Начинаем тестовую миграцию данных...\n');
   
   try {
-    // Подключаемся к MongoDB
+
     await connectMongoDB();
     
-    // Очищаем базу данных
+
     await clearDatabase();
     console.log('');
     
-    // Выполняем тестовую миграцию
+
     await testMigrateCategories();
     console.log('');
     
@@ -246,7 +246,7 @@ const runTestMigration = async () => {
     
     console.log('🎉 Тестовая миграция успешно завершена!');
     
-    // Выводим статистику
+
     const categoriesCount = await Category.countDocuments();
     const usersCount = await User.countDocuments();
     const productsCount = await Product.countDocuments();
@@ -258,7 +258,7 @@ const runTestMigration = async () => {
     console.log(`- Товары: ${productsCount}`);
     console.log(`- Статьи: ${articlesCount}`);
     
-    // Проверяем связи
+
     console.log('\n🔗 Проверка связей:');
     const productWithCategory = await Product.findOne().populate('category');
     if (productWithCategory && productWithCategory.category) {
@@ -279,7 +279,7 @@ const runTestMigration = async () => {
   }
 };
 
-// Запускаем тестовую миграцию
+
 if (require.main === module) {
   runTestMigration();
 }

@@ -32,7 +32,7 @@ const getAstrakhanAddressValidationMessage = (address) => {
   return '';
 };
 
-// Создание нового заказа
+
 const createOrder = async (req, res) => {
   try {
     console.log('Creating order with data:', JSON.stringify(req.body, null, 2));
@@ -51,7 +51,7 @@ const createOrder = async (req, res) => {
     const userId = req.user._id;
     const normalizedAddress = typeof shippingAddress === 'string' ? shippingAddress.trim() : '';
     
-    // Проверяем валидность данных
+
     if (!items || !Array.isArray(items) || items.length === 0) {
       return validationError(res, [{ 
         field: 'items', 
@@ -88,8 +88,8 @@ const createOrder = async (req, res) => {
       }]);
     }
 
-    // Проверяем и создаём заказ в транзакции,
-    // чтобы исключить гонки при списании остатков.
+
+
     let calculatedTotal = 0;
     const orderItems = [];
     const session = await mongoose.startSession();
@@ -119,7 +119,7 @@ const createOrder = async (req, res) => {
             throw new Error(`PRODUCT_INACTIVE:${product.name}`);
           }
 
-          // Атомарное списание остатка с условием достаточного stock.
+
           const stockUpdate = await Product.updateOne(
             {
               _id: product._id,
@@ -214,7 +214,7 @@ const createOrder = async (req, res) => {
       return error(res, 'Failed to create order', 500);
     }
 
-    // Получаем заказ с заполненными данными о товарах
+
     const populatedOrder = await Order.findById(savedOrder._id)
       .populate('user', 'username email')
       .populate('items.product', 'name price images');
@@ -227,7 +227,7 @@ const createOrder = async (req, res) => {
   }
 };
 
-// Получение заказов пользователя
+
 const getUserOrders = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -269,7 +269,7 @@ const getUserOrders = async (req, res) => {
   }
 };
 
-// Получение конкретного заказа
+
 const getOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -297,7 +297,7 @@ const getOrder = async (req, res) => {
   }
 };
 
-// Отмена заказа
+
 const cancelOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -316,11 +316,11 @@ const cancelOrder = async (req, res) => {
       }]);
     }
 
-    // Обновляем статус заказа
+
     order.status = 'cancelled';
     await order.save();
 
-    // Возвращаем товары на склад
+
     for (const item of order.items) {
       await Product.findByIdAndUpdate(
         item.product,
@@ -345,7 +345,7 @@ const cancelOrder = async (req, res) => {
   }
 };
 
-// Получение всех заказов (для администратора)
+
 const getAllOrders = async (req, res) => {
   try {
     const { page = 1, limit = 20, status, userId } = req.query;
@@ -386,7 +386,7 @@ const getAllOrders = async (req, res) => {
   }
 };
 
-// Обновление статуса заказа (для администратора)
+
 const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -410,7 +410,7 @@ const updateOrderStatus = async (req, res) => {
     order.status = status;
     await order.save();
 
-    // Если заказ отменяется, возвращаем товары на склад
+
     if (status === 'cancelled' && oldStatus !== 'cancelled') {
       for (const item of order.items) {
         await Product.findByIdAndUpdate(
@@ -437,7 +437,7 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-// Получение статистики заказов
+
 const getOrderStats = async (req, res) => {
   try {
     const stats = await Order.aggregate([
@@ -468,7 +468,7 @@ const getOrderStats = async (req, res) => {
   }
 };
 
-// Удаление заказа (для администратора)
+
 const deleteOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -479,7 +479,7 @@ const deleteOrder = async (req, res) => {
       return notFound(res, 'Order not found');
     }
 
-    // Возвращаем товары на склад, если заказ не был отменён
+
     if (order.status !== 'cancelled') {
       for (const item of order.items) {
         await Product.findByIdAndUpdate(
@@ -489,7 +489,7 @@ const deleteOrder = async (req, res) => {
       }
     }
 
-    // Удаляем заказ
+
     await Order.findByIdAndDelete(id);
 
     return success(res, null, 'Order deleted successfully');

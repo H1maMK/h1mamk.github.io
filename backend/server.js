@@ -7,17 +7,17 @@ require('dotenv').config();
 
 const path = require('path');
 
-// Import database connection
+
 const connectDB = require('./config/database');
 
-// Import custom middleware
+
 const { consoleLogger, fileLogger, errorLogger, slowRequestLogger, authLogger } = require('./middleware/logger');
 const { checkDbConnection } = require('./middleware/dbCheck');
 
 const app = express();
 const uploadsPath = path.join(__dirname, 'uploads');
 
-// Security middleware
+
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   contentSecurityPolicy: {
@@ -50,22 +50,22 @@ app.use(helmet({
 }));
 app.use(compression());
 
-// Rate limiting
+
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
   skip: (req) => ['GET', 'HEAD', 'OPTIONS'].includes(req.method),
   message: {
     error: 'Too many requests',
     message: 'Too many requests from this IP, please try again later.',
     retryAfter: Math.ceil((parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000) / 1000)
   },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use('/api/', limiter);
 
-// CORS configuration
+
 const defaultOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
@@ -99,20 +99,20 @@ const isAllowedDevOrigin = (origin) => {
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Разрешаем запросы без origin (например, мобильные приложения, Postman или Vite proxy)
+
     if (!origin) return callback(null, true);
     
-    // Разрешаем любой netlify.app домен
+
     if (origin.includes('netlify.app')) {
       return callback(null, true);
     }
 
-    // Разрешаем localhost и настроенные origins
+
     if (allowedOrigins.includes(origin) || isAllowedDevOrigin(origin)) {
       return callback(null, true);
     }
 
-    // В production разрешаем любой origin (чтобы не было CORS проблем)
+
     if (process.env.NODE_ENV === 'production') {
       return callback(null, true);
     }
@@ -123,7 +123,7 @@ app.use(cors({
   credentials: true,
 }));
 
-// Body parsing middleware
+
 app.use(express.json({ 
   limit: '10mb',
   verify: (req, res, buf) => {
@@ -132,30 +132,28 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Custom logging middleware
+
 app.use(slowRequestLogger);
 app.use(authLogger);
 
-// Проверка подключения к БД перед обработкой API запросов
+
 app.use('/api', checkDbConnection);
 
-// Logging middleware
+
 if (process.env.NODE_ENV === 'production') {
   app.use(fileLogger);
 } else {
   app.use(consoleLogger);
 }
 
-// Redirect /uploads/avatars/* → /api/image/avatars/* so the fallback to default.svg works
-// (Uploaded files are ephemeral on Render, so they'll almost always be missing after restart)
-// This MUST come before the generic /uploads static middleware
+
 ['avatars', 'products', 'articles'].forEach((type) => app.use(`/uploads/${type}`, (req, res, next) => {
-  // Only redirect GET/HEAD — pass through other methods
+
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     return next();
   }
 
-  // Extract the filename from the original URL and redirect to the image route
+
   const filename = req.path.replace(/^\//, '');
   if (filename) {
     return res.redirect(301, `/api/image/${type}/${filename}`);
@@ -163,11 +161,7 @@ if (process.env.NODE_ENV === 'production') {
   next();
 }));
 
-// Legacy product/article images from JSON data were historically stored as `uploads/<file>`
-// while the actual files now live in the frontend public root and are published as `/<file>`.
-// On production these old URLs cause 404 in admin/product pages, so redirect flat legacy
-// `/uploads/<file>` requests to the root static asset path. Nested paths like
-// `/uploads/products/...` must keep working as-is and therefore are skipped here.
+
 app.use('/uploads', (req, res, next) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     return next();
@@ -181,7 +175,7 @@ app.use('/uploads', (req, res, next) => {
   return res.redirect(301, `/${encodeURIComponent(requestedPath)}`);
 });
 
-// Static files with CORS headers
+
 app.use('/uploads', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
@@ -190,7 +184,7 @@ app.use('/uploads', (req, res, next) => {
   next();
 }, express.static(uploadsPath));
 
-// Health check endpoint
+
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
@@ -201,7 +195,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Database status endpoint
+
 app.get('/api/status', async (req, res) => {
   try {
     const mongoose = require('mongoose');
@@ -235,7 +229,7 @@ app.get('/api/status', async (req, res) => {
   }
 });
 
-// API routes
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/products', require('./routes/products'));
@@ -245,9 +239,9 @@ app.use('/api/articles', require('./routes/articles'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/sync', require('./routes/sync'));
 
-// В production раздаём фронтенд как статику
+
 if (process.env.NODE_ENV === 'production') {
-  // Сначала пробуем dist в корне (если фронт собран вручную)
+
   const distPaths = [
     path.join(__dirname, '..', 'frontend', 'dist'),
     path.join(__dirname, '..', 'dist'),
@@ -267,7 +261,7 @@ if (process.env.NODE_ENV === 'production') {
     console.log('📦 Раздаём фронтенд из:', distPath);
     app.use(express.static(distPath));
     
-    // Все не-API запросы → index.html (SPA роутинг)
+
     app.get('*', (req, res) => {
       if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path.startsWith('/health')) {
         return res.status(404).json({ error: 'Route not found', path: req.originalUrl });
@@ -277,7 +271,7 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 
-// 404 handler (только для API путей, если фронтенд не нашёлся)
+
 app.use('/api/*', (req, res) => {
   res.status(404).json({ 
     error: 'Route not found',
@@ -285,7 +279,7 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// Global error handler
+
 app.use(errorLogger);
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -327,7 +321,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Build frontend on first start (production)
+
 const buildFrontend = async () => {
   if (process.env.NODE_ENV !== 'production') return;
   
@@ -338,7 +332,7 @@ const buildFrontend = async () => {
   const frontendDir = path.join(__dirname, '..', 'frontend');
   const distDir = path.join(frontendDir, 'dist');
   
-  // Проверяем, есть ли уже собранный фронтенд
+
   if (!fs.existsSync(path.join(distDir, 'index.html'))) {
     console.log('🏗️ Сборка фронтенда...');
     try {
@@ -354,34 +348,32 @@ const buildFrontend = async () => {
   }
 };
 
-// Start server
+
 const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== 'test') {
   const startServer = async () => {
-    // Сборка фронтенда (в production)
     await buildFrontend();
-    
-    // Запускаем сервер
-    const server = app.listen(PORT, () => {
-      console.log(`🚀 Сервер запущен на порту ${PORT}`);
-      console.log(`📊 Режим: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🌐 Открой: http://localhost:${PORT}`);
-    });
 
-    // Подключаем MongoDB
-    connectDB()
-      .then(async () => {
-        console.log('✅ MongoDB подключена успешно');
-        const { autoInitDatabase } = require('./scripts/autoInit');
-        await autoInitDatabase();
-        console.log('✅ Сервер готов к работе');
-      })
-      .catch((err) => {
-        console.error('⚠️ MongoDB недоступна:', err.message);
+    try {
+      await connectDB();
+      console.log('✅ MongoDB подключена успешно');
+
+      const { autoInitDatabase } = require('./scripts/autoInit');
+      await autoInitDatabase();
+      console.log('✅ Сервер готов к работе');
+
+      app.listen(PORT, () => {
+        console.log(`🚀 Сервер запущен на порту ${PORT}`);
+        console.log(`📊 Режим: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`🌐 Открой: http://localhost:${PORT}`);
       });
+    } catch (err) {
+      console.error('❌ MongoDB недоступна, сервер не запущен:', err.message);
+      process.exit(1);
+    }
   };
-  
+
   startServer();
 }
 

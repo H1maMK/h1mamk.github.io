@@ -4,6 +4,8 @@ const fs = require('fs');
 const { productStorage, articleStorage, categoryStorage, avatarStorage } = require('../config/cloudinary');
 
 const backendUploadsRoot = path.join(__dirname, '..', 'uploads');
+const MAX_IMAGE_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE, 10) || 10 * 1024 * 1024;
+const MAX_ARTICLE_FIELD_SIZE = parseInt(process.env.MAX_ARTICLE_FIELD_SIZE, 10) || 20 * 1024 * 1024;
 
 const hasPersistentUploadStorage = () => Boolean(
   process.env.CLOUDINARY_CLOUD_NAME &&
@@ -12,12 +14,12 @@ const hasPersistentUploadStorage = () => Boolean(
   process.env.CLOUDINARY_CLOUD_NAME !== 'demo'
 );
 
-// Локальное хранилище (fallback)
+
 const localStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     let uploadPath = backendUploadsRoot;
     
-    // Определяем папку по типу файла
+
     if (req.route.path.includes('products')) {
       uploadPath = path.join(uploadPath, 'products');
     } else if (req.route.path.includes('articles')) {
@@ -28,7 +30,7 @@ const localStorage = multer.diskStorage({
       uploadPath = path.join(uploadPath, 'avatars');
     }
     
-    // Создаем папку если не существует
+
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
@@ -41,7 +43,7 @@ const localStorage = multer.diskStorage({
   }
 });
 
-// Фильтр файлов
+
 const buildImageFileFilter = ({ allowedMimeTypes, allowedExtensions, errorMessage }) => (req, file, cb) => {
   const extname = allowedExtensions.includes(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedMimeTypes.includes(file.mimetype);
@@ -65,7 +67,7 @@ const categoryImageFileFilter = buildImageFileFilter({
   errorMessage: 'Разрешены только изображения (JPEG, JPG, PNG, WebP, GIF, SVG)'
 });
 
-// Функция для выбора хранилища
+
 const getStorage = (type) => {
   const useCloudinary = hasPersistentUploadStorage();
 
@@ -87,11 +89,11 @@ const getStorage = (type) => {
   return localStorage;
 };
 
-// Создаем multer instances
+
 const uploadProduct = multer({
   storage: getStorage('product'),
   limits: {
-    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024 // 5MB
+    fileSize: MAX_IMAGE_FILE_SIZE
   },
   fileFilter: defaultImageFileFilter
 });
@@ -99,7 +101,8 @@ const uploadProduct = multer({
 const uploadArticle = multer({
   storage: getStorage('article'),
   limits: {
-    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024
+    fileSize: MAX_IMAGE_FILE_SIZE,
+    fieldSize: MAX_ARTICLE_FIELD_SIZE
   },
   fileFilter: defaultImageFileFilter
 });
@@ -107,7 +110,7 @@ const uploadArticle = multer({
 const uploadAvatar = multer({
   storage: getStorage('avatar'),
   limits: {
-    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024
+    fileSize: MAX_IMAGE_FILE_SIZE
   },
   fileFilter: defaultImageFileFilter
 });
@@ -115,17 +118,15 @@ const uploadAvatar = multer({
 const uploadCategory = multer({
   storage: getStorage('category'),
   limits: {
-    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024
+    fileSize: MAX_IMAGE_FILE_SIZE
   },
   fileFilter: categoryImageFileFilter
 });
 
 const ensurePersistentUploadStorage = (req, res, next) => {
   if (process.env.NODE_ENV === 'production' && !hasPersistentUploadStorage()) {
-    return res.status(503).json({
-      success: false,
-      message: 'Загрузка изображений в production отключена: не настроено постоянное хранилище Cloudinary. После деплоя локальные файлы на сервере Render удаляются.'
-    });
+    res.set('X-Upload-Storage-Warning', 'local-ephemeral-storage');
+    console.warn('Persistent upload storage is not configured. Falling back to local uploads directory in production.');
   }
 
   next();
@@ -133,6 +134,7 @@ const ensurePersistentUploadStorage = (req, res, next) => {
 
 module.exports = {
   ensurePersistentUploadStorage,
+  MAX_IMAGE_FILE_SIZE,
   uploadProduct,
   uploadArticle,
   uploadCategory,

@@ -3,11 +3,12 @@ const { hashPassword, comparePassword } = require('../utils/password');
 const { success, error, validationError, unauthorized, notFound } = require('../utils/response');
 const path = require('path');
 const fs = require('fs').promises;
+const { MAX_IMAGE_FILE_SIZE } = require('../middleware/upload');
 
-// Получение профиля текущего пользователя
+
 const getProfile = async (req, res) => {
   try {
-    // req.user уже установлен middleware authenticateToken
+
     const user = req.user;
 
     const userResponse = {
@@ -29,19 +30,19 @@ const getProfile = async (req, res) => {
   }
 };
 
-// Обновление профиля пользователя
+
 const updateProfile = async (req, res) => {
   try {
     const userId = req.user._id;
     const { username, email, yearBirth, gender } = req.body;
 
-    // Получаем пользователя
+
     const user = await User.findById(userId);
     if (!user) {
       return notFound(res, 'User not found');
     }
 
-    // Проверяем, не занят ли новый email другим пользователем
+
     if (email && email !== user.email) {
       const existingUserByEmail = await User.findOne({ 
         email, 
@@ -53,7 +54,7 @@ const updateProfile = async (req, res) => {
       }
     }
 
-    // Проверяем, не занят ли новый username другим пользователем
+
     if (username && username !== user.username) {
       const existingUserByUsername = await User.findOne({ 
         username, 
@@ -65,7 +66,7 @@ const updateProfile = async (req, res) => {
       }
     }
 
-    // Обновляем поля
+
     if (username) user.username = username;
     if (email) user.email = email;
     if (yearBirth !== undefined) user.profile.yearBirth = yearBirth;
@@ -73,10 +74,10 @@ const updateProfile = async (req, res) => {
     
     user.updatedAt = new Date();
 
-    // Сохраняем изменения
+
     const updatedUser = await user.save();
 
-    // Возвращаем обновленные данные без пароля
+
     const userResponse = {
       id: updatedUser._id,
       username: updatedUser.username,
@@ -96,14 +97,24 @@ const updateProfile = async (req, res) => {
   }
 };
 
-// Загрузка аватара пользователя
+
 const uploadAvatar = async (req, res) => {
   try {
     console.log('Upload avatar request received');
+
+    if (req.uploadError) {
+      return error(
+        res,
+        req.uploadError.code === 'LIMIT_FILE_SIZE'
+          ? `Размер изображения не должен превышать ${Math.round(MAX_IMAGE_FILE_SIZE / (1024 * 1024))} МБ`
+          : (req.uploadError.message || 'Ошибка загрузки аватара'),
+        400
+      );
+    }
     
     const userId = req.user._id;
 
-    // Проверяем, что файл был загружен
+
     if (!req.file) {
       console.log('No file uploaded');
       return error(res, 'No file uploaded', 400);
@@ -111,13 +122,13 @@ const uploadAvatar = async (req, res) => {
 
     console.log('File uploaded successfully:', req.file.filename);
 
-    // Получаем пользователя
+
     const user = await User.findById(userId);
     if (!user) {
       return notFound(res, 'User not found');
     }
 
-    // Удаляем старый аватар, если он существует
+
     if (user.profile?.avatar) {
       const oldAvatarPath = path.join('./uploads/avatars', path.basename(user.profile.avatar));
       try {
@@ -127,8 +138,10 @@ const uploadAvatar = async (req, res) => {
       }
     }
 
-    // Обновляем путь к аватару
-    const avatarUrl = `/api/image/avatars/${req.file.filename}`;
+
+    const avatarUrl = typeof req.file.path === 'string' && /^https?:\/\//i.test(req.file.path)
+      ? req.file.path
+      : `/api/image/avatars/${req.file.filename}`;
     if (!user.profile) {
       user.profile = {};
     }
@@ -137,7 +150,7 @@ const uploadAvatar = async (req, res) => {
 
     await user.save();
 
-    // Возвращаем обновленные данные
+
     const userResponse = {
       id: user._id,
       username: user.username,
@@ -157,7 +170,7 @@ const uploadAvatar = async (req, res) => {
   } catch (err) {
     console.error('Upload avatar error:', err);
     
-    // Удаляем загруженный файл в случае ошибки
+
     if (req.file) {
       try {
         await fs.unlink(req.file.path);
@@ -170,23 +183,23 @@ const uploadAvatar = async (req, res) => {
   }
 };
 
-// Удаление аватара пользователя
+
 const deleteAvatar = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    // Получаем пользователя
+
     const user = await User.findById(userId);
     if (!user) {
       return notFound(res, 'User not found');
     }
 
-    // Проверяем, есть ли аватар
+
     if (!user.profile?.avatar) {
       return error(res, 'No avatar to delete', 400);
     }
 
-    // Удаляем файл аватара
+
     const avatarPath = path.join('./uploads/avatars', path.basename(user.profile.avatar));
     try {
       await fs.unlink(avatarPath);
@@ -194,12 +207,12 @@ const deleteAvatar = async (req, res) => {
       console.warn('Failed to delete avatar file:', deleteError.message);
     }
 
-    // Обновляем пользователя
+
     user.profile.avatar = null;
     user.updatedAt = new Date();
     await user.save();
 
-    // Возвращаем обновленные данные
+
     const userResponse = {
       id: user._id,
       username: user.username,
@@ -219,12 +232,12 @@ const deleteAvatar = async (req, res) => {
   }
 };
 
-// Получение избранных товаров пользователя
+
 const getFavorites = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    // Получаем пользователя с populate favorites
+
     const user = await User.findById(userId).populate({
       path: 'favorites',
       populate: { path: 'category' }
@@ -234,7 +247,7 @@ const getFavorites = async (req, res) => {
       return notFound(res, 'User not found');
     }
 
-    // Если нет избранных товаров, возвращаем пустой массив
+
     if (!user.favorites || user.favorites.length === 0) {
       return success(res, { 
         favorites: [],
@@ -242,16 +255,16 @@ const getFavorites = async (req, res) => {
       }, 'Favorites retrieved successfully');
     }
 
-    // Фильтруем только товары в наличии и обрабатываем изображения
+
     const favoriteProducts = user.favorites
       .filter(product => product && product.stock > 0)
       .map(product => {
-        // Обрабатываем изображения
+
         let processedImages = [];
         if (product.images && product.images.length > 0) {
           processedImages = product.images.map(img => {
             if (img.startsWith('http')) {
-              return img; // Уже полный URL (Cloudinary)
+              return img;
             } else {
               return `${req.protocol}://${req.get('host')}${img.startsWith('/') ? img : '/' + img}`;
             }
@@ -277,31 +290,31 @@ const getFavorites = async (req, res) => {
   }
 };
 
-// Добавление товара в избранное
+
 const addToFavorites = async (req, res) => {
   try {
     const userId = req.user._id;
     const { productId } = req.params;
 
-    // Получаем пользователя
+
     const user = await User.findById(userId);
     if (!user) {
       return notFound(res, 'User not found');
     }
 
-    // Проверяем, что товар существует
+
     const Product = require('../models/Product');
     const product = await Product.findById(productId);
     if (!product) {
       return notFound(res, 'Product not found');
     }
 
-    // Проверяем, не добавлен ли товар уже в избранное
+
     if (user.favorites.includes(productId)) {
       return error(res, 'Product already in favorites', 409);
     }
 
-    // Добавляем товар в избранное
+
     user.favorites.push(productId);
     user.updated_at = new Date();
     await user.save();
@@ -317,25 +330,25 @@ const addToFavorites = async (req, res) => {
   }
 };
 
-// Удаление товара из избранного
+
 const removeFromFavorites = async (req, res) => {
   try {
     const userId = req.user._id;
     const { productId } = req.params;
 
-    // Получаем пользователя
+
     const user = await User.findById(userId);
     if (!user) {
       return notFound(res, 'User not found');
     }
 
-    // Проверяем, есть ли товар в избранном
+
     const favoriteIndex = user.favorites.indexOf(productId);
     if (favoriteIndex === -1) {
       return error(res, 'Product not in favorites', 404);
     }
 
-    // Удаляем товар из избранного
+
     user.favorites.splice(favoriteIndex, 1);
     user.updated_at = new Date();
     await user.save();
@@ -351,16 +364,16 @@ const removeFromFavorites = async (req, res) => {
   }
 };
 
-// Получение статистики пользователя
+
 const getUserStats = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    // Получаем количество заказов пользователя
+
     const Order = require('../models/Order');
     const ordersCount = await Order.countDocuments({ user_id: userId });
 
-    // Получаем количество отзывов пользователя
+
     const Product = require('../models/Product');
     const reviewsCount = await Product.aggregate([
       { $unwind: '$reviews' },

@@ -128,7 +128,7 @@ const Cart = () => {
   const [isValidating, setIsValidating] = useState(false);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
 
-  // Редирект на логин если пользователь не авторизован
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/login');
@@ -136,7 +136,7 @@ const Cart = () => {
     }
   }, [user, authLoading, navigate]);
 
-  // Проверяем товары в корзине при загрузке
+
   useEffect(() => {
     const checkCartItems = async () => {
       if (items.length > 0) {
@@ -152,9 +152,9 @@ const Cart = () => {
     };
     
     checkCartItems();
-  }, [items.length]); // Проверяем только при изменении количества товаров
+  }, [items.length]);
 
-  // Пока проверяем аутентификацию, показываем спиннер
+
   if (authLoading) {
     return (
       <div className="page-wrapper">
@@ -166,12 +166,12 @@ const Cart = () => {
     );
   }
 
-  // Если пользователь не авторизован, показываем пустой экран пока идёт редирект
+
   if (!user) {
     return null;
   }
 
-  // Администратор видит пустую корзину с сообщением без редиректа
+
   if (user.role === 'admin') {
     return (
       <div className="page-wrapper">
@@ -234,7 +234,7 @@ const Cart = () => {
 
   const handleRemoveItem = (itemId) => {
     removeFromCart(itemId);
-    // Убираем из списка недоступных если удаляем
+
     setInvalidItems(prev => prev.filter(item => item.id !== itemId));
   };
 
@@ -276,7 +276,7 @@ const Cart = () => {
     try {
       const orderData = {
         items: items.map(item => ({
-          product: item.id || item._id, // Поддерживаем оба варианта ID
+          product: item.id || item._id,
           quantity: item.quantity
         })),
         shippingAddress: orderForm.address.trim(),
@@ -303,7 +303,7 @@ const Cart = () => {
           cardCvv: ''
         });
       } else {
-        // Показываем детальную ошибку
+
         if (data.error?.details) {
           const errorMessages = data.error.details.map(d => d.message).join('\n');
           toast.error(`Ошибка оформления заказа:\n${errorMessages}`);
@@ -311,7 +311,7 @@ const Cart = () => {
           toast.error(data.error?.message || data.message || 'Ошибка оформления заказа');
         }
         
-        // Если проблема с ID товаров - предлагаем очистить корзину
+
         if (data.error?.message?.includes('Invalid product ID') || 
             data.error?.message?.includes('not found')) {
           if (confirm('Похоже, некоторые товары в корзине устарели. Очистить корзину и добавить товары заново?')) {
@@ -372,9 +372,8 @@ const Cart = () => {
     <div className="page-wrapper">
       <div className="main-wrapper" style={{ paddingTop: '140px' }}>
         <h1 className="korzina-text">Корзина</h1>
-        
+
         <div className="basket-container">
-          {/* Уведомление о недоступных товарах */}
           {invalidItems.length > 0 && (
             <div style={{
               background: '#ff6b6b',
@@ -405,7 +404,6 @@ const Cart = () => {
             </div>
           )}
 
-          {/* Индикатор проверки */}
           {isValidating && (
             <div style={{
               background: '#ffa500',
@@ -419,7 +417,6 @@ const Cart = () => {
             </div>
           )}
 
-          {/* Левая колонка: Список товаров */}
           <div className="cart-items-column">
             {items.length > 0 ? (
               <ul className="cart-list">
@@ -484,7 +481,6 @@ const Cart = () => {
             )}
           </div>
 
-          {/* Правая колонка: Сайдбар с оформлением заказа */}
           <div className="cart-sidebar-column">
             <div className="order-summary">
               <div className="summary-total">

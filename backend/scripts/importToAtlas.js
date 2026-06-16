@@ -3,24 +3,24 @@ const fs = require('fs').promises;
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-// Импорт моделей MongoDB
+
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Article = require('../models/Article');
 const Order = require('../models/Order');
 
-// Подключение к MongoDB Atlas
+
 const connectMongoDB = async () => {
   try {
-    // Используем строку подключения напрямую для тестирования
+
     const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://maxim:<password>@maxim.cfghlo3.mongodb.net/devicemaster?retryWrites=true&w=majority';
     
     console.log('🔗 Подключаемся к MongoDB Atlas...');
     console.log('📍 Кластер: maxim.cfghlo3.mongodb.net');
     
     await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 15000, // 15 секунд для Atlas
+      serverSelectionTimeoutMS: 15000,
       socketTimeoutMS: 45000,
     });
     
@@ -46,7 +46,7 @@ const connectMongoDB = async () => {
   }
 };
 
-// Очистка базы данных
+
 const clearDatabase = async () => {
   try {
     console.log('🧹 Очищаем базу данных...');
@@ -65,7 +65,7 @@ const clearDatabase = async () => {
   }
 };
 
-// Загрузка данных из JSON файлов
+
 const loadData = async (filename) => {
   try {
     const filePath = path.join(__dirname, '../data', filename);
@@ -77,7 +77,7 @@ const loadData = async (filename) => {
   }
 };
 
-// Импорт категорий
+
 const importCategories = async () => {
   try {
     console.log('📦 Импортируем категории...');
@@ -99,7 +99,7 @@ const importCategories = async () => {
   }
 };
 
-// Импорт пользователей
+
 const importUsers = async () => {
   try {
     console.log('👥 Импортируем пользователей...');
@@ -108,7 +108,7 @@ const importUsers = async () => {
     const userMap = new Map();
     
     for (const userData of users) {
-      // Хешируем пароль
+
       const hashedPassword = await bcrypt.hash('password', 12);
       userData.password = hashedPassword;
       
@@ -125,7 +125,7 @@ const importUsers = async () => {
   }
 };
 
-// Импорт товаров
+
 const importProducts = async (categoryMap) => {
   try {
     console.log('🛍️ Импортируем товары...');
@@ -134,13 +134,13 @@ const importProducts = async (categoryMap) => {
     const productMap = new Map();
     
     for (const productData of products) {
-      // Пытаемся найти подходящую категорию по названию товара
+
       let categoryId = null;
       
-      // Определяем категорию по названию товара
+
       const productName = productData.name.toLowerCase();
       if (productName.includes('мыш')) {
-        // Ищем категорию мышек
+
         for (const [mysqlId, mongoId] of categoryMap.entries()) {
           const category = await Category.findById(mongoId);
           if (category && category.name.includes('Мыш')) {
@@ -149,7 +149,7 @@ const importProducts = async (categoryMap) => {
           }
         }
       } else if (productName.includes('клавиатур')) {
-        // Ищем категорию клавиатур
+
         for (const [mysqlId, mongoId] of categoryMap.entries()) {
           const category = await Category.findById(mongoId);
           if (category && category.name.includes('Клавиатур')) {
@@ -158,7 +158,7 @@ const importProducts = async (categoryMap) => {
           }
         }
       } else if (productName.includes('наушник')) {
-        // Ищем категорию наушников
+
         for (const [mysqlId, mongoId] of categoryMap.entries()) {
           const category = await Category.findById(mongoId);
           if (category && category.name.includes('Наушник')) {
@@ -167,7 +167,7 @@ const importProducts = async (categoryMap) => {
           }
         }
       } else if (productName.includes('монитор')) {
-        // Ищем категорию мониторов
+
         for (const [mysqlId, mongoId] of categoryMap.entries()) {
           const category = await Category.findById(mongoId);
           if (category && category.name.includes('Монитор')) {
@@ -176,7 +176,7 @@ const importProducts = async (categoryMap) => {
           }
         }
       } else if (productName.includes('микрофон')) {
-        // Ищем категорию микрофонов
+
         for (const [mysqlId, mongoId] of categoryMap.entries()) {
           const category = await Category.findById(mongoId);
           if (category && category.name.includes('Микрофон')) {
@@ -185,7 +185,7 @@ const importProducts = async (categoryMap) => {
           }
         }
       } else if (productName.includes('веб-камер') || productName.includes('камер')) {
-        // Ищем категорию веб-камер
+
         for (const [mysqlId, mongoId] of categoryMap.entries()) {
           const category = await Category.findById(mongoId);
           if (category && category.name.includes('Веб-камер')) {
@@ -195,7 +195,7 @@ const importProducts = async (categoryMap) => {
         }
       }
       
-      // Если не нашли подходящую категорию, используем первую доступную
+
       if (!categoryId) {
         for (const [mysqlId, mongoId] of categoryMap.entries()) {
           categoryId = mongoId;
@@ -219,7 +219,7 @@ const importProducts = async (categoryMap) => {
   }
 };
 
-// Импорт статей
+
 const importArticles = async () => {
   try {
     console.log('📰 Импортируем статьи...');
@@ -237,20 +237,20 @@ const importArticles = async () => {
   }
 };
 
-// Основная функция импорта
+
 const runImport = async () => {
   console.log('🚀 Начинаем импорт данных в MongoDB Atlas...\n');
   
   try {
-    // Подключаемся к MongoDB Atlas
+
     await connectMongoDB();
     console.log('');
     
-    // Очищаем базу данных
+
     await clearDatabase();
     console.log('');
     
-    // Выполняем импорт в правильном порядке
+
     const categoryMap = await importCategories();
     console.log('');
     
@@ -265,7 +265,7 @@ const runImport = async () => {
     
     console.log('🎉 Импорт данных в MongoDB Atlas успешно завершен!');
     
-    // Выводим статистику
+
     const categoriesCount = await Category.countDocuments();
     const usersCount = await User.countDocuments();
     const productsCount = await Product.countDocuments();
@@ -277,7 +277,7 @@ const runImport = async () => {
     console.log(`- Товары: ${productsCount}`);
     console.log(`- Статьи: ${articlesCount}`);
     
-    // Проверяем связи
+
     console.log('\n🔗 Проверка связей:');
     const productWithCategory = await Product.findOne().populate('category');
     if (productWithCategory && productWithCategory.category) {
@@ -297,9 +297,9 @@ const runImport = async () => {
   }
 };
 
-// Запускаем импорт
+
 if (require.main === module) {
-  // Загружаем переменные окружения
+
   require('dotenv').config();
   runImport();
 }

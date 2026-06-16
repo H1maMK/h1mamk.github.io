@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-// Import controllers
+
 const {
   register,
   login,
@@ -12,7 +12,7 @@ const {
   changePassword
 } = require('../controllers/authController');
 
-// Import middleware
+
 const { authenticateToken } = require('../middleware/auth');
 const {
   validateUserRegistration,
@@ -21,7 +21,7 @@ const {
 } = require('../middleware/validation');
 const { body } = require('express-validator');
 
-// Валидация для смены пароля
+
 const validatePasswordChange = [
   body('currentPassword')
     .notEmpty()
@@ -37,39 +37,25 @@ const validatePasswordChange = [
   handleValidationErrors
 ];
 
-// @route   POST /api/auth/register
-// @desc    Register a new user
-// @access  Public
+
 router.post('/register', validateUserRegistration, register);
 
-// @route   POST /api/auth/login
-// @desc    Login user and return JWT token
-// @access  Public
+
 router.post('/login', validateUserLogin, login);
 
-// @route   GET /api/auth/me
-// @desc    Get current user data
-// @access  Private
+
 router.get('/me', authenticateToken, getMe);
 
-// @route   POST /api/auth/logout
-// @desc    Logout user (client-side token removal)
-// @access  Private
+
 router.post('/logout', authenticateToken, logout);
 
-// @route   POST /api/auth/verify
-// @desc    Verify JWT token
-// @access  Public
+
 router.post('/verify', verifyTokenEndpoint);
 
-// @route   POST /api/auth/refresh
-// @desc    Refresh JWT token
-// @access  Public
+
 router.post('/refresh', refreshToken);
 
-// @route   PUT /api/auth/change-password
-// @desc    Change user password
-// @access  Private
+
 router.put('/change-password', authenticateToken, validatePasswordChange, changePassword);
 
 module.exports = router;

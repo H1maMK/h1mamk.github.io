@@ -29,16 +29,16 @@ const isSessionRelatedUnauthorized = (error) => {
   ].some((part) => message.includes(part));
 };
 
-// Создаем экземпляр axios с базовой конфигурацией
+
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
-  timeout: 30000, // 30 секунд для медленных запросов к MongoDB
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Интерсептор для добавления токена авторизации
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -52,7 +52,7 @@ api.interceptors.request.use(
   }
 );
 
-// Интерсептор для обработки ответов
+
 api.interceptors.response.use(
   (response) => {
     return response;
@@ -68,9 +68,9 @@ api.interceptors.response.use(
       requestUrl.includes('/auth/register') ||
       requestUrl.includes('/auth/verify');
 
-    // Если access token истек, пробуем получить новый и повторить исходный запрос.
-    // Это исправляет ситуацию, когда админ-панель открывается по кешированному пользователю,
-    // но запросы к защищенным эндпоинтам, включая отзывы, падают с 401.
+
+
+
     if (
       isUnauthorized &&
       isSessionUnauthorized &&
@@ -85,8 +85,8 @@ api.interceptors.response.use(
         originalRequest._retry = true;
 
         try {
-          // Важно: не отправляем JSON literal `null`, т.к. strict JSON parser на бэкенде
-          // может отклонять такой body. Отправляем пустой объект.
+
+
           const refreshResponse = await api.post('/auth/refresh', {}, {
             headers: {
               Authorization: `Bearer ${token}`,

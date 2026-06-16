@@ -1,9 +1,6 @@
-/**
- * Models Index File
- * 
- * This file exports all Mongoose models for the DeviceMaster application.
- * Import this file to access all models in one place.
- */
+
+
+
 
 const User = require('./User');
 const Product = require('./Product');
@@ -19,7 +16,7 @@ module.exports = {
   Category
 };
 
-// Export individual models as well for convenience
+
 module.exports.User = User;
 module.exports.Product = Product;
 module.exports.Order = Order;

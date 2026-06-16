@@ -4,13 +4,13 @@ require('dotenv').config();
 
 const checkUser = async () => {
   try {
-    // Подключение к MongoDB
+
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
 
     const adminEmail = 'mr.maxim.8806@mail.ru';
 
-    // Ищем пользователя с паролем
+
     const user = await User.findOne({ email: adminEmail }).select('+password');
 
     if (user) {
@@ -22,7 +22,7 @@ const checkUser = async () => {
       console.log('- Has password:', !!user.password);
       console.log('- Password length:', user.password ? user.password.length : 0);
       
-      // Проверяем пароль
+
       const testPassword = 'Kuznetsova051979';
       const isPasswordCorrect = await user.comparePassword(testPassword);
       console.log('- Password test result:', isPasswordCorrect);
@@ -39,5 +39,5 @@ const checkUser = async () => {
   }
 };
 
-// Запускаем скрипт
+
 checkUser();

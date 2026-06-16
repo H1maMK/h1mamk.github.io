@@ -22,7 +22,7 @@ const getApprovedReviewStats = (reviews = []) => {
   };
 };
 
-// Получение списка товаров с фильтрацией и пагинацией
+
 const getProducts = async (req, res) => {
   try {
     const {
@@ -37,12 +37,12 @@ const getProducts = async (req, res) => {
       availability = 'all'
     } = req.query;
 
-    // Построение фильтра
+
     const filter = { isActive: { $ne: false } };
 
-    // Фильтр по категории
+
     if (category) {
-      // Определяем фильтр по названию товара
+
       const categoryLower = category.toLowerCase();
       if (categoryLower.includes('мыш')) {
         filter.$or = [
@@ -71,44 +71,44 @@ const getProducts = async (req, res) => {
       }
     }
       
-    // Фильтр по цене
+
     if (minPrice || maxPrice) {
       filter.price = {};
       if (minPrice) filter.price.$gte = parseFloat(minPrice);
       if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
     }
 
-    // Фильтр по доступности
+
     if (availability === 'available') {
       filter.stock = { $gt: 0 };
     } else if (availability === 'unavailable') {
       filter.stock = { $lte: 0 };
     }
 
-    // Поиск только по названию
+
     if (search) {
       filter.name = { $regex: search, $options: 'i' };
     }
 
-    // Настройка сортировки
+
     const sortOptions = {};
     const validSortFields = ['name', 'price', 'createdAt', 'stock'];
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'createdAt';
     const order = sortOrder === 'asc' ? 1 : -1;
     sortOptions[sortField] = order;
 
-    // Пагинация
+
     const pageNum = Math.max(1, parseInt(page));
     const requestedLimit = parseInt(limit, 10);
     const limitNum = requestedLimit === 0 ? 0 : Math.min(500, Math.max(1, requestedLimit));
     const skip = (pageNum - 1) * limitNum;
 
-    // Выполнение запроса с оптимизацией
+
     const productsQuery = Product.find(filter)
-      .populate('category', 'name deviceType') // Только нужные поля
+      .populate('category', 'name deviceType')
       .sort(sortOptions)
       .select('-__v')
-      .lean() // Возвращаем plain JS объекты для скорости
+      .lean()
       .maxTimeMS(5000);
 
     if (limitNum > 0) {
@@ -117,10 +117,10 @@ const getProducts = async (req, res) => {
 
     const [products, totalCount] = await Promise.all([
       productsQuery,
-      Product.countDocuments(filter).maxTimeMS(2000) // Максимум 2 секунды на подсчет
+      Product.countDocuments(filter).maxTimeMS(2000)
     ]);
 
-    // Добавляем информацию об избранном для аутентифицированных пользователей
+
     if (req.user) {
       const userFavorites = req.user.favorites || [];
       products.forEach(product => {
@@ -128,7 +128,7 @@ const getProducts = async (req, res) => {
       });
     }
 
-    // Обрабатываем изображения для всех товаров
+
     const BASE_IMAGE_URL = process.env.RAILWAY_PUBLIC_DOMAIN
       ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
       : `${req.protocol}://${req.get('host')}`;

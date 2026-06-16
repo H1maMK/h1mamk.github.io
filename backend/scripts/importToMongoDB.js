@@ -4,14 +4,14 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-// Импорт моделей MongoDB
+
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Article = require('../models/Article');
 const Order = require('../models/Order');
 
-// Подключение к MongoDB
+
 const connectMongoDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://maxim:maxim@maxim.cfghlo3.mongodb.net/devicemaster?retryWrites=true&w=majority');
@@ -26,7 +26,7 @@ const connectMongoDB = async () => {
   }
 };
 
-// Очистка базы данных
+
 const clearDatabase = async () => {
   try {
     await User.deleteMany({});
@@ -40,7 +40,7 @@ const clearDatabase = async () => {
   }
 };
 
-// Загрузка данных из JSON файлов
+
 const loadData = async (filename) => {
   try {
     const filePath = path.join(__dirname, '../data', filename);
@@ -52,13 +52,13 @@ const loadData = async (filename) => {
   }
 };
 
-// Импорт категорий
+
 const importCategories = async () => {
   try {
     console.log('📦 Импортируем категории...');
     
     const categories = await loadData('categories.json');
-    const categoryMap = new Map(); // Для сопоставления mysqlId с MongoDB _id
+    const categoryMap = new Map();
     
     for (const categoryData of categories) {
       const category = await Category.create(categoryData);
@@ -74,16 +74,16 @@ const importCategories = async () => {
   }
 };
 
-// Импорт пользователей
+
 const importUsers = async () => {
   try {
     console.log('👥 Импортируем пользователей...');
     
     const users = await loadData('users.json');
-    const userMap = new Map(); // Для сопоставления mysqlId с MongoDB _id
+    const userMap = new Map();
     
     for (const userData of users) {
-      // Хешируем пароль
+
       const hashedPassword = await bcrypt.hash('password', 12);
       userData.password = hashedPassword;
       
@@ -100,23 +100,23 @@ const importUsers = async () => {
   }
 };
 
-// Импорт товаров
+
 const importProducts = async (categoryMap) => {
   try {
     console.log('🛍️ Импортируем товары...');
     
     const products = await loadData('products.json');
-    const productMap = new Map(); // Для сопоставления mysqlId с MongoDB _id
+    const productMap = new Map();
     
     for (const productData of products) {
-      // Находим соответствующую категорию
-      const categoryId = categoryMap.get(productData.mysqlId); // Исправляем логику поиска категории
+
+      const categoryId = categoryMap.get(productData.mysqlId);
       
-      // Ищем категорию по mysqlId из товара
+
       let category = null;
       for (const [mysqlId, mongoId] of categoryMap.entries()) {
-        // Нужно найти категорию по category_id из MySQL
-        // Пока используем первую доступную категорию
+
+
         if (!category) {
           category = mongoId;
           break;
@@ -124,7 +124,7 @@ const importProducts = async (categoryMap) => {
       }
       
       productData.category = category;
-      delete productData.categoryId; // Удаляем временное поле
+      delete productData.categoryId;
       
       const product = await Product.create(productData);
       productMap.set(productData.mysqlId, product._id);
@@ -139,7 +139,7 @@ const importProducts = async (categoryMap) => {
   }
 };
 
-// Импорт статей
+
 const importArticles = async () => {
   try {
     console.log('📰 Импортируем статьи...');
@@ -157,7 +157,7 @@ const importArticles = async () => {
   }
 };
 
-// Импорт заказов
+
 const importOrders = async (userMap, productMap) => {
   try {
     console.log('🛒 Импортируем заказы...');
@@ -165,7 +165,7 @@ const importOrders = async (userMap, productMap) => {
     const orders = await loadData('orders.json');
     
     for (const orderData of orders) {
-      // Заменяем userId на MongoDB ObjectId
+
       const mongoUserId = userMap.get(orderData.userId);
       if (!mongoUserId) {
         console.log(`⚠️ Пользователь с MySQL ID ${orderData.userId} не найден, пропускаем заказ`);
@@ -175,7 +175,7 @@ const importOrders = async (userMap, productMap) => {
       orderData.user = mongoUserId;
       delete orderData.userId;
       
-      // Заменяем productId в элементах заказа
+
       orderData.items = orderData.items.map(item => {
         const mongoProductId = productMap.get(item.productId);
         if (mongoProductId) {
@@ -198,7 +198,7 @@ const importOrders = async (userMap, productMap) => {
   }
 };
 
-// Импорт отзывов
+
 const importReviews = async (userMap, productMap) => {
   try {
     console.log('⭐ Импортируем отзывы...');
@@ -214,7 +214,7 @@ const importReviews = async (userMap, productMap) => {
         continue;
       }
       
-      // Добавляем отзыв к товару
+
       await Product.findByIdAndUpdate(mongoProductId, {
         $push: {
           reviews: {
@@ -235,19 +235,19 @@ const importReviews = async (userMap, productMap) => {
   }
 };
 
-// Основная функция импорта
+
 const runImport = async () => {
   console.log('🚀 Начинаем импорт данных в MongoDB...\n');
   
   try {
-    // Подключаемся к MongoDB
+
     await connectMongoDB();
     
-    // Очищаем базу данных
+
     await clearDatabase();
     console.log('');
     
-    // Выполняем импорт в правильном порядке
+
     const categoryMap = await importCategories();
     console.log('');
     
@@ -268,7 +268,7 @@ const runImport = async () => {
     
     console.log('🎉 Импорт данных успешно завершен!');
     
-    // Выводим статистику
+
     const categoriesCount = await Category.countDocuments();
     const usersCount = await User.countDocuments();
     const productsCount = await Product.countDocuments();
@@ -282,7 +282,7 @@ const runImport = async () => {
     console.log(`- Статьи: ${articlesCount}`);
     console.log(`- Заказы: ${ordersCount}`);
     
-    // Проверяем связи
+
     console.log('\n🔗 Проверка связей:');
     const productWithCategory = await Product.findOne().populate('category');
     if (productWithCategory && productWithCategory.category) {
@@ -301,7 +301,7 @@ const runImport = async () => {
   }
 };
 
-// Запускаем импорт
+
 if (require.main === module) {
   runImport();
 }

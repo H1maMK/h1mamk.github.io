@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-// Import controllers
+
 const {
   getProductsForAdmin,
   createProduct,
@@ -32,7 +32,7 @@ const {
   getAllProductReviewsForAdmin
 } = require('../controllers/reviewController');
 
-// Import middleware
+
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { validateObjectId } = require('../middleware/validation');
 const { body } = require('express-validator');
@@ -44,7 +44,16 @@ const {
   uploadProduct: uploadProductMiddleware
 } = require('../middleware/upload');
 
-// Validation middleware for products
+const withUploadErrorHandling = (uploadMiddleware) => (req, res, next) => {
+  uploadMiddleware(req, res, (err) => {
+    if (err) {
+      req.uploadError = err;
+    }
+    next();
+  });
+};
+
+
 const validateProduct = [
   body('name')
     .trim()
@@ -84,7 +93,7 @@ const validateProduct = [
     })
 ];
 
-// Validation middleware for categories
+
 const validateCategory = [
   body('name')
     .trim()
@@ -102,53 +111,45 @@ const validateCategory = [
     .withMessage('Описание не должно превышать 500 символов')
 ];
 
-// === PRODUCT MANAGEMENT ROUTES ===
 
-// @route   GET /api/admin/products
-// @desc    Get all products including hidden
-// @access  Private (Admin only)
+
+
 router.get('/products',
   authenticateToken,
   requireAdmin,
   getProductsForAdmin
 );
 
-// @route   POST /api/admin/products
-// @desc    Create a new product
-// @access  Private (Admin only)
+
 router.post('/products', 
   authenticateToken,
   requireAdmin,
   ensurePersistentUploadStorage,
-  uploadProductMiddleware.fields([
+  withUploadErrorHandling(uploadProductMiddleware.fields([
     { name: 'image1', maxCount: 1 },
     { name: 'image2', maxCount: 1 },
     { name: 'image3', maxCount: 1 }
-  ]),
+  ])),
   validateProduct,
   createProduct
 );
 
-// @route   PUT /api/admin/products/:id
-// @desc    Update a product
-// @access  Private (Admin only)
+
 router.put('/products/:id',
   authenticateToken,
   requireAdmin,
   validateObjectId,
   ensurePersistentUploadStorage,
-  uploadProductMiddleware.fields([
+  withUploadErrorHandling(uploadProductMiddleware.fields([
     { name: 'image1', maxCount: 1 },
     { name: 'image2', maxCount: 1 },
     { name: 'image3', maxCount: 1 }
-  ]),
+  ])),
   validateProduct,
   updateProduct
 );
 
-// @route   PATCH /api/admin/products/:id/visibility
-// @desc    Hide or show a product
-// @access  Private (Admin only)
+
 router.patch('/products/:id/visibility',
   authenticateToken,
   requireAdmin,
@@ -156,9 +157,7 @@ router.patch('/products/:id/visibility',
   toggleProductVisibility
 );
 
-// @route   DELETE /api/admin/products/:id
-// @desc    Delete a product
-// @access  Private (Admin only)
+
 router.delete('/products/:id',
   authenticateToken,
   requireAdmin,
@@ -166,36 +165,30 @@ router.delete('/products/:id',
   deleteProduct
 );
 
-// === CATEGORY MANAGEMENT ROUTES ===
 
-// @route   POST /api/admin/categories
-// @desc    Create a new category
-// @access  Private (Admin only)
+
+
 router.post('/categories',
   authenticateToken,
   requireAdmin,
   ensurePersistentUploadStorage,
-  uploadCategoryMiddleware.single('image'),
+  withUploadErrorHandling(uploadCategoryMiddleware.single('image')),
   validateCategory,
   createCategory
 );
 
-// @route   PUT /api/admin/categories/:id
-// @desc    Update a category
-// @access  Private (Admin only)
+
 router.put('/categories/:id',
   authenticateToken,
   requireAdmin,
   validateObjectId,
   ensurePersistentUploadStorage,
-  uploadCategoryMiddleware.single('image'),
+  withUploadErrorHandling(uploadCategoryMiddleware.single('image')),
   validateCategory,
   updateCategory
 );
 
-// @route   DELETE /api/admin/categories/:id
-// @desc    Delete a category
-// @access  Private (Admin only)
+
 router.delete('/categories/:id',
   authenticateToken,
   requireAdmin,
@@ -203,20 +196,16 @@ router.delete('/categories/:id',
   deleteCategory
 );
 
-// === USER MANAGEMENT ROUTES ===
 
-// @route   GET /api/admin/users
-// @desc    Get all users
-// @access  Private (Admin only)
+
+
 router.get('/users',
   authenticateToken,
   requireAdmin,
   getAllUsers
 );
 
-// @route   PUT /api/admin/users/:id
-// @desc    Update a user
-// @access  Private (Admin only)
+
 router.put('/users/:id',
   authenticateToken,
   requireAdmin,
@@ -224,20 +213,16 @@ router.put('/users/:id',
   updateUser
 );
 
-// @route   POST /api/admin/users/:id/avatar
-// @desc    Upload user avatar (admin only)
-// @access  Private (Admin only)
+
 router.post('/users/:id/avatar',
   authenticateToken,
   requireAdmin,
   validateObjectId,
-  uploadAvatarMiddleware.single('avatar'),
+  withUploadErrorHandling(uploadAvatarMiddleware.single('avatar')),
   updateUserAvatar
 );
 
-// @route   DELETE /api/admin/users/:id
-// @desc    Delete a user
-// @access  Private (Admin only)
+
 router.delete('/users/:id',
   authenticateToken,
   requireAdmin,
@@ -245,9 +230,7 @@ router.delete('/users/:id',
   deleteUser
 );
 
-// @route   PATCH /api/admin/users/:id/block
-// @desc    Block/unblock a user
-// @access  Private (Admin only)
+
 router.patch('/users/:id/block',
   authenticateToken,
   requireAdmin,
@@ -255,22 +238,18 @@ router.patch('/users/:id/block',
   toggleUserBlock
 );
 
-// === ARTICLE MANAGEMENT ROUTES ===
 
-// @route   POST /api/admin/articles
-// @desc    Create a new article
-// @access  Private (Admin only)
+
+
 router.post('/articles',
   authenticateToken,
   requireAdmin,
   ensurePersistentUploadStorage,
-  uploadArticleMiddleware.single('image'),
+  withUploadErrorHandling(uploadArticleMiddleware.single('image')),
   createArticle
 );
 
-// @route   GET /api/admin/articles/:id
-// @desc    Get an article for admin editing
-// @access  Private (Admin only)
+
 router.get('/articles/:id',
   authenticateToken,
   requireAdmin,
@@ -278,21 +257,17 @@ router.get('/articles/:id',
   getArticleForAdmin
 );
 
-// @route   PUT /api/admin/articles/:id
-// @desc    Update an article
-// @access  Private (Admin only)
+
 router.put('/articles/:id',
   authenticateToken,
   requireAdmin,
   validateObjectId,
   ensurePersistentUploadStorage,
-  uploadArticleMiddleware.single('image'),
+  withUploadErrorHandling(uploadArticleMiddleware.single('image')),
   updateArticle
 );
 
-// @route   DELETE /api/admin/articles/:id
-// @desc    Delete an article
-// @access  Private (Admin only)
+
 router.delete('/articles/:id',
   authenticateToken,
   requireAdmin,
@@ -300,29 +275,23 @@ router.delete('/articles/:id',
   deleteArticle
 );
 
-// === REVIEW MODERATION ROUTES ===
 
-// @route   GET /api/admin/reviews/pending
-// @desc    Get all pending reviews
-// @access  Private (Admin only)
+
+
 router.get('/reviews/pending',
   authenticateToken,
   requireAdmin,
   getPendingReviews
 );
 
-// @route   GET /api/admin/reviews
-// @desc    Get all reviews across the site
-// @access  Private (Admin only)
+
 router.get('/reviews',
   authenticateToken,
   requireAdmin,
   getAllReviewsForAdmin
 );
 
-// @route   POST /api/admin/reviews/:reviewId/moderate
-// @desc    Approve or reject a review
-// @access  Private (Admin only)
+
 router.post('/reviews/:reviewId/moderate',
   authenticateToken,
   requireAdmin,
@@ -330,9 +299,7 @@ router.post('/reviews/:reviewId/moderate',
   moderateReview
 );
 
-// @route   GET /api/admin/products/:id/reviews/all
-// @desc    Get all reviews for a product (including pending and rejected) - for admin
-// @access  Private (Admin only)
+
 router.get('/products/:id/reviews/all',
   authenticateToken,
   requireAdmin,

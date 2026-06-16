@@ -48,7 +48,7 @@ const Favorites = () => {
   const handleRemoveFromFavorites = async (productId) => {
     const success = await removeFromFavorites(productId);
     if (success) {
-      // Контекст уже обновил список
+
     }
   };
 

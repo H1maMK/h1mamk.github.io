@@ -3,16 +3,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster, ToastBar, toast } from 'react-hot-toast'
 import { useEffect } from 'react'
 
-// Context Providers
+
 import { AuthProvider } from './contexts/AuthContext'
 import { CartProvider } from './contexts/CartContext'
 import { FavoritesProvider } from './contexts/FavoritesContext'
 
-// Components
+
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 
-// Pages
+
 import Home from './pages/Home'
 import Catalog from './pages/Catalog'
 import ProductPage from './pages/ProductPage'
@@ -31,14 +31,11 @@ import Support from './pages/Support'
 import Privacy from './pages/Privacy'
 import AdminPanel from './pages/admin/AdminPanel'
 
-// Styles
+
 import './App.css'
 
-/**
- * Тип анимации для каждого селектора.
- * fade → для заголовков (плавное проявление)
- * scale-up → для карточек, списков (красивый выезд с масштабом)
- */
+
+
 const REVEAL_TYPES = new Map([
   ['.promo_sell', 'fade'],
   ['.category_text', 'fade'],
@@ -66,18 +63,18 @@ const REVEAL_TYPES = new Map([
 
 const SCROLL_REVEAL_SELECTOR = Array.from(REVEAL_TYPES.keys()).join(', ')
 
-// Create a client for React Query
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
     },
   },
 })
 
-// Компонент для прокрутки страницы вверх при переходе
+
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -88,15 +85,14 @@ function ScrollToTop() {
   return null;
 }
 
-/**
- * Определяет тип анимации для элемента.
- */
+
+
 function getRevealType(element) {
   for (const [selector, type] of REVEAL_TYPES) {
     try {
       if (element.matches(selector)) return type
     } catch {
-      // ignore
+
     }
   }
   return 'scale-up'
@@ -116,12 +112,12 @@ function ScrollReveal() {
 
     if (allElements.length === 0) return undefined
 
-    // Назначаем классы и вычисляем stagger-задержку на основе DOM-позиции
+
     allElements.forEach((el, index) => {
       const type = getRevealType(el)
       el.classList.add('scroll-reveal', `scroll-reveal--${type}`)
-      // Каждый элемент получает задержку по своему глобальному индексу
-      // первый — 0ms, последний — до 450ms (9 элементов × 50ms)
+
+
       el.style.setProperty('--reveal-delay', `${Math.min(index * 50, 450)}ms`)
     })
 
@@ -167,7 +163,7 @@ function ScrollReveal() {
   return null
 }
 
-// Компонент для условного отображения Header и Footer
+
 function AppLayout() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');

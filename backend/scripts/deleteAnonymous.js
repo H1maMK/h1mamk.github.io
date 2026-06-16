@@ -11,7 +11,7 @@ async function deleteAnonymousUser() {
     
     console.log('✅ Подключено к MongoDB');
     
-    // Ищем пользователя anonymous
+
     const anonymousUsers = await User.find({
       $or: [
         { username: 'anonymous' },
@@ -29,7 +29,7 @@ async function deleteAnonymousUser() {
         console.log(`   - ID: ${user._id}, Username: ${user.username}, Email: ${user.email}`);
       });
       
-      // Удаляем всех найденных пользователей
+
       const result = await User.deleteMany({
         $or: [
           { username: 'anonymous' },
@@ -45,7 +45,7 @@ async function deleteAnonymousUser() {
       console.log('\n✅ Пользователи "anonymous" не найдены');
     }
     
-    // Показываем оставшихся пользователей
+
     const remainingUsers = await User.find({}, 'username email role');
     console.log(`\n📋 Оставшиеся пользователи (${remainingUsers.length}):`);
     remainingUsers.forEach(user => {

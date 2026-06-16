@@ -1,14 +1,14 @@
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary-v2');
 
-// Конфигурация Cloudinary
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'demo',
   api_key: process.env.CLOUDINARY_API_KEY || 'demo',
   api_secret: process.env.CLOUDINARY_API_SECRET || 'demo'
 });
 
-// Хранилище для товаров
+
 const productStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -21,7 +21,7 @@ const productStorage = new CloudinaryStorage({
   }
 });
 
-// Хранилище для статей
+
 const articleStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -34,7 +34,7 @@ const articleStorage = new CloudinaryStorage({
   }
 });
 
-// Хранилище для категорий
+
 const categoryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -47,7 +47,7 @@ const categoryStorage = new CloudinaryStorage({
   }
 });
 
-// Хранилище для аватаров
+
 const avatarStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {

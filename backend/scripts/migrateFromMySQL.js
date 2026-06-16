@@ -3,23 +3,23 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-// Импорт моделей MongoDB
+
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Article = require('../models/Article');
 const Order = require('../models/Order');
 
-// Конфигурация MySQL
+
 const mysqlConfig = {
   host: 'localhost',
   user: 'root',
-  password: 'strela79', // Пароль из config.php
+  password: 'strela79',
   database: 'praktik',
   charset: 'utf8mb4'
 };
 
-// Подключение к MongoDB
+
 const connectMongoDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/devicemaster');
@@ -30,7 +30,7 @@ const connectMongoDB = async () => {
   }
 };
 
-// Подключение к MySQL
+
 const connectMySQL = async () => {
   try {
     const connection = await mysql.createConnection(mysqlConfig);
@@ -42,7 +42,7 @@ const connectMySQL = async () => {
   }
 };
 
-// Миграция категорий
+
 const migrateCategories = async (mysqlConnection) => {
   try {
     console.log('📦 Начинаем миграцию категорий...');
@@ -56,7 +56,7 @@ const migrateCategories = async (mysqlConnection) => {
         await Category.create({
           name: category.category_name,
           deviceType: category.device_type,
-          mysqlId: category.id // Сохраняем ID из MySQL для связей
+          mysqlId: category.id
         });
         console.log(`✅ Категория "${category.category_name}" добавлена`);
       } else {
@@ -70,7 +70,7 @@ const migrateCategories = async (mysqlConnection) => {
   }
 };
 
-// Миграция пользователей
+
 const migrateUsers = async (mysqlConnection) => {
   try {
     console.log('👥 Начинаем миграцию пользователей...');
@@ -90,7 +90,7 @@ const migrateUsers = async (mysqlConnection) => {
       });
       
       if (!existingUser) {
-        // Хешируем пароль (в данных пароль 'password')
+
         const hashedPassword = await bcrypt.hash('password', 10);
         
         await User.create({
@@ -117,7 +117,7 @@ const migrateUsers = async (mysqlConnection) => {
   }
 };
 
-// Миграция товаров
+
 const migrateProducts = async (mysqlConnection) => {
   try {
     console.log('🛍️ Начинаем миграцию товаров...');
@@ -132,10 +132,10 @@ const migrateProducts = async (mysqlConnection) => {
       const existingProduct = await Product.findOne({ name: product.product_name });
       
       if (!existingProduct) {
-        // Находим соответствующую категорию в MongoDB
+
         const category = await Category.findOne({ mysqlId: product.category_id });
         
-        // Парсим свойства товара
+
         let specifications = {};
         if (product.properties) {
           const props = product.properties.split(';');
@@ -147,7 +147,7 @@ const migrateProducts = async (mysqlConnection) => {
           });
         }
         
-        // Собираем изображения
+
         const images = [];
         if (product.image_url1) images.push(product.image_url1);
         if (product.image_url2) images.push(product.image_url2);
@@ -176,7 +176,7 @@ const migrateProducts = async (mysqlConnection) => {
   }
 };
 
-// Миграция статей
+
 const migrateArticles = async (mysqlConnection) => {
   try {
     console.log('📰 Начинаем миграцию статей...');
@@ -207,7 +207,7 @@ const migrateArticles = async (mysqlConnection) => {
   }
 };
 
-// Миграция заказов
+
 const migrateOrders = async (mysqlConnection) => {
   try {
     console.log('🛒 Начинаем миграцию заказов...');
@@ -222,10 +222,10 @@ const migrateOrders = async (mysqlConnection) => {
       const existingOrder = await Order.findOne({ mysqlId: order.id });
       
       if (!existingOrder) {
-        // Находим пользователя в MongoDB
+
         const user = await User.findOne({ mysqlId: order.user_id });
         
-        // Получаем товары заказа
+
         const [orderItems] = await mysqlConnection.execute(`
           SELECT oi.*, p.product_name, p.price 
           FROM order_items oi 
@@ -269,7 +269,7 @@ const migrateOrders = async (mysqlConnection) => {
   }
 };
 
-// Миграция отзывов
+
 const migrateReviews = async (mysqlConnection) => {
   try {
     console.log('⭐ Начинаем миграцию отзывов...');
@@ -282,19 +282,19 @@ const migrateReviews = async (mysqlConnection) => {
     `);
     
     for (const review of reviews) {
-      // Находим пользователя и товар в MongoDB
+
       const user = await User.findOne({ mysqlId: review.user_id });
       const product = await Product.findOne({ mysqlId: review.product_id });
       
       if (user && product) {
-        // Проверяем, есть ли уже отзыв от этого пользователя на этот товар
+
         const existingReview = await Product.findOne({
           _id: product._id,
           'reviews.user': user._id
         });
         
         if (!existingReview) {
-          // Добавляем отзыв к товару
+
           await Product.findByIdAndUpdate(product._id, {
             $push: {
               reviews: {
@@ -318,18 +318,18 @@ const migrateReviews = async (mysqlConnection) => {
   }
 };
 
-// Основная функция миграции
+
 const runMigration = async () => {
   console.log('🚀 Начинаем миграцию данных из MySQL в MongoDB...\n');
   
   let mysqlConnection;
   
   try {
-    // Подключаемся к базам данных
+
     await connectMongoDB();
     mysqlConnection = await connectMySQL();
     
-    // Выполняем миграцию в правильном порядке
+
     await migrateCategories(mysqlConnection);
     console.log('');
     
@@ -350,7 +350,7 @@ const runMigration = async () => {
     
     console.log('🎉 Миграция данных успешно завершена!');
     
-    // Выводим статистику
+
     const categoriesCount = await Category.countDocuments();
     const usersCount = await User.countDocuments();
     const productsCount = await Product.countDocuments();
@@ -367,7 +367,7 @@ const runMigration = async () => {
   } catch (error) {
     console.error('❌ Критическая ошибка миграции:', error);
   } finally {
-    // Закрываем соединения
+
     if (mysqlConnection) {
       await mysqlConnection.end();
       console.log('✅ Соединение с MySQL закрыто');
@@ -380,7 +380,7 @@ const runMigration = async () => {
   }
 };
 
-// Запускаем миграцию
+
 if (require.main === module) {
   runMigration();
 }

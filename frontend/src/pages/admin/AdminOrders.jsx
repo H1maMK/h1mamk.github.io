@@ -48,39 +48,6 @@ const AdminOrders = () => {
   };
 
   const handleStatusChange = async (orderId, newStatus) => {
-    // Если статус "удаление", удаляем заказ
-    if (newStatus === 'delete') {
-      if (!window.confirm('Вы уверены, что хотите удалить этот заказ?')) {
-        return;
-      }
-      
-      try {
-        console.log('Deleting order:', orderId);
-        
-        const response = await fetch(`/api/orders/${orderId}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        
-        const data = await response.json();
-        console.log('Delete response:', data);
-        
-        if (data.success) {
-          fetchOrders(); // Обновляем список
-          alert('Заказ удалён!');
-        } else {
-          alert(data.message || data.error?.message || 'Ошибка удаления заказа');
-        }
-      } catch (error) {
-        console.error('Error deleting order:', error);
-        alert('Ошибка удаления заказа');
-      }
-      return;
-    }
-    
-    // Для остальных статусов - обычное обновление
     try {
       console.log('Updating order status:', orderId, newStatus);
       
@@ -243,7 +210,6 @@ const AdminOrders = () => {
                       <option value="shipped">Отправлен</option>
                       <option value="delivered">Доставлен</option>
                       <option value="cancelled">Отменён</option>
-                      <option value="delete" className="delete-option">Удалить</option>
                     </select>
                   </td>
                 </tr>

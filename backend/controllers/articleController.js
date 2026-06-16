@@ -2,6 +2,7 @@ const Article = require('../models/Article')
 const { success, error, notFound, validationError } = require('../utils/response')
 const fs = require('fs')
 const path = require('path')
+const { MAX_IMAGE_FILE_SIZE } = require('../middleware/upload')
 
 const parseJsonValue = (value) => {
   if (value === undefined || value === null || value === '') {
@@ -129,6 +130,14 @@ const removeFileIfExists = async (filePath) => {
   }
 }
 
+const resolveLocalArticleFilePath = (storedPath = '') => {
+  if (!storedPath || /^https?:\/\//i.test(storedPath)) {
+    return ''
+  }
+
+  return path.join(__dirname, '..', storedPath.replace(/^\/+/, ''))
+}
+
 const buildArticleData = (req) => {
   const { title, content, isPublished, removeImage } = req.body
   const articleData = {
@@ -144,7 +153,11 @@ const buildArticleData = (req) => {
   }
 
   if (req.file) {
-    articleData.imageUrl = `uploads/articles/${req.file.filename}`
+    articleData.imageUrl = typeof req.file.path === 'string' && /^https?:\/\//i.test(req.file.path)
+      ? req.file.path
+      : (typeof req.file.secure_url === 'string' && /^https?:\/\//i.test(req.file.secure_url)
+          ? req.file.secure_url
+          : `/uploads/articles/${req.file.filename}`)
   } else if (parseBooleanValue(removeImage, false)) {
     articleData.imageUrl = ''
   }
@@ -273,6 +286,16 @@ const getArticleForAdmin = async (req, res) => {
 // Создание статьи (Admin)
 const createArticle = async (req, res) => {
   try {
+    if (req.uploadError) {
+      return error(
+        res,
+        req.uploadError.code === 'LIMIT_FILE_SIZE'
+          ? `Размер изображения не должен превышать ${Math.round(MAX_IMAGE_FILE_SIZE / (1024 * 1024))} МБ`
+          : (req.uploadError.message || 'Ошибка загрузки изображения'),
+        400
+      )
+    }
+
     const uploadsDir = path.join(__dirname, '..', 'uploads', 'articles')
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true })
@@ -302,7 +325,11 @@ const createArticle = async (req, res) => {
     }
 
     if (req.file) {
-      articleData.imageUrl = `uploads/articles/${req.file.filename}`
+      articleData.imageUrl = typeof req.file.path === 'string' && /^https?:\/\//i.test(req.file.path)
+        ? req.file.path
+        : (typeof req.file.secure_url === 'string' && /^https?:\/\//i.test(req.file.secure_url)
+            ? req.file.secure_url
+            : `/uploads/articles/${req.file.filename}`)
     }
 
     const article = new Article(articleData)
@@ -331,6 +358,16 @@ const createArticle = async (req, res) => {
 // Обновление статьи (Admin)
 const updateArticle = async (req, res) => {
   try {
+    if (req.uploadError) {
+      return error(
+        res,
+        req.uploadError.code === 'LIMIT_FILE_SIZE'
+          ? `Размер изображения не должен превышать ${Math.round(MAX_IMAGE_FILE_SIZE / (1024 * 1024))} МБ`
+          : (req.uploadError.message || 'Ошибка загрузки изображения'),
+        400
+      )
+    }
+
     const { id } = req.params
     const article = await Article.findById(id)
 
@@ -358,15 +395,21 @@ const updateArticle = async (req, res) => {
     }
 
     if (req.file) {
-      if (previousImageUrl && previousImageUrl !== `uploads/articles/${req.file.filename}`) {
-        const oldImagePath = path.join(__dirname, '..', previousImageUrl)
+      const nextImageUrl = typeof req.file.path === 'string' && /^https?:\/\//i.test(req.file.path)
+        ? req.file.path
+        : (typeof req.file.secure_url === 'string' && /^https?:\/\//i.test(req.file.secure_url)
+            ? req.file.secure_url
+            : `/uploads/articles/${req.file.filename}`)
+
+      if (previousImageUrl && previousImageUrl !== nextImageUrl && !/^https?:\/\//i.test(previousImageUrl)) {
+        const oldImagePath = resolveLocalArticleFilePath(previousImageUrl)
         await removeFileIfExists(oldImagePath)
       }
 
-      article.imageUrl = `uploads/articles/${req.file.filename}`
+      article.imageUrl = nextImageUrl
     } else if (shouldRemoveImage) {
-      if (previousImageUrl) {
-        const oldImagePath = path.join(__dirname, '..', previousImageUrl)
+      if (previousImageUrl && !/^https?:\/\//i.test(previousImageUrl)) {
+        const oldImagePath = resolveLocalArticleFilePath(previousImageUrl)
         await removeFileIfExists(oldImagePath)
       }
 
@@ -402,8 +445,8 @@ const deleteArticle = async (req, res) => {
       return notFound(res, 'Article not found')
     }
 
-    if (article.imageUrl) {
-      const imagePath = path.join(__dirname, '..', article.imageUrl)
+    if (article.imageUrl && !/^https?:\/\//i.test(article.imageUrl)) {
+      const imagePath = resolveLocalArticleFilePath(article.imageUrl)
       await removeFileIfExists(imagePath)
     }
 

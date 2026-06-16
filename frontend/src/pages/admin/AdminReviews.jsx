@@ -281,7 +281,6 @@ const AdminReviews = () => {
         </div>
       )}
 
-      {/* Modal for reject reason */}
       {showRejectModal && (
         <div className="modal-overlay">
           <div className="modal-content">

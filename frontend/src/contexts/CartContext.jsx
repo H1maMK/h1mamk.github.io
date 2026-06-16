@@ -49,7 +49,7 @@ export const CartProvider = ({ children }) => {
     return userId ? `${CART_STORAGE_PREFIX}${userId}` : null
   }
 
-  // Загружаем корзину конкретного авторизованного пользователя
+
   useEffect(() => {
     if (authLoading) {
       return
@@ -57,7 +57,7 @@ export const CartProvider = ({ children }) => {
 
     const token = localStorage.getItem('token')
 
-    // Чистим legacy-ключ глобальной корзины, чтобы не было общей гостевой корзины
+
     localStorage.removeItem(LEGACY_CART_KEY)
 
     if (!token || !user || user.role === 'admin') {
@@ -95,7 +95,7 @@ export const CartProvider = ({ children }) => {
     setIsLoaded(true)
   }, [authLoading, user?._id, user?.id, user?.role])
 
-  // Сохраняем корзину только для авторизованного не-админ пользователя
+
   useEffect(() => {
     if (!isLoaded || authLoading || !user || user.role === 'admin') {
       return
@@ -236,7 +236,7 @@ export const CartProvider = ({ children }) => {
     return items.reduce((total, item) => total + item.quantity, 0)
   }
 
-  // Проверка доступности товаров в корзине
+
   const validateCartItems = async () => {
     if (items.length === 0) return { valid: [], invalid: [], adjusted: [] }
     if (!user || user.role === 'admin') return { valid: [], invalid: [], adjusted: [] }
@@ -326,7 +326,7 @@ export const CartProvider = ({ children }) => {
     }
   }
 
-  // Удаление недоступных товаров из корзины
+
   const removeInvalidItems = (invalidIds) => {
     setItems(prevItems => 
       prevItems.filter(item => !invalidIds.includes(normalizeProductId(item)))
