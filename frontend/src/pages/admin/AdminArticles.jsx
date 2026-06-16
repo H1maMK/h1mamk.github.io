@@ -4,6 +4,8 @@ import { buildApiUrl, API_ENDPOINTS } from '../../config/api'
 import { getArticleImageUrl, getArticleMeta } from '../../utils/articlePresentation'
 import './AdminArticles.css'
 
+const getFallbackAdminArticleImage = (article) => getArticleMeta({ ...article, imageUrl: '' }).imageUrl
+
 const AdminArticles = () => {
   const navigate = useNavigate()
   const [articles, setArticles] = useState([])
@@ -203,7 +205,22 @@ const AdminArticles = () => {
               return (
                 <article key={article._id || index} className="admin-article-card">
                   <Link to={`/articles/${article._id}`} className="admin-article-image-link">
-                    <img src={imageUrl} alt={article.title} className="admin-article-image" />
+                    <img
+                      src={imageUrl}
+                      alt={article.title}
+                      className="admin-article-image"
+                      onError={(event) => {
+                        const fallbackSrc = getFallbackAdminArticleImage(article)
+                        if (
+                          fallbackSrc &&
+                          event.currentTarget.dataset.fallbackApplied !== 'true' &&
+                          event.currentTarget.src !== fallbackSrc
+                        ) {
+                          event.currentTarget.dataset.fallbackApplied = 'true'
+                          event.currentTarget.src = fallbackSrc
+                        }
+                      }}
+                    />
                     <div className="admin-article-overlay">
                       <span className="admin-article-badge">{meta.badge}</span>
                     </div>

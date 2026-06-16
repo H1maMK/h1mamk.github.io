@@ -138,6 +138,24 @@ const resolveLocalArticleFilePath = (storedPath = '') => {
   return path.join(__dirname, '..', storedPath.replace(/^\/+/, ''))
 }
 
+const normalizeArticleImageUrl = (imageUrl = '') => {
+  if (!imageUrl || /^https?:\/\//i.test(imageUrl)) {
+    return imageUrl
+  }
+
+  const localImagePath = resolveLocalArticleFilePath(imageUrl)
+  return localImagePath && fs.existsSync(localImagePath) ? imageUrl : ''
+}
+
+const normalizeArticleEntity = (article) => {
+  if (!article) return article
+
+  return {
+    ...article,
+    imageUrl: normalizeArticleImageUrl(article.imageUrl || article.image || ''),
+  }
+}
+
 const buildArticleData = (req) => {
   const { title, content, isPublished, removeImage } = req.body
   const articleData = {
@@ -199,6 +217,8 @@ const getArticles = async (req, res) => {
       Article.countDocuments(filter),
     ])
 
+    const normalizedArticles = articles.map(normalizeArticleEntity)
+
     const pages = Math.ceil(totalCount / limitNum)
 
     const pagination = {
@@ -210,7 +230,7 @@ const getArticles = async (req, res) => {
       hasPrev: pageNum > 1,
     }
 
-    return success(res, { articles, pagination }, 'Articles retrieved successfully')
+    return success(res, { articles: normalizedArticles, pagination }, 'Articles retrieved successfully')
   } catch (err) {
     console.error('Get articles error:', err)
     return error(
@@ -238,7 +258,7 @@ const getArticle = async (req, res) => {
       return notFound(res, 'Article not found')
     }
 
-    return success(res, { article }, 'Article retrieved successfully')
+    return success(res, { article: normalizeArticleEntity(article) }, 'Article retrieved successfully')
   } catch (err) {
     console.error('Get article error:', err)
 
@@ -266,7 +286,7 @@ const getArticleForAdmin = async (req, res) => {
       return notFound(res, 'Article not found')
     }
 
-    return success(res, { article }, 'Article retrieved successfully')
+    return success(res, { article: normalizeArticleEntity(article) }, 'Article retrieved successfully')
   } catch (err) {
     console.error('Get admin article error:', err)
 

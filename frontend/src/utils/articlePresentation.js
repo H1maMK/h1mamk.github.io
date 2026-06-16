@@ -337,7 +337,11 @@ const getFallbackArticleImage = (article) => {
     item.match.some((needle) => title.includes(needle))
   )
 
-  return fallback ? buildAssetUrl(`/uploads/articles/${fallback.file}`) : ''
+  if (fallback) {
+    return buildAssetUrl(`/uploads/articles/${fallback.file}`)
+  }
+
+  return buildAssetUrl('/uploads/articles/default.svg')
 }
 
 const getArticleFieldValue = (article, key) => {
