@@ -64,6 +64,10 @@ export const buildApiUrl = (endpoint) => `${API_BASE_URL}${endpoint}`;
 export const buildAssetUrl = (assetPath) => {
   if (!assetPath) return assetPath;
 
+  if (assetPath.startsWith('data:image/')) {
+    return assetPath;
+  }
+
   const normalizeLegacyFlatUploadPath = (pathValue) => {
     const normalizedPath = pathValue.startsWith('/') ? pathValue : `/${pathValue}`;
     const legacyFlatUploadMatch = normalizedPath.match(/^\/uploads\/([^/]+)$/);

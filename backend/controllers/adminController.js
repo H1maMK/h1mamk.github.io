@@ -4,6 +4,7 @@ const Category = require('../models/Category');
 const User = require('../models/User');
 const fs = require('fs').promises;
 const path = require('path');
+const { fileToDataUrl, isDataImageUrl } = require('../utils/imageData');
 const { MAX_IMAGE_FILE_SIZE } = require('../middleware/upload');
 const PROTECTED_ADMIN_EMAIL = 'mr.maxim.8806@mail.ru';
 
@@ -28,66 +29,47 @@ const handleValidationErrors = (req, res) => {
 };
 
 
-const deleteUploadedFiles = async (files) => {
-  if (files) {
-    const allFiles = Object.values(files).flat();
-    for (const file of allFiles) {
-      try {
-        if (file?.path && !/^https?:\/\//i.test(file.path)) {
-          await fs.unlink(file.path);
-        }
-      } catch (error) {
-        console.error('Error deleting file:', error);
-      }
-    }
-  }
-};
+const deleteUploadedFiles = async () => {};
 
 const isWeeklySpecialRequested = (value) => value === 'true' || value === true;
 
-const resolveStoredImagePath = (file, type = 'products') => {
+const resolveStoredImagePath = (file) => {
   if (!file) {
     return '';
   }
 
-  if (typeof file.path === 'string' && /^https?:\/\//i.test(file.path)) {
-    return file.path;
-  }
-
-  if (typeof file.secure_url === 'string' && /^https?:\/\//i.test(file.secure_url)) {
-    return file.secure_url;
-  }
-
-  return `/uploads/${type}/${file.filename}`;
+  return fileToDataUrl(file);
 };
 
 const normalizeProductImagePath = (image) => {
   if (typeof image !== 'string') return image;
 
+  const trimmedValue = image.trim();
+  if (!trimmedValue) return '';
+  if (isDataImageUrl(trimmedValue)) return trimmedValue;
+
   const normalizeLegacyFlatFilePath = (value) => {
-    const trimmedValue = value.trim();
-
-    if (/^\/[^/]+\.(jpg|jpeg|png|webp|gif|svg)$/i.test(trimmedValue)) {
-      return `/uploads${trimmedValue}`;
+    if (/^\/[^/]+\.(jpg|jpeg|png|webp|gif|svg)$/i.test(value)) {
+      return `/uploads${value}`;
     }
 
-    if (/^uploads\//i.test(trimmedValue)) {
-      return `/${trimmedValue.replace(/^\/+/, '')}`;
+    if (/^uploads\//i.test(value)) {
+      return `/${value.replace(/^\/+/, '')}`;
     }
 
-    return trimmedValue;
+    return value;
   };
 
   try {
-    const imageUrl = new URL(image);
+    const imageUrl = new URL(trimmedValue);
 
-    if (/^https?:\/\//i.test(image) && !/\/uploads\//i.test(imageUrl.pathname)) {
-      return image;
+    if (/^https?:\/\//i.test(trimmedValue) && !/\/uploads\//i.test(imageUrl.pathname)) {
+      return trimmedValue;
     }
 
     return normalizeLegacyFlatFilePath(imageUrl.pathname);
   } catch {
-    return normalizeLegacyFlatFilePath(image);
+    return normalizeLegacyFlatFilePath(trimmedValue);
   }
 };
 
@@ -393,16 +375,6 @@ const updateProduct = async (req, res) => {
           const file = req.files[fieldName][0];
           const uploadedImagePath = resolveStoredImagePath(file, 'products');
           
-          // Delete old image if exists
-          if (newImages[index] && !/^https?:\/\//i.test(newImages[index])) {
-            const oldImagePath = resolveLocalUploadFilePath(newImages[index]);
-            fs.unlink(oldImagePath).catch(err => {
-              if (err?.code !== 'ENOENT') {
-                console.error('Error deleting old image:', err);
-              }
-            });
-          }
-           
           // Add new image
           newImages[index] = uploadedImagePath;
           uploadedImagePaths.push(uploadedImagePath);
@@ -504,20 +476,6 @@ const deleteProduct = async (req, res) => {
       });
     }
 
-    // Delete associated images
-    if (product.images && product.images.length > 0) {
-      for (const imagePath of product.images) {
-        if (imagePath && !/^https?:\/\//i.test(imagePath)) {
-          const fullPath = resolveLocalUploadFilePath(imagePath);
-          try {
-            await fs.unlink(fullPath);
-          } catch (error) {
-            console.error('Error deleting image:', error);
-          }
-        }
-      }
-    }
-
     await Product.findByIdAndDelete(productId);
 
     res.json({
@@ -606,10 +564,6 @@ const createCategory = async (req, res) => {
     // Check if category with same name and deviceType already exists
     const existingCategory = await Category.findOne({ name, deviceType });
     if (existingCategory) {
-      // Delete uploaded file if category exists
-      if (req.file) {
-        await fs.unlink(req.file.path).catch(() => {});
-      }
       return res.status(400).json({
         success: false,
         message: 'Категория с таким названием и типом устройства уже существует'
@@ -637,10 +591,6 @@ const createCategory = async (req, res) => {
 
   } catch (error) {
     console.error('Error creating category:', error);
-    // Delete uploaded file on error
-    if (req.file) {
-      await fs.unlink(req.file.path).catch(() => {});
-    }
     res.status(500).json({
       success: false,
       message: 'Ошибка сервера при создании категории'
@@ -672,10 +622,6 @@ const updateCategory = async (req, res) => {
     // Check if category exists
     const existingCategory = await Category.findById(categoryId);
     if (!existingCategory) {
-      // Delete uploaded file if category not found
-      if (req.file) {
-        await fs.unlink(req.file.path).catch(() => {});
-      }
       return res.status(404).json({
         success: false,
         message: 'Категория не найдена'
@@ -689,10 +635,6 @@ const updateCategory = async (req, res) => {
       _id: { $ne: categoryId } 
     });
     if (duplicateCategory) {
-      // Delete uploaded file if duplicate
-      if (req.file) {
-        await fs.unlink(req.file.path).catch(() => {});
-      }
       return res.status(400).json({
         success: false,
         message: 'Категория с таким названием и типом устройства уже существует'
@@ -702,15 +644,6 @@ const updateCategory = async (req, res) => {
     // Process uploaded image
     let imageUrl = existingCategory.image;
     if (req.file) {
-      // Delete old image if exists
-      if (existingCategory.image) {
-        const oldImagePath = resolveLocalUploadFilePath(existingCategory.image);
-        try {
-          await fs.unlink(oldImagePath);
-        } catch (deleteError) {
-          console.warn('Failed to delete old category image:', deleteError.message);
-        }
-      }
       imageUrl = resolveStoredImagePath(req.file, 'categories');
     }
 
@@ -735,10 +668,6 @@ const updateCategory = async (req, res) => {
 
   } catch (error) {
     console.error('Error updating category:', error);
-    // Delete uploaded file on error
-    if (req.file) {
-      await fs.unlink(req.file.path).catch(() => {});
-    }
     res.status(500).json({
       success: false,
       message: 'Ошибка сервера при обновлении категории'
@@ -778,16 +707,6 @@ const deleteCategory = async (req, res) => {
         success: false,
         message: `Нельзя удалить категорию: её используют товары (${productsCount} шт.)`
       });
-    }
-
-    // Delete category image if exists
-    if (category.image) {
-      const imagePath = resolveLocalUploadFilePath(category.image);
-      try {
-        await fs.unlink(imagePath);
-      } catch (deleteError) {
-        console.warn('Failed to delete category image:', deleteError.message);
-      }
     }
 
     await Category.findByIdAndDelete(categoryId);
@@ -926,24 +845,10 @@ const updateUserAvatar = async (req, res) => {
     // Find existing user
     const user = await User.findById(userId);
     if (!user) {
-      // Delete uploaded file
-      if (req.file.path) {
-        await fs.unlink(req.file.path).catch(() => {});
-      }
       return res.status(404).json({
         success: false,
         message: 'Пользователь не найден'
       });
-    }
-
-    // Delete old avatar if exists
-    if (user.profile?.avatar) {
-      const oldAvatarPath = path.join(__dirname, '..', 'uploads', 'avatars', path.basename(user.profile.avatar));
-      try {
-        await fs.unlink(oldAvatarPath);
-      } catch (deleteError) {
-        console.warn('Failed to delete old avatar:', deleteError.message);
-      }
     }
 
     // Update avatar path
@@ -966,10 +871,6 @@ const updateUserAvatar = async (req, res) => {
 
   } catch (error) {
     console.error('Error updating user avatar:', error);
-    // Cleanup uploaded file on error
-    if (req.file && req.file.path) {
-      await fs.unlink(req.file.path).catch(() => {});
-    }
     res.status(500).json({
       success: false,
       message: 'Ошибка сервера при обновлении аватара'

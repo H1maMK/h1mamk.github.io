@@ -2,6 +2,37 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const { success, error, notFound, validationError } = require('../utils/response');
 
+const isDataImageUrl = (value = '') => typeof value === 'string' && value.startsWith('data:image/');
+
+const normalizeProductImageForResponse = (image, req) => {
+  if (!image) {
+    return '';
+  }
+
+  if (isDataImageUrl(image) || image.startsWith('http')) {
+    return image;
+  }
+
+  const baseImageUrl = process.env.RAILWAY_PUBLIC_DOMAIN
+    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+    : `${req.protocol}://${req.get('host')}`;
+
+  return `${baseImageUrl}${image.startsWith('/') ? image : `/${image}`}`;
+};
+
+const withProcessedProductImages = (product, req) => {
+  const processedImages = Array.isArray(product.images) && product.images.length > 0
+    ? product.images.map((img) => normalizeProductImageForResponse(img, req)).filter(Boolean)
+    : [`${req.protocol}://${req.get('host')}/uploads/default-product.png`];
+
+  return {
+    ...product,
+    ...getApprovedReviewStats(product.reviews),
+    reviews: undefined,
+    images: processedImages,
+  };
+};
+
 const getApprovedReviewStats = (reviews = []) => {
   const approvedReviews = Array.isArray(reviews)
     ? reviews.filter(review => review.status === 'approved')
@@ -129,31 +160,7 @@ const getProducts = async (req, res) => {
     }
 
 
-    const BASE_IMAGE_URL = process.env.RAILWAY_PUBLIC_DOMAIN
-      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-      : `${req.protocol}://${req.get('host')}`;
-
-    const processedProducts = products.map(product => {
-      let processedImages = [];
-      if (product.images && product.images.length > 0) {
-        processedImages = product.images.map(img => {
-          if (img.startsWith('http')) {
-            return img; // Уже полный URL (Cloudinary)
-          } else {
-            return `${BASE_IMAGE_URL}${img.startsWith('/') ? img : '/' + img}`;
-          }
-        });
-      } else {
-        processedImages = [`${BASE_IMAGE_URL}/uploads/default-product.png`];
-      }
-
-      return {
-        ...product,
-        ...getApprovedReviewStats(product.reviews),
-        reviews: undefined,
-        images: processedImages
-      };
-    });
+    const processedProducts = products.map(product => withProcessedProductImages(product, req));
 
     const pagination = {
       page: pageNum,
@@ -224,28 +231,7 @@ const getProduct = async (req, res) => {
     }
 
     // Обрабатываем изображения
-    const BASE_IMAGE_URL = process.env.RAILWAY_PUBLIC_DOMAIN
-      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-      : `${req.protocol}://${req.get('host')}`;
-
-    let processedImages = [];
-    if (product.images && product.images.length > 0) {
-      processedImages = product.images.map(img => {
-        if (img.startsWith('http')) {
-          return img; // Уже полный URL (Cloudinary)
-        } else {
-          return `${BASE_IMAGE_URL}${img.startsWith('/') ? img : '/' + img}`;
-        }
-      });
-    } else {
-      processedImages = [`${BASE_IMAGE_URL}/uploads/default-product.png`];
-    }
-
-    const processedProduct = {
-      ...product,
-      ...getApprovedReviewStats(product.reviews),
-      images: processedImages
-    };
+    const processedProduct = withProcessedProductImages(product, req);
 
     // Увеличиваем счетчик просмотров (если поле существует)
     await Product.findByIdAndUpdate(id, { $inc: { view_count: 1 } });
@@ -340,10 +326,12 @@ const getProductsByCategory = async (req, res) => {
       hasPrev: pageNum > 1
     };
 
+    const processedProducts = products.map((product) => withProcessedProductImages(product, req));
+
     return res.status(200).json({
       success: true,
       message: 'Products retrieved successfully',
-      data: products,
+      data: processedProducts,
       pagination,
       category: {
         identifier: category,
@@ -574,7 +562,9 @@ const getPopularProducts = async (req, res) => {
       });
     }
 
-    return success(res, { products }, 'Popular products retrieved successfully');
+    const processedProducts = products.map((product) => withProcessedProductImages(product, req));
+
+    return success(res, { products: processedProducts }, 'Popular products retrieved successfully');
 
   } catch (err) {
     console.error('Get popular products error:', err);
@@ -605,7 +595,9 @@ const getNewProducts = async (req, res) => {
       });
     }
 
-    return success(res, { products }, 'New products retrieved successfully');
+    const processedProducts = products.map((product) => withProcessedProductImages(product, req));
+
+    return success(res, { products: processedProducts }, 'New products retrieved successfully');
 
   } catch (err) {
     console.error('Get new products error:', err);

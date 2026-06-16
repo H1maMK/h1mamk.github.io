@@ -54,7 +54,14 @@ const userSchema = new mongoose.Schema({
     },
     avatar: {
       type: String,
-      default: ''
+      default: '',
+      validate: {
+        validator: function(v) {
+          if (!v) return true;
+          return /^(data:image\/|\/uploads\/|uploads\/|https?:\/\/)/.test(v);
+        },
+        message: 'Некорректная ссылка на аватар'
+      }
     }
   },
   favorites: [{

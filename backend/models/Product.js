@@ -60,7 +60,7 @@ const productSchema = new mongoose.Schema({
     validate: {
       validator: function(v) {
         if (!v) return true;
-        return /^(\/uploads\/|uploads\/|\/[^/]+\.(jpg|jpeg|png|webp|gif|svg)$|https?:\/\/)/i.test(v);
+        return /^(data:image\/|\/uploads\/|uploads\/|\/[^/]+\.(jpg|jpeg|png|webp|gif|svg)$|https?:\/\/)/i.test(v);
       },
       message: 'Некорректная ссылка на изображение'
     }

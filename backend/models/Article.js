@@ -17,7 +17,7 @@ const articleSchema = new mongoose.Schema({
     validate: {
       validator: function(v) {
         if (!v) return true;
-        return /^(\/uploads\/|uploads\/|https?:\/\/)/.test(v);
+        return /^(data:image\/|\/uploads\/|uploads\/|https?:\/\/)/.test(v);
       },
       message: 'Invalid image URL'
     }

@@ -1,9 +1,20 @@
 const User = require('../models/User');
 const { hashPassword, comparePassword } = require('../utils/password');
 const { success, error, validationError, unauthorized, notFound } = require('../utils/response');
-const path = require('path');
-const fs = require('fs').promises;
+const { fileToDataUrl, isDataImageUrl } = require('../utils/imageData');
 const { MAX_IMAGE_FILE_SIZE } = require('../middleware/upload');
+
+const normalizeProductImageForResponse = (image, req) => {
+  if (!image) {
+    return '';
+  }
+
+  if (isDataImageUrl(image) || image.startsWith('http')) {
+    return image;
+  }
+
+  return `${req.protocol}://${req.get('host')}${image.startsWith('/') ? image : `/${image}`}`;
+};
 
 
 const getProfile = async (req, res) => {
@@ -127,21 +138,7 @@ const uploadAvatar = async (req, res) => {
     if (!user) {
       return notFound(res, 'User not found');
     }
-
-
-    if (user.profile?.avatar) {
-      const oldAvatarPath = path.join('./uploads/avatars', path.basename(user.profile.avatar));
-      try {
-        await fs.unlink(oldAvatarPath);
-      } catch (deleteError) {
-        console.warn('Failed to delete old avatar:', deleteError.message);
-      }
-    }
-
-
-    const avatarUrl = typeof req.file.path === 'string' && /^https?:\/\//i.test(req.file.path)
-      ? req.file.path
-      : `/api/image/avatars/${req.file.filename}`;
+    const avatarUrl = fileToDataUrl(req.file);
     if (!user.profile) {
       user.profile = {};
     }
@@ -171,14 +168,6 @@ const uploadAvatar = async (req, res) => {
     console.error('Upload avatar error:', err);
     
 
-    if (req.file) {
-      try {
-        await fs.unlink(req.file.path);
-      } catch (deleteError) {
-        console.warn('Failed to cleanup uploaded file:', deleteError.message);
-      }
-    }
-
     return error(res, 'Failed to upload avatar', 500, process.env.NODE_ENV !== 'production' ? err.message : undefined);
   }
 };
@@ -198,16 +187,6 @@ const deleteAvatar = async (req, res) => {
     if (!user.profile?.avatar) {
       return error(res, 'No avatar to delete', 400);
     }
-
-
-    const avatarPath = path.join('./uploads/avatars', path.basename(user.profile.avatar));
-    try {
-      await fs.unlink(avatarPath);
-    } catch (deleteError) {
-      console.warn('Failed to delete avatar file:', deleteError.message);
-    }
-
-
     user.profile.avatar = null;
     user.updatedAt = new Date();
     await user.save();
@@ -263,10 +242,10 @@ const getFavorites = async (req, res) => {
         let processedImages = [];
         if (product.images && product.images.length > 0) {
           processedImages = product.images.map(img => {
-            if (img.startsWith('http')) {
+            if (img.startsWith('http') || isDataImageUrl(img)) {
               return img;
             } else {
-              return `${req.protocol}://${req.get('host')}${img.startsWith('/') ? img : '/' + img}`;
+              return normalizeProductImageForResponse(img, req);
             }
           });
         } else {

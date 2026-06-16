@@ -9,11 +9,13 @@ export const getImageUrl = (imagePath) => {
     return '/uploads/default-product.png';
   }
 
+  if (imagePath.startsWith('data:image/')) {
+    return imagePath;
+  }
 
   if (imagePath.startsWith('http')) {
     return imagePath;
   }
-
 
   return `${API_BASE_URL}${imagePath.startsWith('/') ? imagePath : '/' + imagePath}`;
 };

@@ -2,6 +2,7 @@ const Article = require('../models/Article')
 const { success, error, notFound, validationError } = require('../utils/response')
 const fs = require('fs')
 const path = require('path')
+const { fileToDataUrl, isDataImageUrl } = require('../utils/imageData')
 const { MAX_IMAGE_FILE_SIZE } = require('../middleware/upload')
 
 const parseJsonValue = (value) => {
@@ -139,7 +140,7 @@ const resolveLocalArticleFilePath = (storedPath = '') => {
 }
 
 const normalizeArticleImageUrl = (imageUrl = '') => {
-  if (!imageUrl || /^https?:\/\//i.test(imageUrl)) {
+  if (!imageUrl || /^https?:\/\//i.test(imageUrl) || isDataImageUrl(imageUrl)) {
     return imageUrl
   }
 
@@ -171,11 +172,7 @@ const buildArticleData = (req) => {
   }
 
   if (req.file) {
-    articleData.imageUrl = typeof req.file.path === 'string' && /^https?:\/\//i.test(req.file.path)
-      ? req.file.path
-      : (typeof req.file.secure_url === 'string' && /^https?:\/\//i.test(req.file.secure_url)
-          ? req.file.secure_url
-          : `/uploads/articles/${req.file.filename}`)
+    articleData.imageUrl = fileToDataUrl(req.file)
   } else if (parseBooleanValue(removeImage, false)) {
     articleData.imageUrl = ''
   }
@@ -345,11 +342,7 @@ const createArticle = async (req, res) => {
     }
 
     if (req.file) {
-      articleData.imageUrl = typeof req.file.path === 'string' && /^https?:\/\//i.test(req.file.path)
-        ? req.file.path
-        : (typeof req.file.secure_url === 'string' && /^https?:\/\//i.test(req.file.secure_url)
-            ? req.file.secure_url
-            : `/uploads/articles/${req.file.filename}`)
+      articleData.imageUrl = fileToDataUrl(req.file)
     }
 
     const article = new Article(articleData)
@@ -415,24 +408,8 @@ const updateArticle = async (req, res) => {
     }
 
     if (req.file) {
-      const nextImageUrl = typeof req.file.path === 'string' && /^https?:\/\//i.test(req.file.path)
-        ? req.file.path
-        : (typeof req.file.secure_url === 'string' && /^https?:\/\//i.test(req.file.secure_url)
-            ? req.file.secure_url
-            : `/uploads/articles/${req.file.filename}`)
-
-      if (previousImageUrl && previousImageUrl !== nextImageUrl && !/^https?:\/\//i.test(previousImageUrl)) {
-        const oldImagePath = resolveLocalArticleFilePath(previousImageUrl)
-        await removeFileIfExists(oldImagePath)
-      }
-
-      article.imageUrl = nextImageUrl
+      article.imageUrl = fileToDataUrl(req.file)
     } else if (shouldRemoveImage) {
-      if (previousImageUrl && !/^https?:\/\//i.test(previousImageUrl)) {
-        const oldImagePath = resolveLocalArticleFilePath(previousImageUrl)
-        await removeFileIfExists(oldImagePath)
-      }
-
       article.imageUrl = ''
     }
 
