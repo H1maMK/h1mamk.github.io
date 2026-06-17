@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { buildApiUrl, API_ENDPOINTS } from '../config/api'
 import { useFavorites } from '../contexts/FavoritesContext'
+import RatingStars from '../components/RatingStars'
 import { getImageProps } from '../utils/imageUtils'
 import { getArticleImageUrl, getArticleMeta } from '../utils/articlePresentation'
 
@@ -156,6 +157,8 @@ const Home = () => {
     const productImage = product.images?.[0] || product.image_url1
     const isInFavorites = isFavorite(productId)
     const imageProps = getImageProps(productImage, productName)
+    const rating = product.averageRating ?? product.avgRating ?? product.rating ?? 0
+    const reviewCount = product.reviewCount ?? product.totalReviews ?? product.reviewsCount ?? 0
 
     const handleToggleFavorite = (event) => {
       event.preventDefault()
@@ -179,6 +182,7 @@ const Home = () => {
         <div className="item___name">
           <Link to={`/product/${productId}`}>{productName}</Link>
         </div>
+        <RatingStars rating={rating} reviewCount={reviewCount} className="product-card-rating" />
         <div className="price-row-home">
           <div className="price">{new Intl.NumberFormat('ru-RU').format(product.price)} ₽</div>
           <button
