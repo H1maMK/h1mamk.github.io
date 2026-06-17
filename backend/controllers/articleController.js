@@ -183,9 +183,15 @@ const buildArticleData = (req) => {
 // Получение всех статей (только опубликованные для публичного доступа)
 const getArticles = async (req, res) => {
   try {
-    res.set('Cache-Control', 'public, max-age=60, s-maxage=300')
-
     const { page = 1, limit = 10, search, includeUnpublished } = req.query
+
+    if (includeUnpublished === 'true') {
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+      res.set('Pragma', 'no-cache')
+      res.set('Expires', '0')
+    } else {
+      res.set('Cache-Control', 'public, max-age=60, s-maxage=300')
+    }
 
     const pageNum = Math.max(1, parseInt(page, 10))
     const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10)))
