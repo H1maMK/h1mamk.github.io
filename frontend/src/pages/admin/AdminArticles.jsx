@@ -13,6 +13,7 @@ const AdminArticles = () => {
   const [search, setSearch] = useState('')
   const [savingId, setSavingId] = useState('')
   const [error, setError] = useState('')
+  const [showHidden, setShowHidden] = useState(false)
 
   useEffect(() => {
     fetchArticles()
@@ -87,6 +88,7 @@ const AdminArticles = () => {
     const query = search.trim().toLowerCase()
 
     return articles
+      .filter((article) => (showHidden ? !article.isPublished : article.isPublished))
       .map((article) => ({
         ...article,
         meta: getArticleMeta(article),
@@ -99,7 +101,7 @@ const AdminArticles = () => {
           `${article.meta?.summary || ''}`.toLowerCase().includes(query)
         )
       })
-  }, [articles, search])
+  }, [articles, search, showHidden])
 
   const stats = useMemo(() => {
     const published = articles.filter((article) => article.isPublished).length
@@ -128,6 +130,23 @@ const AdminArticles = () => {
 
           <div className="admin-toolbar-meta">
             {error ? error : `Показано ${normalizedArticles.length} из ${articles.length}`}
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="admin-primary-btn"
+              onClick={() => navigate('/admin/articles/new')}
+            >
+              Новая статья
+            </button>
+            <button
+              type="button"
+              className="admin-secondary-btn"
+              onClick={() => setShowHidden((prev) => !prev)}
+            >
+              {showHidden ? 'К статьям' : `Скрытые (${articles.filter((article) => !article.isPublished).length})`}
+            </button>
           </div>
         </section>
 
