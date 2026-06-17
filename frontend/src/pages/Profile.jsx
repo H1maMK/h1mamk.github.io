@@ -3,11 +3,35 @@ import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import { buildAssetUrl } from '../config/api';
+import { resizeImageFile } from '../utils/imageCompression';
 import toast from 'react-hot-toast';
 import './Profile.css';
 
 const DEFAULT_AVATAR_URL = '/api/image/avatars/default.svg';
 const MAX_AVATAR_FILE_SIZE = 10 * 1024 * 1024;
+
+const getAvatarSrc = (avatarPath) => {
+  if (!avatarPath) {
+    return DEFAULT_AVATAR_URL;
+  }
+
+  const normalizedAvatarPath = typeof avatarPath === 'string' ? avatarPath.trim() : '';
+  if (normalizedAvatarPath.startsWith('data:image/')) {
+    return normalizedAvatarPath;
+  }
+
+  const resolvedAvatarUrl = buildAssetUrl(normalizedAvatarPath);
+  if (typeof resolvedAvatarUrl !== 'string' || !resolvedAvatarUrl) {
+    return DEFAULT_AVATAR_URL;
+  }
+
+  if (resolvedAvatarUrl.startsWith('data:image/')) {
+    return resolvedAvatarUrl;
+  }
+
+  const cacheSeparator = resolvedAvatarUrl.includes('?') ? '&' : '?';
+  return `${resolvedAvatarUrl}${cacheSeparator}t=${Date.now()}`;
+};
 
 const Profile = () => {
   const { user, logout, refreshUser, loading: authLoading } = useAuth();
@@ -63,7 +87,26 @@ const Profile = () => {
         return;
       }
 
-      setFormData(prev => ({ ...prev, avatar: files[0] }));
+      if (!file) {
+        setFormData(prev => ({ ...prev, avatar: null }));
+        return;
+      }
+
+      resizeImageFile(file, {
+        maxWidth: 320,
+        maxHeight: 320,
+        maxFileSizeBytes: 220 * 1024,
+        outputType: 'image/jpeg',
+        initialQuality: 0.82,
+      })
+        .then((optimizedFile) => {
+          setFormData(prev => ({ ...prev, avatar: optimizedFile }));
+        })
+        .catch((error) => {
+          console.error('Avatar optimization error:', error);
+          toast.error('Не удалось обработать аватар');
+          e.target.value = '';
+        });
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -194,7 +237,7 @@ const Profile = () => {
             <div className="profile-header">
               <div className="profile-avatar">
                 <img 
-                  src={user.profile?.avatar ? `${buildAssetUrl(user.profile.avatar)}?t=${Date.now()}` : DEFAULT_AVATAR_URL} 
+                  src={getAvatarSrc(user.profile?.avatar)}
                   alt="Аватар пользователя"
                   onError={(e) => {
                     e.currentTarget.src = DEFAULT_AVATAR_URL;
