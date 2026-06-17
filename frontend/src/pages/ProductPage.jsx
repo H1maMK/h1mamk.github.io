@@ -571,7 +571,7 @@ const ProductPage = () => {
               <h2 className="section-title">Рекомендуемые товары</h2>
               <div className="recommended-products-row" style={{ marginTop: 20 }}>
                 {recommendedProducts.map((item) => (
-                  <ProductCard key={item._id} product={item} />
+                  <ProductCard key={item._id} product={item} variant="home" />
                 ))}
               </div>
             </div>
