@@ -587,6 +587,44 @@ main {
   transform: translateY(-2px);
 }
 
+.home-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.home-cart-btn {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #FFE6BB;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+}
+
+.home-cart-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+}
+
+.home-cart-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.home-cart-btn svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
 .price a {
   color: #000000;
   text-decoration: none;
@@ -2029,6 +2067,13 @@ main {
   }
 
   .price-row-home .favorite-btn {
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+
+  .home-cart-btn {
     flex: 0 0 42px;
     width: 42px;
     height: 42px;

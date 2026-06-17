@@ -2,11 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import { buildAssetUrl } from '../config/api';
 import RatingStars from './RatingStars';
 
 const ProductCard = ({ product, variant = 'default' }) => {
   const { user } = useAuth();
+  const { addToCart } = useCart();
   const { toggleFavorite, isFavorite, adminFavoritesMessage } = useFavorites();
 
   const handleToggleFavorite = (e) => {
@@ -29,6 +31,40 @@ const ProductCard = ({ product, variant = 'default' }) => {
   const reviewCount = product.reviewCount ?? product.totalReviews ?? product.reviewsCount ?? 0;
   const isInStock = (product.stock || 0) > 0;
 
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      alert('Войдите в аккаунт, чтобы добавить товар в корзину');
+      return;
+    }
+
+    if (user.role === 'admin') {
+      alert('Администраторы не могут добавлять товары в корзину');
+      return;
+    }
+
+    const result = addToCart(product);
+
+    if (result?.success) {
+      alert('Товар добавлен в корзину');
+      return;
+    }
+
+    if (result?.reason === 'OUT_OF_STOCK') {
+      alert('Товара нет в наличии');
+      return;
+    }
+
+    if (result?.reason === 'INSUFFICIENT_STOCK') {
+      alert(`На складе доступно только ${result.availableStock} шт.`);
+      return;
+    }
+
+    alert('Не удалось добавить товар в корзину');
+  };
+
   if (variant === 'home') {
     return (
       <div className="product" data-price={product.price}>
@@ -41,30 +77,45 @@ const ProductCard = ({ product, variant = 'default' }) => {
         <RatingStars rating={rating} reviewCount={reviewCount} className="product-card-rating" />
         <div className="price-row-home">
           <div className="price">{productPrice} ₽</div>
-          <button
-            className={`favorite-btn ${isInFavorites ? 'active' : ''}`}
-            onClick={handleToggleFavorite}
-            data-id={product._id}
-            data-name={product.name}
-            data-price={product.price}
-            data-image={productImage}
-            data-category={product.category?.name || ''}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill={isInFavorites ? 'currentColor' : 'none'}
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
+          <div className="home-card-actions">
+            <button
+              className="home-cart-btn"
+              onClick={handleAddToCart}
+              disabled={!isInStock}
+              aria-label="Добавить в корзину"
+              title={isInStock ? 'Добавить в корзину' : 'Нет в наличии'}
             >
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-            </svg>
-          </button>
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
+            </button>
+            <button
+              className={`favorite-btn ${isInFavorites ? 'active' : ''}`}
+              onClick={handleToggleFavorite}
+              data-id={product._id}
+              data-name={product.name}
+              data-price={product.price}
+              data-image={productImage}
+              data-category={product.category?.name || ''}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill={isInFavorites ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     );
