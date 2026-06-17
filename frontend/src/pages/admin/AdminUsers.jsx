@@ -294,106 +294,107 @@ const AdminUsers = () => {
         </table>
       </div>
 
-      <div className="form-container">
-        <h2>{editingUser ? 'Редактировать пользователя' : 'Добавить нового пользователя'}</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username">Имя пользователя:</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
+      {editingUser && (
+        <div className="form-container">
+          <h2>Редактировать пользователя</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="username">Имя пользователя:</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="email">Email:</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="email">Email:</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="password">
-              Пароль {editingUser && '(оставьте пустым, чтобы не менять):'}
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required={!editingUser}
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="password">
+                Пароль (оставьте пустым, чтобы не менять):
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="role">Роль:</label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleInputChange}
-              disabled={isProtectedAdmin(editingUser) || editingUser?._id === getCurrentUserId() || getCurrentUserEmail() === PROTECTED_ADMIN_EMAIL && isProtectedAdmin(editingUser)}
-              required
-            >
-              {roles.map((role) => (
-                <option key={role.id} value={role.id}>
-                  {role.name}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className="form-group">
+              <label htmlFor="role">Роль:</label>
+              <select
+                id="role"
+                name="role"
+                value={formData.role}
+                onChange={handleInputChange}
+                disabled={isProtectedAdmin(editingUser) || editingUser?._id === getCurrentUserId() || getCurrentUserEmail() === PROTECTED_ADMIN_EMAIL && isProtectedAdmin(editingUser)}
+                required
+              >
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className="form-group">
-            <label>Аватар:</label>
-            <input
-              type="file"
-              name="avatar"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleInputChange}
-            />
-            {editingUser?.profile?.avatar && (
-              <div style={{ marginTop: '10px' }}>
-                <img
-                  src={getAvatarUrl(editingUser.profile.avatar)}
-                  alt="Current avatar"
-                  style={{ width: '50px', height: '50px', borderRadius: '4px' }}
-                  onError={(e) => {
-                    if (!e.currentTarget.src.endsWith(DEFAULT_AVATAR_URL)) {
-                      e.currentTarget.src = DEFAULT_AVATAR_URL;
-                      return;
-                    }
+            <div className="form-group">
+              <label>Аватар:</label>
+              <input
+                type="file"
+                name="avatar"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleInputChange}
+              />
+              {editingUser?.profile?.avatar && (
+                <div style={{ marginTop: '10px' }}>
+                  <img
+                    src={getAvatarUrl(editingUser.profile.avatar)}
+                    alt="Current avatar"
+                    style={{ width: '50px', height: '50px', borderRadius: '4px' }}
+                    onError={(e) => {
+                      if (!e.currentTarget.src.endsWith(DEFAULT_AVATAR_URL)) {
+                        e.currentTarget.src = DEFAULT_AVATAR_URL;
+                        return;
+                      }
 
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              </div>
-            )}
-          </div>
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+            </div>
 
-          <div className="form-actions">
-            <button type="submit" className="action-button save-button">
-              Сохранить
-            </button>
-            <button 
-              type="button" 
-              className="action-button cancel-button"
-              onClick={resetForm}
-            >
-              Отмена
-            </button>
-          </div>
-        </form>
-      </div>
+            <div className="form-actions">
+              <button type="submit" className="action-button save-button">
+                Сохранить
+              </button>
+              <button 
+                type="button" 
+                className="action-button cancel-button"
+                onClick={resetForm}
+              >
+                Отмена
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 };
