@@ -115,28 +115,7 @@ const AdminArticles = () => {
   return (
     <div className="admin-articles-page">
       <main className="admin-articles-container">
-        <section className="admin-articles-hero">
-          <article className="admin-articles-hero-copy">
-            <span className="admin-kicker">Редактор DSLK</span>
-            <h1>Статьи в том же визуальном стиле, что и главная</h1>
-            <p>
-              Управляй карточками статей, черновиками и видимостью без таблиц и перегруза.
-              Карточки здесь оформлены так же, как публичные блоки на сайте.
-            </p>
-
-            <div className="admin-articles-hero-actions">
-              <button type="button" className="admin-primary-btn" onClick={() => navigate('/admin/articles/new')}>
-                Новая статья
-              </button>
-              <Link to="/articles" className="admin-secondary-btn">
-                Открыть сайт
-              </Link>
-            </div>
-          </article>
-
-        </section>
-
-        <section className="admin-articles-toolbar">
+<section className="admin-articles-toolbar">
           <div className="admin-search-wrap">
             <input
               type="search"
