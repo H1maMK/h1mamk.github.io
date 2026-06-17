@@ -283,8 +283,7 @@
 .article-sidebar {
   display: grid;
   gap: 18px;
-  position: sticky;
-  top: 140px;
+  position: static;
 }
 
 .article-sidebar-card {
