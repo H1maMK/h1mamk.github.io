@@ -198,14 +198,10 @@ const AdminArticles = () => {
                   </Link>
 
                   <div className="admin-article-body">
-                    <div className="admin-article-meta">
-                      <span>{meta.dateLabel || 'Без даты'}</span>
-                      <span className={`admin-toggle-status ${article.isPublished ? 'published' : 'draft'}`}>
-                        {article.isPublished ? 'Опубликована' : 'Черновик'}
-                      </span>
-                    </div>
-
-                    <h2 className="admin-article-title">
+                     <div className="admin-article-meta">
+                       <span>{meta.dateLabel || 'Без даты'}</span>
+                     </div>
+<h2 className="admin-article-title">
                       <Link to={`/articles/${article._id}`}>{article.title}</Link>
                     </h2>
 

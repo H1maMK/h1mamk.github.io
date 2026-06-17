@@ -209,7 +209,7 @@ const getArticles = async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNum)
-        .select('title content imageUrl publishedAt presentation createdAt updatedAt mysqlId')
+        .select('title content imageUrl publishedAt presentation createdAt updatedAt mysqlId isPublished')
         .lean(),
       Article.countDocuments(filter),
     ])
