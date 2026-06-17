@@ -26,8 +26,9 @@ const SPECIFICATION_TEMPLATES = {
       'Размеры': ['Компактный', 'Средний', 'Крупный'],
       'Вес': ['До 200 г', '200-400 г', '400-700 г', 'Более 700 г']
     },
-    '- Plug-and-play': {
-      '*Примечание': ['Не требует драйверов', 'Требуется ПО производителя', 'Совместим с OBS / Discord / Teams']
+    'Дополнительно': {
+      'Plug-and-play': ['Есть', 'Нет'],
+      'Примечание': ['Не требует драйверов', 'Требуется ПО производителя', 'Совместим с OBS / Discord / Teams']
     }
   },
   'наушник': {
@@ -42,12 +43,14 @@ const SPECIFICATION_TEMPLATES = {
       'Импеданс': ['16 Ом', '32 Ом', '64 Ом', '80 Ом'],
       'Чувствительность': ['90 дБ', '96 дБ', '100 дБ', '105 дБ', '110 дБ']
     },
-    '- Инструмент для настройки Blue VO!CE': {
-      '- Поддержка DTS Headphone': ['Нет', 'DTS Headphone:X', 'DTS Headphone:X 2.0']
+    'Звук и функции': {
+      'Инструмент для настройки Blue VO!CE': ['Есть', 'Нет'],
+      'Поддержка DTS Headphone': ['Нет', 'DTS Headphone:X', 'DTS Headphone:X 2.0']
     },
-    '- Совместимость с ПК/PS4/PS5/Xbox (USB)': {
-      '- Ресурс драйверов': ['Не указан', 'До 10000 часов', 'До 20000 часов', 'До 50000 часов'],
-      '*Примечание': ['Plug-and-play', 'Требуется ПО производителя', 'Совместимость зависит от подключения']
+    'Совместимость': {
+      'Совместимость с ПК/PS4/PS5/Xbox (USB)': ['Да', 'Нет', 'Частично'],
+      'Ресурс драйверов': ['Не указан', 'До 10000 часов', 'До 20000 часов', 'До 50000 часов'],
+      'Примечание': ['Plug-and-play', 'Требуется ПО производителя', 'Совместимость зависит от подключения']
     }
   },
   'мыш': {
@@ -128,6 +131,60 @@ const SPECIFICATION_TEMPLATES = {
       '**Совместимость**': ['Windows', 'macOS', 'Linux', 'Windows / macOS / Linux', 'Игровые консоли']
     }
   }
+};
+
+const normalizeSpecificationsForTemplate = (specifications = {}, template = {}) => {
+  const normalized = { ...specifications };
+
+  const moveField = (fromSection, fromField, toSection, toField, fallbackValue = '') => {
+    const section = normalized[fromSection];
+    if (!section || typeof section !== 'object' || !(fromField in section)) {
+      return;
+    }
+
+    const rawValue = section[fromField];
+    const nextValue = typeof rawValue === 'string' && rawValue.trim() ? rawValue.trim() : fallbackValue;
+
+    normalized[toSection] = { ...(normalized[toSection] || {}) };
+    if (!normalized[toSection][toField]) {
+      normalized[toSection][toField] = nextValue;
+    }
+
+    delete normalized[fromSection][fromField];
+    if (Object.keys(normalized[fromSection]).length === 0) {
+      delete normalized[fromSection];
+    }
+  };
+
+  moveField('- Инструмент для настройки Blue VO!CE', '- Поддержка DTS Headphone', 'Звук и функции', 'Поддержка DTS Headphone');
+  moveField('- Совместимость с ПК/PS4/PS5/Xbox (USB)', '- Ресурс драйверов', 'Совместимость', 'Ресурс драйверов');
+  moveField('- Совместимость с ПК/PS4/PS5/Xbox (USB)', '*Примечание', 'Совместимость', 'Примечание');
+  moveField('- Plug-and-play', '*Примечание', 'Дополнительно', 'Примечание');
+
+  const templateSections = Object.keys(template);
+
+  if (templateSections.includes('Звук и функции')) {
+    normalized['Звук и функции'] = { ...(normalized['Звук и функции'] || {}) };
+    if (!normalized['Звук и функции']['Инструмент для настройки Blue VO!CE']) {
+      normalized['Звук и функции']['Инструмент для настройки Blue VO!CE'] = 'Нет';
+    }
+  }
+
+  if (templateSections.includes('Совместимость')) {
+    normalized['Совместимость'] = { ...(normalized['Совместимость'] || {}) };
+    if (!normalized['Совместимость']['Совместимость с ПК/PS4/PS5/Xbox (USB)']) {
+      normalized['Совместимость']['Совместимость с ПК/PS4/PS5/Xbox (USB)'] = 'Да';
+    }
+  }
+
+  if (templateSections.includes('Дополнительно')) {
+    normalized['Дополнительно'] = { ...(normalized['Дополнительно'] || {}) };
+    if (!normalized['Дополнительно']['Plug-and-play']) {
+      normalized['Дополнительно']['Plug-and-play'] = 'Есть';
+    }
+  }
+
+  return normalized;
 };
 
 const ProductEditor = () => {
@@ -212,6 +269,8 @@ const ProductEditor = () => {
           ? product.category
           : categories.find(cat => cat._id === productCategoryId);
 
+        const resolvedTemplate = getTemplateForCategory(productCategoryId);
+
         setFormData({
           name: product.name || '',
           price: product.price?.toString() || '',
@@ -219,7 +278,7 @@ const ProductEditor = () => {
           deviceType: productCategory?.deviceType || productCategory?.device_type || '',
           category: productCategoryId,
           description: product.description || '',
-          specifications: product.specifications || {},
+          specifications: normalizeSpecificationsForTemplate(product.specifications || {}, resolvedTemplate),
           isWeeklySpecial: product.isWeeklySpecial || false,
           images: [null, null, null]
         });
@@ -433,7 +492,7 @@ const ProductEditor = () => {
   };
 
   const buildSpecsFromTemplate = (template, currentSpecs = {}) => {
-    const nextSpecs = { ...currentSpecs };
+    const nextSpecs = normalizeSpecificationsForTemplate(currentSpecs, template);
 
     Object.entries(template).forEach(([sectionName, fields]) => {
       nextSpecs[sectionName] = { ...(nextSpecs[sectionName] || {}) };
