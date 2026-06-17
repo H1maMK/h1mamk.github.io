@@ -120,7 +120,6 @@ const ArticlePage = () => {
   }
 
   const imageUrl = getArticleImageUrl(article)
-  const hasRenderableHtmlContent = typeof article.content === 'string' && /<[^>]+>/.test(article.content)
 
   return (
     <div className="page-wrapper article-page">
@@ -177,25 +176,18 @@ const ArticlePage = () => {
 
               <div className="article-body">
                 <h2 className="article-section-title">Материал статьи</h2>
-                {hasRenderableHtmlContent ? (
-                  <div
-                    className="article-content-html"
-                    dangerouslySetInnerHTML={{ __html: article.content }}
-                  />
-                ) : (
-                  <div className="article-section-stack">
-                    {articleMeta.sections.map((section) => (
-                      <section key={section.title} className="article-text-block">
-                        <h3>{section.title}</h3>
-                        <ul>
-                          {section.points.map((point) => (
-                            <li key={point}>{point}</li>
-                          ))}
-                        </ul>
-                      </section>
-                    ))}
-                  </div>
-                )}
+                <div className="article-section-stack">
+                  {articleMeta.sections.map((section) => (
+                    <section key={section.title} className="article-text-block">
+                      <h3>{section.title}</h3>
+                      <ul>
+                        {section.points.map((point) => (
+                          <li key={point}>{point}</li>
+                        ))}
+                      </ul>
+                    </section>
+                  ))}
+                </div>
               </div>
             </article>
 
