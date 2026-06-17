@@ -91,8 +91,11 @@ const login = async (req, res) => {
     }
 
 
-    user.updatedAt = new Date();
-    await user.save();
+    await User.updateOne(
+      { _id: user._id },
+      { $set: { updatedAt: new Date() } },
+      { runValidators: false }
+    );
 
 
     const token = generateToken(user._id);
