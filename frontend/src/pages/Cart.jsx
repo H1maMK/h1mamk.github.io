@@ -95,22 +95,6 @@ const getAstrakhanAddressError = (address) => {
   return '';
 };
 
-const formatCardNumber = (value) => value
-  .replace(/\D/g, '')
-  .slice(0, 16)
-  .replace(/(\d{4})(?=\d)/g, '$1 ')
-  .trim();
-
-const formatCardExpiry = (value) => {
-  const digits = value.replace(/\D/g, '').slice(0, 4);
-
-  if (digits.length <= 2) {
-    return digits;
-  }
-
-  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-};
-
 const Cart = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -118,11 +102,7 @@ const Cart = () => {
   const [orderForm, setOrderForm] = useState({
     address: DELIVERY_ADDRESS_TEMPLATE,
     payment: 'card',
-    delivery: 'courier',
-    cardHolder: '',
-    cardNumber: '',
-    cardExpiry: '',
-    cardCvv: ''
+    delivery: 'courier'
   });
   const [invalidItems, setInvalidItems] = useState([]);
   const [isValidating, setIsValidating] = useState(false);
@@ -291,16 +271,12 @@ const Cart = () => {
       console.log('Ответ сервера:', data);
 
       if (data.success) {
-        toast.success('Ваш заказ успешно оформлен!');
+        toast.success('Оплата прошла успешно, заказ оформлен');
         clearCart();
         setOrderForm({
           address: DELIVERY_ADDRESS_TEMPLATE,
           payment: 'card',
-          delivery: 'courier',
-          cardHolder: '',
-          cardNumber: '',
-          cardExpiry: '',
-          cardCvv: ''
+          delivery: 'courier'
         });
       } else {
 
@@ -340,32 +316,10 @@ const Cart = () => {
 
   const currentAddressError = getAstrakhanAddressError(orderForm.address);
   const addressSuggestions = getAddressSuggestions(orderForm.address);
-  const previewCardNumber = orderForm.cardNumber || '0000 0000 0000 0000';
-  const previewCardHolder = orderForm.cardHolder || 'CARD HOLDER';
-  const previewCardExpiry = orderForm.cardExpiry || 'MM/YY';
 
   const handleAddressSuggestionSelect = (suggestion) => {
     setOrderForm(prev => ({ ...prev, address: `${suggestion}, д. ` }));
     setShowAddressSuggestions(false);
-  };
-
-  const handleCardFieldChange = (field, value) => {
-    if (field === 'cardNumber') {
-      setOrderForm(prev => ({ ...prev, cardNumber: formatCardNumber(value) }));
-      return;
-    }
-
-    if (field === 'cardExpiry') {
-      setOrderForm(prev => ({ ...prev, cardExpiry: formatCardExpiry(value) }));
-      return;
-    }
-
-    if (field === 'cardCvv') {
-      setOrderForm(prev => ({ ...prev, cardCvv: value.replace(/\D/g, '').slice(0, 3) }));
-      return;
-    }
-
-    setOrderForm(prev => ({ ...prev, [field]: value.toUpperCase().slice(0, 26) }));
   };
 
   return (
@@ -532,63 +486,6 @@ const Cart = () => {
                   <option value="courier">Курьером (+500₽)</option>
                 </select>
               </div>
-              {orderForm.payment === 'card' && (
-                <div className="payment-card-block">
-                  <div className="payment-card-preview" aria-label="Карта для оплаты">
-                    <div className="payment-card-preview-top">
-                      <div className="payment-card-chip"></div>
-                      <div className="payment-card-brand">DSLK PAY</div>
-                    </div>
-                    <div className="payment-card-number">{previewCardNumber}</div>
-                    <div className="payment-card-preview-bottom">
-                      <div>
-                        <span>Card Holder</span>
-                        <strong>{previewCardHolder}</strong>
-                      </div>
-                      <div>
-                        <span>Expires</span>
-                        <strong>{previewCardExpiry}</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="payment-card-fields">
-                    <input
-                      type="text"
-                      placeholder="Имя на карте"
-                      className="payment-card-input"
-                      value={orderForm.cardHolder}
-                      onChange={(e) => handleCardFieldChange('cardHolder', e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      placeholder="0000 0000 0000 0000"
-                      className="payment-card-input"
-                      inputMode="numeric"
-                      value={orderForm.cardNumber}
-                      onChange={(e) => handleCardFieldChange('cardNumber', e.target.value)}
-                    />
-                    <div className="payment-card-grid">
-                      <input
-                        type="text"
-                        placeholder="MM/YY"
-                        className="payment-card-input"
-                        inputMode="numeric"
-                        value={orderForm.cardExpiry}
-                        onChange={(e) => handleCardFieldChange('cardExpiry', e.target.value)}
-                      />
-                      <input
-                        type="text"
-                        placeholder="CVV"
-                        className="payment-card-input"
-                        inputMode="numeric"
-                        value={orderForm.cardCvv}
-                        onChange={(e) => handleCardFieldChange('cardCvv', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="delivery-address">
