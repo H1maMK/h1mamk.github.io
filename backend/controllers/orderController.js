@@ -119,6 +119,10 @@ const createOrder = async (req, res) => {
             throw new Error(`PRODUCT_INACTIVE:${product.name}`);
           }
 
+          if (Number(product.stock) < 1) {
+            throw new Error(`OUT_OF_STOCK:${product.name}`);
+          }
+
 
           const stockUpdate = await Product.updateOne(
             {
@@ -194,6 +198,14 @@ const createOrder = async (req, res) => {
         return validationError(res, [{
           field: 'items',
           message: `Product ${productName} is unavailable`
+        }]);
+      }
+
+      if (transactionError.message.startsWith('OUT_OF_STOCK:')) {
+        const productName = transactionError.message.replace('OUT_OF_STOCK:', '');
+        return validationError(res, [{
+          field: 'items',
+          message: `Product ${productName} is out of stock`
         }]);
       }
 

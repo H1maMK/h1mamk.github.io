@@ -34,14 +34,15 @@ const Home = () => {
         const allProducts = Array.isArray(productsData.data)
           ? productsData.data
           : productsData.data.products || []
-        const weeklyOnly = allProducts.filter((product) => product.isWeeklySpecial === true)
+        const availableProducts = allProducts.filter((product) => Number(product?.stock || 0) > 0)
+        const weeklyOnly = availableProducts.filter((product) => product.isWeeklySpecial === true)
         const lamzuAtlantisProduct = allProducts.find((product) => {
           const productName = product.name || product.product_name || ''
           return /lamzu/i.test(productName) && /atlantis/i.test(productName)
         })
 
         setWeeklyProducts(weeklyOnly.slice(0, 4))
-        setArticleProducts(allProducts.slice(0, 4))
+        setArticleProducts(availableProducts.slice(0, 4))
         setPromoProductId(lamzuAtlantisProduct?._id || lamzuAtlantisProduct?.id || null)
       }
 
