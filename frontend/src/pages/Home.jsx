@@ -90,33 +90,6 @@ const Home = () => {
     },
   ]
 
-  const fallbackProducts = [
-    {
-      _id: '1',
-      name: 'Игровая мышь Logitech G502',
-      price: 4999,
-      images: ['/m90.jpg'],
-    },
-    {
-      _id: '2',
-      name: 'Клавиатура Corsair K95',
-      price: 12999,
-      images: ['/m91.jpg'],
-    },
-    {
-      _id: '3',
-      name: 'Наушники SteelSeries Arctis 7',
-      price: 8999,
-      images: ['/m92.jpg'],
-    },
-    {
-      _id: '4',
-      name: 'Монитор ASUS ROG Swift',
-      price: 45999,
-      images: ['/m170.jpg'],
-    },
-  ]
-
   const fallbackArticles = [
     {
       _id: '1',
@@ -150,7 +123,7 @@ const Home = () => {
 
   const displayProducts = weeklyProducts
   const displayArticles = articles.length > 0 ? articles : fallbackArticles
-  const displayArticleProducts = articleProducts.length > 0 ? articleProducts : fallbackProducts
+  const displayArticleProducts = articleProducts
 
   const renderHomeProductCard = (product) => {
     const productId = product._id || product.id
@@ -261,9 +234,13 @@ const Home = () => {
         )}
 
         <p className="tovars_nedeli more-products-title">Популярные товары</p>
-        <div className="product-grid articles-products-grid">
-          {displayArticleProducts.slice(0, 4).map(renderHomeProductCard)}
-        </div>
+        {loading ? (
+          <div className="loading">Загрузка товаров...</div>
+        ) : displayArticleProducts.length > 0 ? (
+          <div className="product-grid articles-products-grid">
+            {displayArticleProducts.slice(0, 4).map(renderHomeProductCard)}
+          </div>
+        ) : null}
       </main>
     </div>
   )
