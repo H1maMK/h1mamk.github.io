@@ -134,20 +134,6 @@ const AdminArticles = () => {
             </div>
           </article>
 
-          <aside className="admin-articles-stats-panel">
-            <div className="admin-stat-card">
-              <span className="admin-stat-label">Всего</span>
-              <span className="admin-stat-value">{stats.total}</span>
-            </div>
-            <div className="admin-stat-card">
-              <span className="admin-stat-label">Опубликовано</span>
-              <span className="admin-stat-value">{stats.published}</span>
-            </div>
-            <div className="admin-stat-card">
-              <span className="admin-stat-label">Черновики</span>
-              <span className="admin-stat-value">{stats.drafts}</span>
-            </div>
-          </aside>
         </section>
 
         <section className="admin-articles-toolbar">
