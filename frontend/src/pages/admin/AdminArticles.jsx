@@ -44,35 +44,6 @@ const AdminArticles = () => {
     }
   }
 
-  const handleDelete = async (articleId) => {
-    if (!window.confirm('Вы уверены, что хотите удалить эту статью?')) {
-      return
-    }
-
-    try {
-      setSavingId(articleId)
-      const response = await fetch(buildApiUrl(`${API_ENDPOINTS.ADMIN_ARTICLES}/${articleId}`), {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
-
-      const data = await response.json().catch(() => null)
-
-      if (!response.ok || !data?.success) {
-        throw new Error(data?.error?.message || data?.message || 'Ошибка при удалении статьи')
-      }
-
-      setArticles((current) => current.filter((article) => article._id !== articleId))
-    } catch (deleteError) {
-      console.error('Error deleting article:', deleteError)
-      alert(deleteError.message || 'Ошибка при удалении статьи')
-    } finally {
-      setSavingId('')
-    }
-  }
-
   const handleToggleVisibility = async (article) => {
     const actionText = article.isPublished ? 'скрыть' : 'показать'
 
@@ -254,14 +225,6 @@ const AdminArticles = () => {
                         disabled={isSaving}
                       >
                         {article.isPublished ? 'Скрыть' : 'Показать'}
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-action-btn delete"
-                        onClick={() => handleDelete(article._id)}
-                        disabled={isSaving}
-                      >
-                        Удалить
                       </button>
                     </div>
                   </div>

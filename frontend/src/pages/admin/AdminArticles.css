@@ -327,12 +327,6 @@
   color: #fff;
 }
 
-.admin-action-btn.delete {
-  background: rgba(231, 76, 60, 0.14);
-  border-color: rgba(231, 76, 60, 0.25);
-  color: #ffb6ad;
-}
-
 .admin-articles-empty {
   padding: 44px 24px;
   text-align: center;
