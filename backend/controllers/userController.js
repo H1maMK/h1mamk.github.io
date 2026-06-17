@@ -276,31 +276,41 @@ const addToFavorites = async (req, res) => {
     const { productId } = req.params;
 
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select('_id favorites');
     if (!user) {
       return notFound(res, 'User not found');
     }
 
 
     const Product = require('../models/Product');
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId).select('_id');
     if (!product) {
       return notFound(res, 'Product not found');
     }
 
 
-    if (user.favorites.includes(productId)) {
+    const alreadyInFavorites = user.favorites.some((favoriteId) => String(favoriteId) === String(productId));
+    if (alreadyInFavorites) {
       return error(res, 'Product already in favorites', 409);
     }
 
 
-    user.favorites.push(productId);
-    user.updated_at = new Date();
-    await user.save();
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $addToSet: { favorites: productId },
+        $set: { updatedAt: new Date() }
+      },
+      {
+        new: true,
+        runValidators: false,
+        select: '_id favorites'
+      }
+    );
 
-    return success(res, { 
+    return success(res, {
       productId,
-      favoritesCount: user.favorites.length
+      favoritesCount: updatedUser?.favorites?.length || 0
     }, 'Product added to favorites');
 
   } catch (err) {
@@ -316,25 +326,34 @@ const removeFromFavorites = async (req, res) => {
     const { productId } = req.params;
 
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select('_id favorites');
     if (!user) {
       return notFound(res, 'User not found');
     }
 
 
-    const favoriteIndex = user.favorites.indexOf(productId);
-    if (favoriteIndex === -1) {
+    const isInFavorites = user.favorites.some((favoriteId) => String(favoriteId) === String(productId));
+    if (!isInFavorites) {
       return error(res, 'Product not in favorites', 404);
     }
 
 
-    user.favorites.splice(favoriteIndex, 1);
-    user.updated_at = new Date();
-    await user.save();
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $pull: { favorites: productId },
+        $set: { updatedAt: new Date() }
+      },
+      {
+        new: true,
+        runValidators: false,
+        select: '_id favorites'
+      }
+    );
 
-    return success(res, { 
+    return success(res, {
       productId,
-      favoritesCount: user.favorites.length
+      favoritesCount: updatedUser?.favorites?.length || 0
     }, 'Product removed from favorites');
 
   } catch (err) {
