@@ -652,17 +652,17 @@ const Catalog = () => {
                 const cartQuantity = getCartQuantity(product._id);
 
                 return (
-                  <div key={product._id} className="product-card" data-price={product.price}>
-                    <div className="product-image-container">
-                      <Link to={`/product/${product._id}`} className="product-image-link">
+                  <div key={product._id} className="catalog-product-card" data-price={product.price}>
+                    <div className="catalog-product-image-container">
+                      <Link to={`/product/${product._id}`} className="catalog-product-image-link">
                         <img src={imageUrl} alt={product.name} />
                       </Link>
                     </div>
-                    <div className="product-info-container">
+                    <div className="catalog-product-info-container">
                       <h3>
                         <Link to={`/product/${product._id}`}>{product.name}</Link>
                       </h3>
-                      <div className="product-details">
+                      <div className="catalog-product-details">
                         <div className="product-category-tag">{categoryName}</div>
                       </div>
                       <RatingStars rating={rating} reviewCount={reviewCount} className="product-card-rating" />
@@ -670,11 +670,11 @@ const Catalog = () => {
                         {isInStock ? `На складе: ${stockCount} шт.` : 'Нет в наличии'}
                       </div>
                     </div>
-                    <div className="product-purchase-container">
-                      <div className="price-container">
-                        <div className="price-main">{displayPrice} ₽</div>
+                    <div className="catalog-product-purchase-container">
+                      <div className="catalog-price-container">
+                        <div className="catalog-price-main">{displayPrice} ₽</div>
                       </div>
-                      <div className="product-actions">
+                      <div className="catalog-product-actions">
                         {(!user || user.role !== 'admin') && (
                           <>
                             {cartQuantity > 0 ? (
