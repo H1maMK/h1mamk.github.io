@@ -310,7 +310,7 @@ const Register = () => {
                 onChange={handleChange}
               />
               <label htmlFor="agreeToDataProcessing">
-                Согласен на <Link to="/privacy" state={{ from: '/register' }}>обработку персональных данных</Link>
+                Согласен на <Link to="/personal-data" state={{ from: '/register' }}>обработку персональных данных</Link>
               </label>
             </div>
 

@@ -29,6 +29,7 @@ import Policy from './pages/Policy'
 import Vacancies from './pages/Vacancies'
 import Support from './pages/Support'
 import Privacy from './pages/Privacy'
+import PersonalData from './pages/PersonalData'
 import AdminPanel from './pages/admin/AdminPanel'
 
 
@@ -190,6 +191,7 @@ function AppLayout() {
         <Route path="/vacancies" element={<Vacancies />} />
         <Route path="/support" element={<Support />} />
         <Route path="/privacy" element={<Privacy />} />
+        <Route path="/personal-data" element={<PersonalData />} />
         <Route path="/admin/*" element={<AdminPanel />} />
       </Routes>
       {!isAdminPage && <Footer />}
