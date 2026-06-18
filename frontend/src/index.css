@@ -300,13 +300,19 @@ html {
   border-color: rgba(255, 230, 187, 0.25);
 }
 
-.button img {
+.button img,
+.button .header-icon-svg {
   width: 30px;
   height: 30px;
+  display: block;
 }
 
 .cart-button-header {
   position: relative;
+}
+
+.header-cart-icon {
+  color: #fff;
 }
 
 .cart-badge {
@@ -1110,7 +1116,8 @@ main {
     gap: 10px;
   }
 
-  .button img {
+  .button img,
+  .button .header-icon-svg {
     width: 32px;
     height: 32px;
   }
@@ -1915,7 +1922,8 @@ main {
     gap: 10px;
   }
 
-  .button img {
+  .button img,
+  .button .header-icon-svg {
     width: 32px;
     height: 32px;
   }
