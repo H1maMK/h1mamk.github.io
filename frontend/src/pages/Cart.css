@@ -3,6 +3,7 @@
   width: 100%;
   margin: 0 auto;
   padding: 140px 40px 250px;
+  box-sizing: border-box;
 }
 
 .korzina-text {
@@ -288,10 +289,10 @@
 
 @media (max-width: 900px) {
   .cart-page-main-wrapper {
-    width: calc(100% - 56px);
+    width: 100%;
     max-width: none;
     margin: 0 auto;
-    padding: 132px 0 220px;
+    padding: 132px 28px 220px;
   }
 
   .basket-container {
@@ -407,8 +408,8 @@
 
 @media (max-width: 640px) {
   .cart-page-main-wrapper {
-    width: calc(100% - 40px);
-    padding: 128px 0 200px;
+    width: 100%;
+    padding: 128px 20px 200px;
   }
 
   .basket-container {
@@ -491,8 +492,8 @@
 
 @media (max-width: 420px) {
   .cart-page-main-wrapper {
-    width: calc(100% - 24px);
-    padding: 124px 0 180px;
+    width: 100%;
+    padding: 124px 12px 180px;
   }
 
   .cart-items-column,
