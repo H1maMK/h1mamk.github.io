@@ -272,11 +272,16 @@
   }
 
   .basket-container {
+    display: flex;
     flex-direction: column;
   }
-  
+
+  .cart-items-column {
+    order: 1;
+  }
+
   .cart-sidebar-column {
-    order: -1;
+    order: 0;
     position: static;
     width: 100%;
     gap: 20px;
@@ -287,11 +292,11 @@
   }
 
   .payment-options {
-    order: 1;
+    order: 2;
   }
 
   .delivery-address {
-    order: 2;
+    order: 3;
     margin-top: 4px;
   }
 }
