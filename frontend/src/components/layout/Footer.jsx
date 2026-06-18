@@ -7,7 +7,10 @@ const Footer = () => {
       <footer className="footer">
         <div className="footer-container">
           <div className="footer-column">
+            <p><strong>Контакты</strong></p>
             <p>support@dslk.ru</p>
+            <p>г. Астрахань</p>
+            <p>ул. Максима Горькова, д. 8</p>
           </div>
 
           <div className="footer-column">
