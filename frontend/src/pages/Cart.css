@@ -1,8 +1,8 @@
 .cart-page-main-wrapper {
-  max-width: 100%;
   width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 140px 40px 250px;
+  padding: 140px 24px 250px;
   box-sizing: border-box;
 }
 
@@ -289,10 +289,9 @@
 
 @media (max-width: 900px) {
   .cart-page-main-wrapper {
-    width: 100%;
-    max-width: none;
+    max-width: 100%;
     margin: 0 auto;
-    padding: 132px 28px 220px;
+    padding: 132px 20px 220px;
   }
 
   .basket-container {
@@ -408,8 +407,8 @@
 
 @media (max-width: 640px) {
   .cart-page-main-wrapper {
-    width: 100%;
-    padding: 128px 20px 200px;
+    max-width: 100%;
+    padding: 128px 14px 200px;
   }
 
   .basket-container {
@@ -492,8 +491,8 @@
 
 @media (max-width: 420px) {
   .cart-page-main-wrapper {
-    width: 100%;
-    padding: 124px 12px 180px;
+    max-width: 100%;
+    padding: 124px 10px 180px;
   }
 
   .cart-items-column,
