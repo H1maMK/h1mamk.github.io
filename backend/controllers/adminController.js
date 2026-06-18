@@ -6,6 +6,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const { fileToDataUrl, isDataImageUrl } = require('../utils/imageData');
 const { MAX_IMAGE_FILE_SIZE } = require('../middleware/upload');
+const { saveUploadedImageFile } = require('../utils/uploadStorage');
 const PROTECTED_ADMIN_EMAIL = 'mr.maxim.8806@mail.ru';
 
 const resolveLocalUploadFilePath = (storedPath = '') => {
@@ -243,12 +244,12 @@ const createProduct = async (req, res) => {
     // Process uploaded images
     const images = [];
     if (req.files) {
-      ['image1', 'image2', 'image3'].forEach(fieldName => {
+      for (const fieldName of ['image1', 'image2', 'image3']) {
         if (req.files[fieldName] && req.files[fieldName][0]) {
           const file = req.files[fieldName][0];
-          images.push(resolveStoredImagePath(file, 'products'));
+          images.push(await saveUploadedImageFile(file, 'products'));
         }
-      });
+      }
     }
 
     // Parse specifications if provided
@@ -370,16 +371,16 @@ const updateProduct = async (req, res) => {
     const uploadedImagePaths = [];
     const newImages = [...existingProduct.images];
     if (req.files) {
-      ['image1', 'image2', 'image3'].forEach((fieldName, index) => {
+      for (const [index, fieldName] of ['image1', 'image2', 'image3'].entries()) {
         if (req.files[fieldName] && req.files[fieldName][0]) {
           const file = req.files[fieldName][0];
-          const uploadedImagePath = resolveStoredImagePath(file, 'products');
+          const uploadedImagePath = await saveUploadedImageFile(file, 'products');
           
           // Add new image
           newImages[index] = uploadedImagePath;
           uploadedImagePaths.push(uploadedImagePath);
         }
-      });
+      }
     }
 
     // Parse specifications if provided

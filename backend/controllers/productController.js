@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const { success, error, notFound, validationError } = require('../utils/response');
+const { persistDataImageUrl } = require('../utils/uploadStorage');
 
 const isDataImageUrl = (value = '') => typeof value === 'string' && value.startsWith('data:image/');
 
@@ -20,9 +21,24 @@ const normalizeProductImageForResponse = (image, req) => {
   return `${baseImageUrl}${image.startsWith('/') ? image : `/${image}`}`;
 };
 
-const withProcessedProductImages = (product, req) => {
-  const processedImages = Array.isArray(product.images) && product.images.length > 0
-    ? product.images.map((img) => normalizeProductImageForResponse(img, req)).filter(Boolean)
+const withProcessedProductImages = async (product, req) => {
+  const originalImages = Array.isArray(product.images) ? product.images : [];
+  const storedImages = originalImages.length > 0
+    ? await Promise.all(originalImages.map((img) => persistDataImageUrl(img, 'products')))
+    : [];
+
+  if (
+    product?._id &&
+    storedImages.length > 0 &&
+    storedImages.some((image, index) => image !== originalImages[index])
+  ) {
+    Product.updateOne({ _id: product._id }, { $set: { images: storedImages } }).catch((migrationError) => {
+      console.error('Product image migration error:', migrationError);
+    });
+  }
+
+  const processedImages = storedImages.length > 0
+    ? storedImages.map((img) => normalizeProductImageForResponse(img, req)).filter(Boolean)
     : [`${req.protocol}://${req.get('host')}/uploads/default-product.png`];
 
   return {
@@ -163,7 +179,7 @@ const getProducts = async (req, res) => {
     }
 
 
-    const processedProducts = products.map(product => withProcessedProductImages(product, req));
+    const processedProducts = await Promise.all(products.map((product) => withProcessedProductImages(product, req)));
     const responseProducts = isCompactResponse
       ? processedProducts.map(({ specifications, description, ...product }) => ({
           ...product,
@@ -241,7 +257,7 @@ const getProduct = async (req, res) => {
     }
 
     // Обрабатываем изображения
-    const processedProduct = withProcessedProductImages(product, req);
+    const processedProduct = await withProcessedProductImages(product, req);
 
     // Увеличиваем счетчик просмотров (если поле существует)
     await Product.findByIdAndUpdate(id, { $inc: { view_count: 1 } });
@@ -336,7 +352,7 @@ const getProductsByCategory = async (req, res) => {
       hasPrev: pageNum > 1
     };
 
-    const processedProducts = products.map((product) => withProcessedProductImages(product, req));
+    const processedProducts = await Promise.all(products.map((product) => withProcessedProductImages(product, req)));
 
     return res.status(200).json({
       success: true,
@@ -572,7 +588,7 @@ const getPopularProducts = async (req, res) => {
       });
     }
 
-    const processedProducts = products.map((product) => withProcessedProductImages(product, req));
+    const processedProducts = await Promise.all(products.map((product) => withProcessedProductImages(product, req)));
 
     return success(res, { products: processedProducts }, 'Popular products retrieved successfully');
 
@@ -605,7 +621,7 @@ const getNewProducts = async (req, res) => {
       });
     }
 
-    const processedProducts = products.map((product) => withProcessedProductImages(product, req));
+    const processedProducts = await Promise.all(products.map((product) => withProcessedProductImages(product, req)));
 
     return success(res, { products: processedProducts }, 'New products retrieved successfully');
 
