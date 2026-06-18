@@ -138,7 +138,7 @@ const Cart = () => {
   if (authLoading) {
     return (
       <div className="page-wrapper">
-        <div className="main-wrapper" style={{ paddingTop: '140px', textAlign: 'center' }}>
+        <div className="main-wrapper cart-page-main-wrapper" style={{ paddingTop: '140px', textAlign: 'center' }}>
           <h1 className="korzina-text">Корзина</h1>
           <p style={{ color: '#888', fontSize: '1.2rem', marginTop: '40px' }}>Загрузка...</p>
         </div>
@@ -155,7 +155,7 @@ const Cart = () => {
   if (user.role === 'admin') {
     return (
       <div className="page-wrapper">
-        <div className="main-wrapper" style={{ paddingTop: '140px' }}>
+        <div className="main-wrapper cart-page-main-wrapper" style={{ paddingTop: '140px' }}>
           <h1 className="korzina-text">Корзина</h1>
           <div className="basket-container">
             <div className="cart-items-column">
@@ -324,7 +324,7 @@ const Cart = () => {
 
   return (
     <div className="page-wrapper">
-      <div className="main-wrapper" style={{ paddingTop: '140px' }}>
+      <div className="main-wrapper cart-page-main-wrapper" style={{ paddingTop: '140px' }}>
         <h1 className="korzina-text">Корзина</h1>
 
         <div className="basket-container">
