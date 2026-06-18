@@ -865,8 +865,22 @@
   .cart-quantity-control button,
   .cart-quantity-control span {
     min-height: 36px;
-    min-width: 32px;
+    min-width: 28px;
     font-size: 0.95rem;
+  }
+
+  .cart-quantity-control {
+    gap: 0;
+  }
+
+  .cart-quantity-control span {
+    padding: 0 2px;
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+
+  .cart-quantity-control button {
+    font-size: 1.05rem;
   }
 
   .product-list-grid .product-card-rating {
