@@ -54,9 +54,8 @@ const About = () => {
 
               <div className="contact-info">
                 <h3>Контакты</h3>
-                <div className="contact-item">📧 Email: info@dslk.ru</div>
-                <div className="contact-item">📞 Телефон: 8 (800) 123-45-67</div>
-                <div className="contact-item">📍 Адрес: г. Москва, ул. Примерная, д. 1</div>
+                <div className="contact-item">📧 Email: support@dslk.ru</div>
+                <div className="contact-item">📍 Адрес: г. Астрахань, ул. Максима Горькова, д. 8</div>
               </div>
             </div>
           </div>
