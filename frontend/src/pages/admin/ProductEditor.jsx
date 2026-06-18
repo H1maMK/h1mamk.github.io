@@ -634,6 +634,31 @@ const ProductEditor = () => {
     setExistingImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const moveImage = (fromIndex, toIndex) => {
+    if (toIndex < 0 || toIndex > 2 || fromIndex === toIndex) {
+      return;
+    }
+
+    setFormData(prev => {
+      const nextImages = [...prev.images];
+      const temp = nextImages[fromIndex];
+      nextImages[fromIndex] = nextImages[toIndex];
+      nextImages[toIndex] = temp;
+      return { ...prev, images: nextImages };
+    });
+
+    setExistingImages(prev => {
+      const nextExistingImages = [...prev];
+      while (nextExistingImages.length < 3) {
+        nextExistingImages.push(null);
+      }
+      const temp = nextExistingImages[fromIndex];
+      nextExistingImages[fromIndex] = nextExistingImages[toIndex];
+      nextExistingImages[toIndex] = temp;
+      return nextExistingImages.filter((image) => image !== null);
+    });
+  };
+
   const getSelectedImageCount = () => {
     return [0, 1, 2].filter((index) => Boolean(formData.images[index] || existingImages[index])).length;
   };
@@ -980,6 +1005,27 @@ const ProductEditor = () => {
                         <label htmlFor={inputId} className="image-replace-btn">
                           Заменить
                         </label>
+
+                        <div className="image-order-controls">
+                          <button
+                            type="button"
+                            className="image-order-btn"
+                            onClick={() => moveImage(index, index - 1)}
+                            disabled={index === 0}
+                            aria-label="Переместить изображение влево"
+                          >
+                            ←
+                          </button>
+                          <button
+                            type="button"
+                            className="image-order-btn"
+                            onClick={() => moveImage(index, index + 1)}
+                            disabled={index === 2}
+                            aria-label="Переместить изображение вправо"
+                          >
+                            →
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <label htmlFor={inputId} className="image-upload-placeholder">
