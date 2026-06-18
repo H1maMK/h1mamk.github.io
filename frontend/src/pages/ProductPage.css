@@ -1,6 +1,6 @@
 
 
-.main-wrapper {
+.product-page-main-wrapper {
   max-width: 1200px;
   margin: 140px auto 0 auto;
   width: 100%;
@@ -436,7 +436,7 @@
 
 
 @media (max-width: 900px) {
-  .main-wrapper {
+  .product-page-main-wrapper {
     margin: 120px auto 0 auto;
     padding: 18px 24px 32px;
   }
@@ -521,7 +521,7 @@
 }
 
 @media (max-width: 480px) {
-  .main-wrapper {
+  .product-page-main-wrapper {
     padding: 16px 20px 24px;
   }
 
@@ -569,7 +569,7 @@
 }
 
 @media (max-width: 380px) {
-  .main-wrapper {
+  .product-page-main-wrapper {
     padding: 14px 18px 22px;
   }
 

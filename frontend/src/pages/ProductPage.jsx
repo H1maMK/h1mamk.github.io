@@ -344,7 +344,7 @@ const ProductPage = () => {
     return (
       <div className="page-wrapper">
         <main>
-          <div className="main-wrapper">
+          <div className="product-page-main-wrapper">
             <div className="product-container">
               <div style={{ width: '100%', textAlign: 'center', padding: '50px' }}>
                 <h1>Произошла ошибка</h1>
@@ -370,7 +370,7 @@ const ProductPage = () => {
   return (
     <div className="page-wrapper">
       <main>
-        <div className="main-wrapper">
+        <div className="product-page-main-wrapper">
           <div className="product-container">
             <div className="product-gallery">
               <div className="main-product-image-container">
