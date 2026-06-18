@@ -371,7 +371,7 @@ const Cart = () => {
             </div>
           )}
 
-          <div className="cart-items-column">
+          <div className={`cart-items-column ${items.length === 0 ? 'empty-state' : ''}`}>
             {items.length > 0 ? (
               <ul className="cart-list">
                 {items.map((item) => {
