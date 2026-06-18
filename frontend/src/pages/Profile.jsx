@@ -127,7 +127,7 @@ const Profile = () => {
       const notices = [];
 
 
-      if (formData.username !== user.username || formData.email !== user.email) {
+      if (formData.username !== user.username) {
         const profileResponse = await fetch('/api/users/profile', {
           method: 'PUT',
           headers: {
@@ -135,8 +135,7 @@ const Profile = () => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            username: formData.username,
-            email: formData.email
+            username: formData.username
           })
         });
 
@@ -271,10 +270,13 @@ const Profile = () => {
                     type="email"
                     id="email"
                     name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
+                    value={user.email || ''}
+                    disabled
+                    readOnly
+                    className="readonly-input"
+                    title="Email нельзя изменить"
                   />
+                  <small className="immutable-field-hint">Email привязан к аккаунту и не может быть изменён.</small>
                 </div>
 
               <div className="form-group">

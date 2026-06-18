@@ -55,14 +55,7 @@ const updateProfile = async (req, res) => {
 
 
     if (email && email !== user.email) {
-      const existingUserByEmail = await User.findOne({ 
-        email, 
-        _id: { $ne: userId } 
-      });
-      
-      if (existingUserByEmail) {
-        return error(res, 'Email already taken by another user', 409);
-      }
+      return error(res, 'Email cannot be changed', 400);
     }
 
 
@@ -79,7 +72,6 @@ const updateProfile = async (req, res) => {
 
 
     if (username) user.username = username;
-    if (email) user.email = email;
     if (yearBirth !== undefined) user.profile.yearBirth = yearBirth;
     if (gender !== undefined) user.profile.gender = gender;
     

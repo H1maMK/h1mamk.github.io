@@ -183,6 +183,20 @@
   padding: 8px;
 }
 
+.profile-card input.readonly-input,
+.profile-card input:disabled {
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.immutable-field-hint {
+  color: rgba(255, 230, 187, 0.7);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
 .profile-card .form-actions {
   display: flex;
   justify-content: flex-end;
