@@ -8,7 +8,7 @@ import RatingStars from './RatingStars';
 
 const ProductCard = ({ product, variant = 'default' }) => {
   const { user } = useAuth();
-  const { addToCart } = useCart();
+  const { items, addToCart } = useCart();
   const { toggleFavorite, isFavorite, adminFavoritesMessage } = useFavorites();
 
   const handleToggleFavorite = (e) => {
@@ -30,6 +30,7 @@ const ProductCard = ({ product, variant = 'default' }) => {
   const rating = product.averageRating ?? product.avgRating ?? product.rating ?? 0;
   const reviewCount = product.reviewCount ?? product.totalReviews ?? product.reviewsCount ?? 0;
   const isInStock = (product.stock || 0) > 0;
+  const isInCart = Boolean(user && product?._id && items?.some((item) => (item.id || item._id) === product._id));
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -79,17 +80,13 @@ const ProductCard = ({ product, variant = 'default' }) => {
           <div className="price">{productPrice} ₽</div>
           <div className="home-card-actions">
             <button
-              className="home-cart-btn"
+              className={`home-cart-btn ${isInCart ? 'active' : ''}`}
               onClick={handleAddToCart}
               disabled={!isInStock}
-              aria-label="Добавить в корзину"
-              title={isInStock ? 'Добавить в корзину' : 'Нет в наличии'}
+              aria-label={isInCart ? 'Товар уже в корзине' : 'Добавить в корзину'}
+              title={isInStock ? (isInCart ? 'Товар уже в корзине' : 'Добавить в корзину') : 'Нет в наличии'}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-              </svg>
+              <span className="home-cart-btn__icon" aria-hidden="true"></span>
             </button>
             <button
               className={`favorite-btn ${isInFavorites ? 'active' : ''}`}
@@ -147,6 +144,15 @@ const ProductCard = ({ product, variant = 'default' }) => {
       <div className="product-purchase-container">
         <div className="price-row">
           <div className="price-compact">{productPrice} ₽</div>
+          <button
+            className={`cart-icon-button ${isInCart ? 'active' : ''}`}
+            onClick={handleAddToCart}
+            disabled={!isInStock}
+            aria-label={isInCart ? 'Товар уже в корзине' : 'Добавить в корзину'}
+            title={isInStock ? (isInCart ? 'Товар уже в корзине' : 'Добавить в корзину') : 'Нет в наличии'}
+          >
+            <span className="cart-icon-button__icon" aria-hidden="true"></span>
+          </button>
           <button 
             className={`favorite-button ${isInFavorites ? 'active' : ''}`}
             onClick={handleToggleFavorite}
