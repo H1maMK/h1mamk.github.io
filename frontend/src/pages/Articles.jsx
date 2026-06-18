@@ -141,14 +141,6 @@ const Articles = () => {
 
             <aside className="articles-sidebar">
               <div className="articles-sidebar-card">
-                <h2>Что внутри раздела</h2>
-                <p>
-                  Здесь собраны 4 статьи про самые популярные игровые устройства:
-                  мыши и клавиатуры. Каждая статья оформлена как отдельный мини-гайд.
-                </p>
-              </div>
-
-              <div className="articles-sidebar-card">
                 <h3>Как пользоваться</h3>
                 <ol>
                   <li>Открывай статью по картинке или заголовку.</li>
