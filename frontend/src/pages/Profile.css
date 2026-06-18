@@ -5,7 +5,7 @@
   justify-content: center;
   align-items: flex-start;
   min-height: calc(100vh - 120px);
-  padding: 20px 20px 40px 20px;
+  padding: 0 20px 40px 20px;
   background: transparent;
 }
 
@@ -252,7 +252,7 @@
 
 @media (max-width: 768px) {
   .profile-container {
-    padding: 120px 15px 20px 15px;
+    padding: 96px 15px 20px 15px;
   }
 
   .profile-card {
@@ -293,7 +293,7 @@
 
 @media (max-width: 480px) {
   .profile-container {
-    padding: 100px 10px 15px 10px;
+    padding: 84px 10px 15px 10px;
   }
 
   .profile-header {
