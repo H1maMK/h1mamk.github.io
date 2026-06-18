@@ -21,7 +21,7 @@ const Home = () => {
   const loadData = async () => {
     try {
       const [productsResponse, articlesResponse] = await Promise.all([
-        fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}?limit=50`)),
+        fetch(buildApiUrl(`${API_ENDPOINTS.PRODUCTS}?limit=50&compact=1`)),
         fetch(buildApiUrl(`${API_ENDPOINTS.ARTICLES}?limit=20`)),
       ])
 

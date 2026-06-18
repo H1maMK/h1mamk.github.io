@@ -65,7 +65,8 @@ const getProducts = async (req, res) => {
       search,
       sortBy = 'createdAt',
       sortOrder = 'desc',
-      availability = 'all'
+      availability = 'all',
+      compact = '0'
     } = req.query;
 
 
@@ -151,6 +152,8 @@ const getProducts = async (req, res) => {
       Product.countDocuments(filter).maxTimeMS(2000)
     ]);
 
+    const isCompactResponse = compact === '1' || compact === 'true';
+
 
     if (req.user) {
       const userFavorites = req.user.favorites || [];
@@ -161,6 +164,12 @@ const getProducts = async (req, res) => {
 
 
     const processedProducts = products.map(product => withProcessedProductImages(product, req));
+    const responseProducts = isCompactResponse
+      ? processedProducts.map(({ specifications, description, ...product }) => ({
+          ...product,
+          description: typeof description === 'string' ? description.slice(0, 220) : description
+        }))
+      : processedProducts;
 
     const pagination = {
       page: pageNum,
@@ -174,7 +183,7 @@ const getProducts = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'Products retrieved successfully',
-      data: processedProducts,
+      data: responseProducts,
       pagination,
       filters: {
         category,
@@ -183,7 +192,8 @@ const getProducts = async (req, res) => {
         search,
         availability,
         sortBy: sortField,
-        sortOrder
+        sortOrder,
+        compact: isCompactResponse
       },
       timestamp: new Date().toISOString()
     });
