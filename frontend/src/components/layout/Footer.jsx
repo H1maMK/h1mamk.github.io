@@ -7,8 +7,6 @@ const Footer = () => {
       <footer className="footer">
         <div className="footer-container">
           <div className="footer-column">
-            <p>+79964715211</p>
-            <p>Бесплатно по России</p>
             <p>support@dslk.ru</p>
           </div>
 

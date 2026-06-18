@@ -22,8 +22,6 @@ const Support = () => {
               <div className="contact-info">
                 <h3>Контакты поддержки</h3>
                 <div className="contact-item">📧 Email: support@dslk.ru</div>
-                <div className="contact-item">📞 Телефон: 8 (800) 123-45-68</div>
-                <div className="contact-item">💬 Telegram: @dslk_support</div>
               </div>
 
               <div className="info-section">
@@ -59,8 +57,7 @@ const Support = () => {
                 <h2>Время ответа</h2>
                 <ul>
                   <li>Email — в течение 24 часов</li>
-                  <li>Телефон — мгновенно в рабочее время</li>
-                  <li>Telegram — в течение 1 часа</li>
+                  <li>Email — ответим в рабочее время</li>
                 </ul>
               </div>
             </div>
