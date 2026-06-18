@@ -866,6 +866,7 @@
     min-width: 44px;
     width: 44px;
     min-height: 44px;
+    justify-self: center;
   }
 
   .cart-quantity-control button,
