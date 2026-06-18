@@ -138,7 +138,7 @@ const Cart = () => {
   if (authLoading) {
     return (
       <div className="page-wrapper">
-        <div className="main-wrapper cart-page-main-wrapper" style={{ paddingTop: '140px', textAlign: 'center' }}>
+        <div className="cart-page-main-wrapper" style={{ paddingTop: '140px', textAlign: 'center' }}>
           <h1 className="korzina-text">Корзина</h1>
           <p style={{ color: '#888', fontSize: '1.2rem', marginTop: '40px' }}>Загрузка...</p>
         </div>
@@ -155,8 +155,8 @@ const Cart = () => {
   if (user.role === 'admin') {
     return (
       <div className="page-wrapper">
-        <div className="main-wrapper cart-page-main-wrapper" style={{ paddingTop: '140px' }}>
-          <h1 className="korzina-text">Корзина</h1>
+        <div className="cart-page-main-wrapper" style={{ paddingTop: '140px' }}>
+<h1 className="korzina-text">Корзина</h1>
           <div className="basket-container">
             <div className="cart-items-column">
               <p className="empty-cart-message">Администратор не может пользоваться корзиной. Здесь пусто.</p>
@@ -324,8 +324,8 @@ const Cart = () => {
 
   return (
     <div className="page-wrapper">
-      <div className="main-wrapper cart-page-main-wrapper" style={{ paddingTop: '140px' }}>
-        <h1 className="korzina-text">Корзина</h1>
+        <div className="cart-page-main-wrapper" style={{ paddingTop: '140px' }}>
+<h1 className="korzina-text">Корзина</h1>
 
         <div className="basket-container">
           {invalidItems.length > 0 && (
