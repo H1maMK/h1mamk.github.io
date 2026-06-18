@@ -288,7 +288,7 @@
 
 @media (max-width: 900px) {
   .main-wrapper {
-    padding: 132px 18px 220px;
+    padding: 132px 24px 220px;
   }
 
   .basket-container {
@@ -340,7 +340,7 @@
     align-items: start;
     column-gap: 16px;
     row-gap: 12px;
-    padding: 18px;
+    padding: 18px 20px;
     border-radius: 16px;
   }
 
@@ -404,7 +404,7 @@
 
 @media (max-width: 640px) {
   .main-wrapper {
-    padding: 128px 14px 200px;
+    padding: 128px 20px 200px;
   }
 
   .basket-container {
@@ -427,7 +427,7 @@
     grid-template-columns: minmax(0, 1fr) 24px;
     column-gap: 12px;
     row-gap: 12px;
-    padding: 16px;
+    padding: 16px 18px;
   }
 
   .cart-item-link {
@@ -489,7 +489,7 @@
 
 @media (max-width: 420px) {
   .main-wrapper {
-    padding: 124px 12px 180px;
+    padding: 124px 16px 180px;
   }
 
   .cart-items-column,
@@ -504,7 +504,7 @@
   }
 
   .cart-item {
-    padding: 14px;
+    padding: 14px 20px;
   }
 
   .cart-item-link {
