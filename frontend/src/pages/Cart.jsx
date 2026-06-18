@@ -340,7 +340,7 @@ const Cart = () => {
               alignItems: 'center'
             }}>
               <div>
-                <strong>⚠️ Внимание!</strong> В корзине есть товары, которые больше не доступны ({invalidItems.length} шт.)
+                <strong>Внимание!</strong> В корзине есть товары, которые больше не доступны ({invalidItems.length} шт.)
               </div>
               <button
                 onClick={handleRemoveInvalidItems}
@@ -355,19 +355,6 @@ const Cart = () => {
               >
                 Удалить недоступные
               </button>
-            </div>
-          )}
-
-          {isValidating && (
-            <div style={{
-              background: '#ffa500',
-              color: 'white',
-              padding: '10px',
-              borderRadius: '8px',
-              marginBottom: '15px',
-              textAlign: 'center'
-            }}>
-              🔄 Проверяем доступность товаров...
             </div>
           )}
 
@@ -457,7 +444,7 @@ const Cart = () => {
                 {invalidItems.length > 0 
                   ? 'Удалите недоступные товары' 
                   : isValidating 
-                    ? 'Проверяем товары...'
+                    ? 'Подождите...'
                     : 'Оформить заказ'
                 }
               </button>
