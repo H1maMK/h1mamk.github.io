@@ -634,6 +634,10 @@ const ProductEditor = () => {
     setExistingImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const getSelectedImageCount = () => {
+    return [0, 1, 2].filter((index) => Boolean(formData.images[index] || existingImages[index])).length;
+  };
+
   const handleSave = async () => {
     if (!formData.name.trim()) {
       toast.error('Введите название товара');
@@ -651,8 +655,21 @@ const ProductEditor = () => {
       toast.error('Выберите категорию');
       return;
     }
-    if (!existingImages.some(Boolean) && !formData.images.some(Boolean)) {
-      toast.error('Загрузите изображения товара');
+
+    const normalizedDescription = formData.description.trim().replace(/\s+/g, ' ');
+    if (!normalizedDescription) {
+      toast.error('Описание товара обязательно для заполнения');
+      return;
+    }
+
+    if (normalizedDescription.length < 20) {
+      toast.error('Описание товара должно быть не короче 20 символов');
+      return;
+    }
+
+    const selectedImageCount = getSelectedImageCount();
+    if (selectedImageCount !== 3) {
+      toast.error('Нужно загрузить ровно 3 изображения товара');
       return;
     }
 
@@ -669,7 +686,7 @@ const ProductEditor = () => {
       formDataToSend.append('price', formData.price);
       formDataToSend.append('stock', formData.stock || '0');
       formDataToSend.append('category', formData.category);
-      formDataToSend.append('description', formData.description);
+      formDataToSend.append('description', normalizedDescription);
       formDataToSend.append('specifications', JSON.stringify(formData.specifications));
       formDataToSend.append('isWeeklySpecial', formData.isWeeklySpecial);
 
@@ -916,6 +933,9 @@ const ProductEditor = () => {
           {/* Изображения */}
           <div className="editor-section">
             <h2 className="editor-section-title">Изображения</h2>
+            <p style={{ marginBottom: '14px', color: 'rgba(255, 255, 255, 0.72)' }}>
+              Нужно загрузить ровно 3 изображения. Сейчас выбрано: {getSelectedImageCount()}/3
+            </p>
             <div className="images-grid">
               {[0, 1, 2].map((index) => {
                 const preview = getImagePreview(index);
