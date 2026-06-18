@@ -2,7 +2,7 @@
   max-width: 100%;
   width: 100%;
   margin: 0 auto;
-  padding: 140px 40px 100px;
+  padding: 140px 40px 250px;
 }
 
 .korzina-text {
@@ -288,7 +288,7 @@
 
 @media (max-width: 900px) {
   .main-wrapper {
-    padding: 132px 18px 112px;
+    padding: 132px 18px 220px;
   }
 
   .basket-container {
@@ -403,7 +403,7 @@
 
 @media (max-width: 640px) {
   .main-wrapper {
-    padding: 128px 14px 104px;
+    padding: 128px 14px 200px;
   }
 
   .basket-container {
@@ -484,7 +484,7 @@
 
 @media (max-width: 420px) {
   .main-wrapper {
-    padding: 124px 12px 96px;
+    padding: 124px 12px 180px;
   }
 
   .cart-items-column,
