@@ -299,7 +299,7 @@
 
   .cart-items-column {
     order: 1;
-    padding: 18px;
+    padding: 18px 22px;
     border-radius: 18px;
     margin-bottom: 30px;
   }
@@ -415,7 +415,7 @@
   .order-summary,
   .payment-options,
   .delivery-address {
-    padding: 16px;
+    padding: 16px 20px;
     border-radius: 16px;
   }
 
@@ -496,7 +496,7 @@
   .order-summary,
   .payment-options,
   .delivery-address {
-    padding: 14px;
+    padding: 14px 18px;
   }
 
   .cart-items-column {
