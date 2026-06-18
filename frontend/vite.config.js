@@ -22,6 +22,21 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        entryFileNames: 'assets/index.js',
+        chunkFileNames: 'assets/[name].js',
+        assetFileNames: (assetInfo) => {
+          const assetName = assetInfo?.name || ''
+
+          if (assetName.endsWith('.css')) {
+            return 'assets/index.css'
+          }
+
+          return 'assets/[name][extname]'
+        },
+      },
+    },
   },
   resolve: {
     alias: {
