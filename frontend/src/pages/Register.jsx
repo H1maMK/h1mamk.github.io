@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
+const REGISTER_DRAFT_STORAGE_KEY = 'register-form-draft';
+
 
 const translateError = (message) => {
   const translations = {
@@ -62,13 +64,25 @@ const translateError = (message) => {
 };
 
 const Register = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    agreeToPrivacy: false,
-    agreeToDataProcessing: false
+  const [formData, setFormData] = useState(() => {
+    try {
+      const savedDraft = sessionStorage.getItem(REGISTER_DRAFT_STORAGE_KEY);
+
+      if (savedDraft) {
+        return JSON.parse(savedDraft);
+      }
+    } catch (error) {
+      console.error('Failed to restore register draft:', error);
+    }
+
+    return {
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      agreeToPrivacy: false,
+      agreeToDataProcessing: false
+    };
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -78,10 +92,18 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
+    const nextFormData = {
       ...formData,
       [name]: type === 'checkbox' ? checked : value
-    });
+    };
+
+    setFormData(nextFormData);
+
+    try {
+      sessionStorage.setItem(REGISTER_DRAFT_STORAGE_KEY, JSON.stringify(nextFormData));
+    } catch (error) {
+      console.error('Failed to save register draft:', error);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -158,6 +180,7 @@ const Register = () => {
         email: formData.email.trim(),
         password: formData.password
       });
+      sessionStorage.removeItem(REGISTER_DRAFT_STORAGE_KEY);
       navigate('/');
     } catch (err) {
       console.error('Registration error:', err);
@@ -274,7 +297,7 @@ const Register = () => {
                 onChange={handleChange}
               />
               <label htmlFor="agreeToPrivacy">
-                Принимаю <Link to="/privacy" target="_blank" rel="noopener noreferrer">политику конфиденциальности</Link>
+                Принимаю <Link to="/privacy" state={{ from: '/register' }}>политику конфиденциальности</Link>
               </label>
             </div>
 
@@ -287,7 +310,7 @@ const Register = () => {
                 onChange={handleChange}
               />
               <label htmlFor="agreeToDataProcessing">
-                Согласен на <Link to="/privacy" target="_blank" rel="noopener noreferrer">обработку персональных данных</Link>
+                Согласен на <Link to="/privacy" state={{ from: '/register' }}>обработку персональных данных</Link>
               </label>
             </div>
 

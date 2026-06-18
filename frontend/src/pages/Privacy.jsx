@@ -1,12 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './InfoPage.css';
 
 const Privacy = () => {
+  const location = useLocation();
+  const backTarget = location.state?.from || '/';
+
   return (
     <div className="page-wrapper">
       <main>
         <div className="info-container">
-          <Link to="/" className="back-link">← Вернуться на главную</Link>
+          <Link to={backTarget} className="back-link">← Вернуться назад</Link>
           
           <div className="info-content">
             <h1 className="info-title">Персональные данные</h1>
