@@ -677,15 +677,34 @@ const Catalog = () => {
                       <div className="catalog-product-actions">
                         {(!user || user.role !== 'admin') && (
                           <>
-                            <button
-                              className={`cart-icon-button ${cartQuantity > 0 ? 'active' : ''}`}
-                              onClick={() => handleAddToCart(product)}
-                              disabled={!isInStock}
-                              aria-label={cartQuantity > 0 ? 'Товар уже в корзине' : 'Добавить в корзину'}
-                              title={isInStock ? (cartQuantity > 0 ? 'Товар уже в корзине' : 'Добавить в корзину') : 'Нет в наличии'}
-                            >
-                              <span className="cart-icon-button__icon" aria-hidden="true"></span>
-                            </button>
+                            {cartQuantity > 0 ? (
+                              <div className="cart-quantity-control" aria-label="Количество товара в корзине">
+                                <button
+                                  type="button"
+                                  onClick={() => handleCartQuantityChange(product, cartQuantity - 1)}
+                                  aria-label="Уменьшить количество"
+                                >
+                                  −
+                                </button>
+                                <span>{cartQuantity}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCartQuantityChange(product, cartQuantity + 1)}
+                                  disabled={cartQuantity >= stockCount}
+                                  aria-label="Увеличить количество"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                className="cart-button"
+                                onClick={() => handleAddToCart(product)}
+                                disabled={!isInStock}
+                              >
+                                {isInStock ? 'В корзину' : 'Нет в наличии'}
+                              </button>
+                            )}
                             <button
                               className={`favorite-button ${isFavorite(product._id) ? 'active' : ''}`}
                               onClick={() => toggleFavorite(product._id)}

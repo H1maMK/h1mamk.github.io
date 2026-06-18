@@ -376,55 +376,7 @@
   gap: 8px;
 }
 
-.cart-icon-button,
-.favorite-button {
-  width: 40px;
-  min-width: 40px;
-  height: 40px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.cart-icon-button {
-  background: linear-gradient(45deg, #6b7280, #4b5563);
-  border: 1px solid rgba(107, 114, 128, 0.6);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
-}
-
-.cart-icon-button:hover:not(:disabled) {
-  background: linear-gradient(45deg, #4b5563, #374151);
-  border-color: #6b7280;
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);
-  transform: translateY(-2px);
-}
-
-.cart-icon-button.active {
-  background: linear-gradient(45deg, #FFE6BB, #FFD488);
-  border-color: rgba(255, 230, 187, 0.7);
-  color: #222;
-  box-shadow: 0 4px 12px rgba(255, 230, 187, 0.35);
-}
-
-.cart-icon-button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.cart-icon-button__icon,
-.home-cart-btn__icon {
-  width: 20px;
-  height: 20px;
-  background-color: currentColor;
-  -webkit-mask: url('/header/Basket_white.svg') center / contain no-repeat;
-  mask: url('/header/Basket_white.svg') center / contain no-repeat;
-}
-
 .cart-button,
-.cart-icon-button,
 .favorite-button {
   background: linear-gradient(45deg, #6b7280, #4b5563);
   color: #fff;
@@ -487,7 +439,6 @@
 }
 
 .cart-button:hover,
-.cart-icon-button:hover,
 .favorite-button:hover {
   background: linear-gradient(45deg, #4b5563, #374151);
   transform: translateY(-2px);
@@ -500,6 +451,7 @@
 }
 
 .favorite-button {
+  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -792,9 +744,8 @@
   .catalog-product-actions {
     width: 100%;
     display: grid;
-    grid-template-columns: 44px 44px;
+    grid-template-columns: minmax(0, 1fr) 44px;
     gap: 8px;
-    justify-content: end;
     align-items: stretch;
   }
 
@@ -904,7 +855,12 @@
     font-size: 1em;
   }
 
-  .cart-icon-button,
+  .cart-button {
+    padding: 8px 10px;
+    font-size: 0.76rem;
+    min-height: 36px;
+  }
+
   .favorite-button {
     padding: 0;
     min-width: 44px;
