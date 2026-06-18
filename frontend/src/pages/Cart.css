@@ -288,7 +288,10 @@
 
 @media (max-width: 900px) {
   .cart-page-main-wrapper {
-    padding: 132px 24px 220px;
+    width: calc(100% - 56px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 132px 0 220px;
   }
 
   .basket-container {
@@ -404,7 +407,8 @@
 
 @media (max-width: 640px) {
   .cart-page-main-wrapper {
-    padding: 128px 20px 200px;
+    width: calc(100% - 40px);
+    padding: 128px 0 200px;
   }
 
   .basket-container {
@@ -487,7 +491,8 @@
 
 @media (max-width: 420px) {
   .cart-page-main-wrapper {
-    padding: 124px 16px 180px;
+    width: calc(100% - 24px);
+    padding: 124px 0 180px;
   }
 
   .cart-items-column,
