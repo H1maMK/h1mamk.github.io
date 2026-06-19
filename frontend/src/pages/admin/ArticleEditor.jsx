@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { buildAssetUrl } from '../../config/api'
 import { buildArticleEditorContent, getArticlePresentation } from '../../utils/articlePresentation'
+import { resizeImageFile } from '../../utils/imageCompression'
 import api from '../../services/api'
 import './ArticleEditor.css'
 
@@ -393,30 +394,46 @@ const ArticleEditor = () => {
   }
 
   const handleCoverChange = (event) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+    const applyCoverFile = async () => {
+      const file = event.target.files?.[0]
+      if (!file) return
 
-    if (!isAllowedImageFile(file)) {
-      toast.error('Можно загрузить только изображение: JPG, PNG или WEBP')
+      if (!isAllowedImageFile(file)) {
+        toast.error('Можно загрузить только изображение: JPG, PNG или WEBP')
+        event.target.value = ''
+        return
+      }
+
+      if (file.size > MAX_IMAGE_FILE_SIZE) {
+        toast.error('Размер изображения не должен превышать 10 МБ')
+        event.target.value = ''
+        return
+      }
+
+      const optimizedFile = await resizeImageFile(file, {
+        maxWidth: 1400,
+        maxHeight: 900,
+        maxFileSizeBytes: 900 * 1024,
+        outputType: 'image/jpeg',
+        initialQuality: 0.86,
+      })
+
+      setCoverImage(optimizedFile)
+      setCoverRemoved(false)
+      setExistingCoverUrl('')
+
+      const reader = new FileReader()
+      reader.onload = (loadEvent) => {
+        setCoverPreview(loadEvent.target?.result || '')
+      }
+      reader.readAsDataURL(optimizedFile)
+    }
+
+    applyCoverFile().catch((error) => {
+      console.error('Error optimizing article cover:', error)
+      toast.error('Не удалось обработать изображение')
       event.target.value = ''
-      return
-    }
-
-    if (file.size > MAX_IMAGE_FILE_SIZE) {
-      toast.error('Размер изображения не должен превышать 10 МБ')
-      event.target.value = ''
-      return
-    }
-
-    setCoverImage(file)
-    setCoverRemoved(false)
-    setExistingCoverUrl('')
-
-    const reader = new FileReader()
-    reader.onload = (loadEvent) => {
-      setCoverPreview(loadEvent.target?.result || '')
-    }
-    reader.readAsDataURL(file)
+    })
   }
 
   const openCoverPicker = () => {

@@ -2,11 +2,25 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary-v2');
 
 
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME || '';
+const apiKey = process.env.CLOUDINARY_API_KEY || '';
+const apiSecret = process.env.CLOUDINARY_API_SECRET || '';
+
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'demo',
-  api_key: process.env.CLOUDINARY_API_KEY || 'demo',
-  api_secret: process.env.CLOUDINARY_API_SECRET || 'demo'
+  cloud_name: cloudName || 'demo',
+  api_key: apiKey || 'demo',
+  api_secret: apiSecret || 'demo'
 });
+
+const isCloudinaryConfigured = () =>
+  Boolean(
+    cloudName &&
+    apiKey &&
+    apiSecret &&
+    cloudName !== 'demo' &&
+    apiKey !== 'demo' &&
+    apiSecret !== 'demo'
+  );
 
 
 const productStorage = new CloudinaryStorage({
@@ -62,6 +76,7 @@ const avatarStorage = new CloudinaryStorage({
 
 module.exports = {
   cloudinary,
+  isCloudinaryConfigured,
   productStorage,
   articleStorage,
   categoryStorage,

@@ -1,7 +1,8 @@
 const User = require('../models/User');
 const { hashPassword, comparePassword } = require('../utils/password');
 const { success, error, validationError, unauthorized, notFound } = require('../utils/response');
-const { fileToDataUrl, isDataImageUrl } = require('../utils/imageData');
+const { saveUploadedImageFile } = require('../utils/uploadStorage');
+const { isDataImageUrl } = require('../utils/imageData');
 const { MAX_IMAGE_FILE_SIZE } = require('../middleware/upload');
 
 const normalizeProductImageForResponse = (image, req) => {
@@ -130,7 +131,7 @@ const uploadAvatar = async (req, res) => {
     if (!user) {
       return notFound(res, 'User not found');
     }
-    const avatarUrl = fileToDataUrl(req.file);
+    const avatarUrl = await saveUploadedImageFile(req.file, 'avatars');
     if (!user.profile) {
       user.profile = {};
     }

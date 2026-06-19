@@ -67,7 +67,13 @@ const uploadCategory = multer({
   fileFilter: categoryImageFileFilter
 });
 
+const { isCloudinaryConfigured } = require('../config/cloudinary');
+
 const ensurePersistentUploadStorage = (req, res, next) => {
+  if (process.env.NODE_ENV === 'production' && !isCloudinaryConfigured()) {
+    console.warn('Cloudinary is not configured — images will be stored in MongoDB as data URLs');
+  }
+
   next();
 };
 

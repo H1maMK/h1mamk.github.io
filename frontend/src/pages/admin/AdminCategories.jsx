@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { buildApiUrl, buildAssetUrl } from '../../config/api';
+import { resizeImageFile } from '../../utils/imageCompression';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
 const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
@@ -62,7 +63,27 @@ const AdminCategories = () => {
         e.target.value = '';
         return;
       }
-      setFormData(prev => ({ ...prev, image: files[0] }));
+
+      if (!file) {
+        setFormData(prev => ({ ...prev, image: null }));
+        return;
+      }
+
+      resizeImageFile(file, {
+        maxWidth: 900,
+        maxHeight: 900,
+        maxFileSizeBytes: 700 * 1024,
+        outputType: file.type === 'image/svg+xml' ? 'image/png' : 'image/jpeg',
+        initialQuality: 0.84,
+      })
+        .then((optimizedFile) => {
+          setFormData(prev => ({ ...prev, image: optimizedFile }));
+        })
+        .catch((error) => {
+          console.error('Category image optimization error:', error);
+          toast.error('Не удалось обработать изображение');
+          e.target.value = '';
+        });
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }

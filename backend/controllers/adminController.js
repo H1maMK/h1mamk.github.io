@@ -4,7 +4,7 @@ const Category = require('../models/Category');
 const User = require('../models/User');
 const fs = require('fs').promises;
 const path = require('path');
-const { fileToDataUrl, isDataImageUrl } = require('../utils/imageData');
+const { isDataImageUrl } = require('../utils/imageData');
 const { MAX_IMAGE_FILE_SIZE } = require('../middleware/upload');
 const { saveUploadedImageFile } = require('../utils/uploadStorage');
 const PROTECTED_ADMIN_EMAIL = 'mr.maxim.8806@mail.ru';
@@ -34,12 +34,12 @@ const deleteUploadedFiles = async () => {};
 
 const isWeeklySpecialRequested = (value) => value === 'true' || value === true;
 
-const resolveStoredImagePath = (file) => {
+const resolveStoredImagePath = async (file, folderName = 'categories') => {
   if (!file) {
     return '';
   }
 
-  return fileToDataUrl(file);
+  return saveUploadedImageFile(file, folderName);
 };
 
 const normalizeProductImagePath = (image) => {
@@ -572,7 +572,7 @@ const createCategory = async (req, res) => {
     }
 
     // Process uploaded image
-    const imageUrl = req.file ? resolveStoredImagePath(req.file, 'categories') : '';
+    const imageUrl = req.file ? await resolveStoredImagePath(req.file, 'categories') : '';
 
     // Create new category
     const category = new Category({
@@ -645,7 +645,7 @@ const updateCategory = async (req, res) => {
     // Process uploaded image
     let imageUrl = existingCategory.image;
     if (req.file) {
-      imageUrl = resolveStoredImagePath(req.file, 'categories');
+      imageUrl = await resolveStoredImagePath(req.file, 'categories');
     }
 
     // Update category
@@ -853,7 +853,7 @@ const updateUserAvatar = async (req, res) => {
     }
 
     // Update avatar path
-    const avatarUrl = resolveStoredImagePath(req.file, 'avatars');
+    const avatarUrl = await resolveStoredImagePath(req.file, 'avatars');
     if (!user.profile) {
       user.profile = {};
     }

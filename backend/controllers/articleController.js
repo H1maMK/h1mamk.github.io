@@ -2,8 +2,9 @@ const Article = require('../models/Article')
 const { success, error, notFound, validationError } = require('../utils/response')
 const fs = require('fs')
 const path = require('path')
-const { fileToDataUrl, isDataImageUrl } = require('../utils/imageData')
+const { isDataImageUrl } = require('../utils/imageData')
 const { MAX_IMAGE_FILE_SIZE } = require('../middleware/upload')
+const { saveUploadedImageFile } = require('../utils/uploadStorage')
 
 const parseJsonValue = (value) => {
   if (value === undefined || value === null || value === '') {
@@ -144,8 +145,7 @@ const normalizeArticleImageUrl = (imageUrl = '') => {
     return imageUrl
   }
 
-  const localImagePath = resolveLocalArticleFilePath(imageUrl)
-  return localImagePath && fs.existsSync(localImagePath) ? imageUrl : ''
+  return imageUrl
 }
 
 const normalizeArticleEntity = (article) => {
@@ -157,7 +157,7 @@ const normalizeArticleEntity = (article) => {
   }
 }
 
-const buildArticleData = (req) => {
+const buildArticleData = async (req) => {
   const { title, content, isPublished, removeImage } = req.body
   const articleData = {
     title: `${title || ''}`.trim(),
@@ -172,7 +172,7 @@ const buildArticleData = (req) => {
   }
 
   if (req.file) {
-    articleData.imageUrl = fileToDataUrl(req.file)
+    articleData.imageUrl = await saveUploadedImageFile(req.file, 'articles')
   } else if (parseBooleanValue(removeImage, false)) {
     articleData.imageUrl = ''
   }
@@ -348,7 +348,7 @@ const createArticle = async (req, res) => {
     }
 
     if (req.file) {
-      articleData.imageUrl = fileToDataUrl(req.file)
+      articleData.imageUrl = await saveUploadedImageFile(req.file, 'articles')
     }
 
     const article = new Article(articleData)
@@ -414,7 +414,7 @@ const updateArticle = async (req, res) => {
     }
 
     if (req.file) {
-      article.imageUrl = fileToDataUrl(req.file)
+      article.imageUrl = await saveUploadedImageFile(req.file, 'articles')
     } else if (shouldRemoveImage) {
       article.imageUrl = ''
     }
@@ -448,7 +448,7 @@ const deleteArticle = async (req, res) => {
       return notFound(res, 'Article not found')
     }
 
-    if (article.imageUrl && !/^https?:\/\//i.test(article.imageUrl)) {
+    if (article.imageUrl && !/^https?:\/\//i.test(article.imageUrl) && !isDataImageUrl(article.imageUrl)) {
       const imagePath = resolveLocalArticleFilePath(article.imageUrl)
       await removeFileIfExists(imagePath)
     }
